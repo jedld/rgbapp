@@ -87,7 +87,7 @@ public class MainActivity extends BaseGameActivity {
         fontHashMap.put("multiplier", mFontMultiplier);
 
         matrix = GameMatrix.getInstance(this, mScene, fontHashMap, getVertexBufferObjectManager(), BOARD_WIDTH, BOARD_HEIGHT, offset_x, 10);
-        mScene.registerUpdateHandler(matrix);
+//        mScene.registerUpdateHandler(matrix);
         mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
 
             @Override

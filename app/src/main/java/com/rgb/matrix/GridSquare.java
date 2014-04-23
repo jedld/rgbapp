@@ -23,6 +23,8 @@ public class GridSquare extends Entity {
     private static final int MAX_AGE = 3;
     private static final int CONNECTOR_WIDTH = 8;
     private static final int CONNECTOR_HEIGHT = 8;
+    public static final Color BUSTED_COLOR = new Color(0x61 / 255f, 0x61 / 255f, 0x61 / 255f);
+    public static final Color P_INVALID_TILE_COLOR = new Color(0xef / 255f, 0xf0 / 255f, 0xeb / 255f);
 
     public int getBoardPositionX() {
         return boardPositionX;
@@ -266,7 +268,7 @@ public class GridSquare extends Entity {
                     multiplierBorder.setVisible(true);
                     break;
                 case GameMatrix.BUSTED:
-                    rectangle.setColor(new Color(0x61 / 255f, 0x61 / 255f, 0x61 / 255f));
+                    rectangle.setColor(BUSTED_COLOR);
                     rectangle.setAlpha(0.5f);
                     break;
             }
@@ -324,7 +326,7 @@ public class GridSquare extends Entity {
             if (matrix.isValid(boardPositionX, boardPositionY)) {
                 rectangle.setColor(Color.WHITE);
             } else {
-                rectangle.setColor(new Color(0xef / 255f, 0xf0 / 255f, 0xeb / 255f));
+                rectangle.setColor(P_INVALID_TILE_COLOR);
             }
         }
 

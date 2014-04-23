@@ -271,6 +271,7 @@ public class GameMatrix implements IUpdateHandler {
                     currentTile.setTileType(object.getTileType());
                     currentTile.setAge(object.getAge());
                     currentTile.getBonusSources().clear();
+                    drawWorld();
                 }
 
                 @Override
@@ -332,6 +333,7 @@ public class GameMatrix implements IUpdateHandler {
                                 proxyNextObject.setTileType(square.getTileType());
                                 proxyNextObject.setAge(square.age);
                                 processRGBSequence(square.getBoardPositionX(), square.getBoardPositionY(), proxyNextObject);
+                                break;
                             }
                         }
                     }
@@ -344,6 +346,7 @@ public class GameMatrix implements IUpdateHandler {
         Log.d(TAG, "score = " + score);
         String highScore = StringUtils.leftPad(Integer.toString(getHighScore()), 4, "0");
         scoreTextString = "Score: " + StringUtils.leftPad(Integer.toString(score), 4, "0") + " High: " + highScore;
+        drawWorld();
     }
 
     private void processRGBSequence(int x, int y, NextObject object) {
