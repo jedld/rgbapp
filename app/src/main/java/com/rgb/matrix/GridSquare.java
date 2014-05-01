@@ -1,14 +1,23 @@
 package com.rgb.matrix;
 
+import android.util.Log;
 import android.util.SparseArray;
 
+import com.rgb.matrix.modifiers.HeightModifier;
+
 import org.andengine.entity.Entity;
+import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.ColorModifier;
+import org.andengine.entity.modifier.IEntityModifier;
+import org.andengine.entity.modifier.ScaleAtModifier;
+import org.andengine.entity.modifier.SingleValueChangeEntityModifier;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.text.Text;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.color.Color;
+import org.andengine.util.modifier.IModifier;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,11 +29,16 @@ public class GridSquare extends Entity {
 
     private static final float BAR_WIDTH = 5;
     private static final float BAR_HEIGHT = 12;
-    private static final int MAX_AGE = 3;
-    private static final int CONNECTOR_WIDTH = 8;
+    private static final int MAX_AGE = 4;
+    private static final int CONNECTOR_WIDTH = 16;
     private static final int CONNECTOR_HEIGHT = 8;
-    public static final Color BUSTED_COLOR = new Color(0x61 / 255f, 0x61 / 255f, 0x61 / 255f);
+    public static final Color BUSTED_COLOR = new Color(36 / 255f, 0x36 / 255f, 0x36 / 255f);
     public static final Color P_INVALID_TILE_COLOR = new Color(0xef / 255f, 0xf0 / 255f, 0xeb / 255f);
+    private static final String TAG = GridSquare.class.getName();
+    private static final float INNER_RECT_THICKNESS = 10;
+    private static final Color EMPTY_COLOR = Color.WHITE;
+    private int multiplierColor;
+    private Rectangle innerRectangle;
 
     public int getBoardPositionX() {
         return boardPositionX;
@@ -44,11 +58,17 @@ public class GridSquare extends Entity {
     private Rectangle bottomConnector;
     private Text valueText;
     private Text multiplierText;
-    private int bonus;
+
     private Entity multiplierBorder;
     private Entity gridBorder;
     private Rectangle repeaterRectangle;
     private CharSequence currentPointValue = "";
+
+
+    int tileType;
+    int age;
+    private int bonus;
+
 
     public ArrayList<GridSquare> getBonusSources() {
         return bonusSource;
@@ -75,9 +95,10 @@ public class GridSquare extends Entity {
         return false;
     }
 
-    int tileType;
-    int age;
-    GameMatrix matrix;
+
+
+
+    MainGrid matrix;
     SparseArray<Rectangle> ageRectangles = new SparseArray<Rectangle>(5);
     Rectangle rectangle;
 
@@ -86,11 +107,12 @@ public class GridSquare extends Entity {
             age++;
         } else {
             setTileType(GameMatrix.BUSTED);
+            animateDie();
         }
         currentPointValue = getPointsString();
     }
 
-    public GridSquare(int boardPositionX, int boardPositionY, float offset_x, float offset_y, GameMatrix matrix, HashMap<String, Font> mFont, VertexBufferObjectManager vertexBuffer) {
+    public GridSquare(int boardPositionX, int boardPositionY, float offset_x, float offset_y, MainGrid matrix, HashMap<String, Font> mFont, VertexBufferObjectManager vertexBuffer) {
         super(offset_x, offset_y);
         this.tileType = GameMatrix.EMPTY;
         this.age = 0;
@@ -101,17 +123,17 @@ public class GridSquare extends Entity {
         this.matrix = matrix;
         this.vertexBuffer = vertexBuffer;
         setupEntities();
-        Color colors[] = {new Color(0xe0 / 255f, 0xe0 / 255f, 0xe0 / 255f),
-                new Color(0xa3 / 255f, 0xa3 / 255f, 0xa3 / 255f), new Color(0x70 / 255f, 0x70 / 255f, 0x70 / 255f),
-                new Color(0x8c / 255f, 0x00 / 255f, 0x00 / 255f)};
-
-        for (int i = 0; i < MAX_AGE; i++) {
-            Rectangle rect = new Rectangle(i * 7 + 2, 5, BAR_WIDTH, BAR_HEIGHT, matrix.getVertexBuffer());
-            rect.setColor(colors[i]);
-            rect.setVisible(false);
-            ageRectangles.append(i, rect);
-            rectangle.attachChild(rect);
-        }
+//        Color colors[] = {new Color(0xe0 / 255f, 0xe0 / 255f, 0xe0 / 255f),
+//                new Color(0xa3 / 255f, 0xa3 / 255f, 0xa3 / 255f), new Color(0x70 / 255f, 0x70 / 255f, 0x70 / 255f),
+//                new Color(0x8c / 255f, 0x00 / 255f, 0x00 / 255f)};
+//
+//        for (int i = 0; i < MAX_AGE; i++) {
+//            Rectangle rect = new Rectangle(i * 7 + 2, 5, BAR_WIDTH, BAR_HEIGHT, vertexBuffer);
+//            rect.setColor(colors[i]);
+//            rect.setVisible(false);
+//            ageRectangles.append(i, rect);
+//            rectangle.attachChild(rect);
+//        }
     }
 
     public void setAge(int age) {
@@ -121,18 +143,20 @@ public class GridSquare extends Entity {
 
     public void setupEntities() {
 
-        rectangle = new Rectangle(4, 4, GameMatrix.RECT_SIZE - 8, GameMatrix.RECT_SIZE - 8, vertexBuffer);
+        rectangle = new Rectangle(4, 4, MainGrid.RECT_SIZE - 8, MainGrid.RECT_SIZE - 8, vertexBuffer);
         attachChild(rectangle);
 
-        topConnector = new Rectangle(GameMatrix.RECT_SIZE / 2 - CONNECTOR_WIDTH / 2, -CONNECTOR_HEIGHT / 2, CONNECTOR_WIDTH, CONNECTOR_HEIGHT, vertexBuffer);
-        leftConnector = new Rectangle(-CONNECTOR_HEIGHT / 2, GameMatrix.RECT_SIZE / 2 - CONNECTOR_WIDTH / 2, CONNECTOR_HEIGHT, CONNECTOR_WIDTH, vertexBuffer);
-        rightConnector = new Rectangle(GameMatrix.RECT_SIZE - CONNECTOR_HEIGHT / 2, GameMatrix.RECT_SIZE / 2 - CONNECTOR_WIDTH / 2, CONNECTOR_HEIGHT, CONNECTOR_WIDTH, vertexBuffer);
-        bottomConnector = new Rectangle(GameMatrix.RECT_SIZE / 2 - CONNECTOR_WIDTH / 2, GameMatrix.RECT_SIZE - CONNECTOR_HEIGHT / 2, CONNECTOR_WIDTH, CONNECTOR_HEIGHT, vertexBuffer);
-
-        gridBorder = drawRect(0, 0, GameMatrix.RECT_SIZE, GameMatrix.RECT_SIZE, new Color(0xe6 / 255f, 0xe6 / 255f, 0xef / 255f), 2);
+        gridBorder = drawRect(0, 0, MainGrid.RECT_SIZE, MainGrid.RECT_SIZE, new Color(0xe6 / 255f, 0xe6 / 255f, 0xef / 255f), 2);
         attachChild(gridBorder);
 
-        multiplierBorder = drawRect(3, 3, GameMatrix.RECT_SIZE - 6, GameMatrix.RECT_SIZE - 6, Color.BLACK, 3);
+        topConnector = new Rectangle(MainGrid.RECT_SIZE / 2 - CONNECTOR_WIDTH / 2, -CONNECTOR_HEIGHT / 2, CONNECTOR_WIDTH, CONNECTOR_HEIGHT, vertexBuffer);
+        leftConnector = new Rectangle(-CONNECTOR_HEIGHT / 2, MainGrid.RECT_SIZE / 2 - CONNECTOR_WIDTH / 2, CONNECTOR_HEIGHT, CONNECTOR_WIDTH, vertexBuffer);
+        rightConnector = new Rectangle(MainGrid.RECT_SIZE - CONNECTOR_HEIGHT / 2, MainGrid.RECT_SIZE / 2 - CONNECTOR_WIDTH / 2, CONNECTOR_HEIGHT, CONNECTOR_WIDTH, vertexBuffer);
+        bottomConnector = new Rectangle(MainGrid.RECT_SIZE / 2 - CONNECTOR_WIDTH / 2, MainGrid.RECT_SIZE - CONNECTOR_HEIGHT / 2, CONNECTOR_WIDTH, CONNECTOR_HEIGHT, vertexBuffer);
+
+
+
+        multiplierBorder = drawRect(3, 3, MainGrid.RECT_SIZE - 6, MainGrid.RECT_SIZE - 6, Color.BLACK, 3);
         multiplierBorder.setVisible(false);
         attachChild(multiplierBorder);
 
@@ -141,11 +165,11 @@ public class GridSquare extends Entity {
         attachChild(rightConnector);
         attachChild(bottomConnector);
         int points = age + 1;
-        valueText = new Text(GameMatrix.RECT_SIZE - 30, GameMatrix.RECT_SIZE - 25, mfont.get("points"), "+00", vertexBuffer);
+        valueText = new Text(MainGrid.RECT_SIZE - 35, MainGrid.RECT_SIZE - 25, mfont.get("points"), "+00", vertexBuffer);
         valueText.setText("+" + points);
         valueText.setColor(Color.BLACK);
 
-        multiplierText = new Text(GameMatrix.RECT_SIZE / 2, GameMatrix.RECT_SIZE / 2, mfont.get("points"), "X4", vertexBuffer);
+        multiplierText = new Text( (MainGrid.RECT_SIZE / 2) - 15, (MainGrid.RECT_SIZE / 2) - 7, mfont.get("multiplier"), "X2", vertexBuffer);
         multiplierText.setColor(Color.RED);
         multiplierText.setVisible(false);
 
@@ -154,6 +178,13 @@ public class GridSquare extends Entity {
         } else {
             valueText.setVisible(false);
         }
+
+
+        innerRectangle = new Rectangle(INNER_RECT_THICKNESS, INNER_RECT_THICKNESS, MainGrid.RECT_SIZE - INNER_RECT_THICKNESS * 2, MainGrid.RECT_SIZE - INNER_RECT_THICKNESS * 2, vertexBuffer);
+        innerRectangle.setColor(Color.WHITE);
+
+        attachChild(innerRectangle);
+
         attachChild(valueText);
         attachChild(multiplierText);
     }
@@ -199,6 +230,69 @@ public class GridSquare extends Entity {
         return false;
     }
 
+    public void animateColorFlip(int newTile) {
+        Color newColor = toColor(newTile);
+        rectangle.registerEntityModifier( new ColorModifier(0.5f, rectangle.getColor(), newColor, new IEntityModifier.IEntityModifierListener() {
+            @Override
+            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+
+            @Override
+            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+        }));
+    }
+
+    public void animateDie() {
+        rectangle.registerEntityModifier(new ColorModifier(1f, rectangle.getColor(), BUSTED_COLOR, new IEntityModifier.IEntityModifierListener() {
+            @Override
+            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+
+            @Override
+            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+        }));
+    }
+
+    public void animateScore(int previous, final int current) {
+
+        if (previous == 0) {
+            previous = current;
+        }
+        final int initialValue = previous;
+        valueText.registerEntityModifier(
+
+                new ScaleAtModifier(0.2f, 1f, 1.5f, valueText.getWidth()/2, valueText.getHeight() /2, new IEntityModifier.IEntityModifierListener() {
+                    @Override
+                    public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+                        valueText.setText("+" + initialValue);
+                    }
+
+                    @Override
+                    public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                        valueText.registerEntityModifier(new ScaleAtModifier(0.2f, 1.5f, 1f, valueText.getWidth()/2, valueText.getHeight() /2, new IEntityModifier.IEntityModifierListener() {
+
+                            @Override
+                            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+                                valueText.setText("+" + current);
+                            }
+
+                            @Override
+                            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+
+                            }
+                        }));
+                    }
+                })
+        );
+    }
+
+
     public void setupMultiplier() {
         if (hasAdjacentTop()) {
             multiplierConnector[0] = true;
@@ -233,20 +327,21 @@ public class GridSquare extends Entity {
         bottomConnector.setVisible(false);
         multiplierText.setVisible(false);
         multiplierBorder.setVisible(false);
-        gridBorder.setVisible(false);
+        innerRectangle.setVisible(false);
+        rectangle.setAlpha(1f);
 
         if (!isEmpty()) {
 
             if (isRepeater()) {
                 rectangle.setX(16);
                 rectangle.setY(16);
-                rectangle.setHeight(GameMatrix.RECT_SIZE - 32);
-                rectangle.setWidth(GameMatrix.RECT_SIZE - 32);
+                rectangle.setHeight(MainGrid.RECT_SIZE - 32);
+                rectangle.setWidth(MainGrid.RECT_SIZE - 32);
             } else {
                 rectangle.setX(4);
                 rectangle.setY(4);
-                rectangle.setHeight(GameMatrix.RECT_SIZE - 8);
-                rectangle.setWidth(GameMatrix.RECT_SIZE - 8);
+                rectangle.setHeight(MainGrid.RECT_SIZE - 8);
+                rectangle.setWidth(MainGrid.RECT_SIZE - 8);
             }
 
             switch (tileType) {
@@ -262,9 +357,19 @@ public class GridSquare extends Entity {
                 case GameMatrix.GREEN_BLOCK:
                     rectangle.setColor(Color.GREEN);
                     break;
-                case GameMatrix.MULTIPLIERX4:
+                case GameMatrix.MULTIPLIERX2:
                     rectangle.setColor(Color.WHITE);
                     multiplierText.setVisible(true);
+                    multiplierText.setColor(Color.RED);
+                    multiplierText.setText("X2");
+                    multiplierBorder.setVisible(true);
+                    break;
+                case GameMatrix.MULTIPLIERX4_COLORED:
+                    rectangle.setColor(toColor(getMultiplierColor()));
+                    rectangle.setAlpha(0.5f);
+                    multiplierText.setVisible(true);
+                    multiplierText.setText("X4");
+                    multiplierText.setColor(Color.WHITE);
                     multiplierBorder.setVisible(true);
                     break;
                 case GameMatrix.BUSTED:
@@ -285,18 +390,18 @@ public class GridSquare extends Entity {
                     leftConnector.setVisible(true);
                 }
 
-                if (hasAdjacentRight()) {
-                    rightConnector.setColor(getConnectorColor());
-                    rightConnector.setVisible(true);
-                }
+//                if (hasAdjacentRight()) {
+//                    rightConnector.setColor(getConnectorColor());
+//                    rightConnector.setVisible(true);
+//                }
 
-                if (hasAdjacentBottom()) {
-                    bottomConnector.setColor(getConnectorColor());
-                    bottomConnector.setVisible(true);
-                }
+//                if (hasAdjacentBottom()) {
+//                    bottomConnector.setColor(getConnectorColor());
+//                    bottomConnector.setVisible(true);
+//                }
 
                 rectangle.setAlpha(0.7f);
-            } else if (getTileType() == GameMatrix.MULTIPLIERX4) {
+            } else if ( (getTileType() == GameMatrix.MULTIPLIERX2) || (getTileType() == GameMatrix.MULTIPLIERX4_COLORED)) {
                 if (multiplierConnector[0]) {
                     topConnector.setColor(getConnectorColor());
                     topConnector.setVisible(true);
@@ -320,8 +425,8 @@ public class GridSquare extends Entity {
         } else {
             rectangle.setX(0);
             rectangle.setY(0);
-            rectangle.setHeight(GameMatrix.RECT_SIZE);
-            rectangle.setWidth(GameMatrix.RECT_SIZE);
+            rectangle.setHeight(MainGrid.RECT_SIZE);
+            rectangle.setWidth(MainGrid.RECT_SIZE);
             gridBorder.setVisible(true);
             if (matrix.isValid(boardPositionX, boardPositionY)) {
                 rectangle.setColor(Color.WHITE);
@@ -330,15 +435,33 @@ public class GridSquare extends Entity {
             }
         }
 
-        for (int i = 0; i < MAX_AGE; i++) {
-            ageRectangles.get(i).setVisible(false);
-        }
+//        for (int i = 0; i < MAX_AGE; i++) {
+//            ageRectangles.get(i).setVisible(false);
+//        }
 
         if (isColoredTile()) {
+            innerRectangle.setVisible(true);
 
-            for (int i = 0; i < MAX_AGE - age && i < 5; i++) {
-                ageRectangles.get(i).setVisible(true);
+            float rect_height = MainGrid.RECT_SIZE - INNER_RECT_THICKNESS * 2;
+            final float current_height = (rect_height * age)/MAX_AGE;
+            if (getBoardPositionX() >=0 && innerRectangle.getHeight() < current_height) {
+               innerRectangle.registerEntityModifier(new HeightModifier(1f, current_height - innerRectangle.getHeight(), new IEntityModifier.IEntityModifierListener() {
+                   @Override
+                   public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+                   }
+
+                   @Override
+                   public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                       innerRectangle.setHeight(current_height);
+                   }
+               }));
+            } else {
+                innerRectangle.setHeight(current_height);
             }
+//            for (int i = 0; i < age && i < 5; i++) {
+//                ageRectangles.get(i).setVisible(true);
+//            }
             if (getPoints() > 0) {
                 valueText.setText(currentPointValue);
                 valueText.setVisible(true);
@@ -350,9 +473,29 @@ public class GridSquare extends Entity {
         }
     }
 
-    private Color getConnectorColor() {
-        if (getTileType() == GameMatrix.MULTIPLIERX4) {
+    private Color toColor(Integer block) {
+        if (block == GameMatrix.RED_BLOCK) {
+            return Color.RED;
+        }
+        if (block == GameMatrix.BLUE_BLOCK) {
+            return Color.BLUE;
+        }
+        if (block == GameMatrix.GREEN_BLOCK) {
+            return Color.GREEN;
+        }
+        if (block == GameMatrix.BUSTED) {
             return Color.BLACK;
+        }
+        Log.d(TAG, "Unknown color " + block);
+        return null;
+    }
+
+    private Color getConnectorColor() {
+        if (getTileType() == GameMatrix.MULTIPLIERX2) {
+            return Color.BLACK;
+        }
+        if (getTileType() == GameMatrix.MULTIPLIERX4_COLORED) {
+            return  toColor(getMultiplierColor());
         } else {
             return rectangle.getColor();
         }
@@ -371,12 +514,16 @@ public class GridSquare extends Entity {
     }
 
     private boolean checkGridLocation(int boardX, int boardY) {
-        if (getTileType() == GameMatrix.MULTIPLIERX4) {
+        if (getTileType() == GameMatrix.MULTIPLIERX2) {
             return isColoredTile(matrix.world[boardX][boardY].getTileType());
+        } else if (getTileType() == GameMatrix.MULTIPLIERX4_COLORED) {
+            return matrix.world[boardX][boardY].getTileType()== getMultiplierColor();
         } else {
-            return (matrix.world[boardX][boardY].getTileType() == tileType) || (matrix.world[boardX][boardY].getTileType() +6 == tileType);
+            return (matrix.world[boardX][boardY].getTileType() == tileType) || (matrix.world[boardX][boardY].getTileType() +6 == tileType) ||
+                    (matrix.world[boardX][boardY].getTileType() == tileType + 6);
         }
     }
+
 
     private boolean hasAdjacentTop() {
         if (boardPositionY > 0) {
@@ -409,6 +556,8 @@ public class GridSquare extends Entity {
 
     public void reset() {
         age = 0;
+        bonus = 0;
+        bonusSource = new ArrayList<GridSquare>();
         tileType = GameMatrix.EMPTY;
     }
 
@@ -416,12 +565,17 @@ public class GridSquare extends Entity {
         return age;
     }
 
-    public void addBonus(GridSquare bonusSource, int i) {
+    public int getTotalPoints() {
+        return getPoints() + getBonus();
+    }
+
+    public int addBonus(GridSquare bonusSource, int i) {
         if (bonus < 96) {
             this.bonus += i;
         }
         this.bonusSource.add(bonusSource);
         currentPointValue = getPointsString();
+        return getPoints() + getBonus();
     }
 
     private String getPointsString() {
@@ -435,5 +589,27 @@ public class GridSquare extends Entity {
     public void setBonus(int bonus) {
         this.bonus = bonus;
         currentPointValue = getPointsString();
+    }
+
+    public void setMultiplierColor(int color) {
+        this.multiplierColor = color;
+    }
+
+    public int getMultiplierColor() {
+        return multiplierColor;
+    }
+
+    public void animateEmpty() {
+        rectangle.registerEntityModifier(new ColorModifier(1f, rectangle.getColor(), EMPTY_COLOR, new IEntityModifier.IEntityModifierListener() {
+            @Override
+            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+
+            @Override
+            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+        }));
     }
 }

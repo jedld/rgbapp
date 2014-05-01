@@ -20,10 +20,10 @@ public class RectangleButton extends Entity {
         super(pX, pY);
         Text buttonText = new Text(0, 0, pFont, pText, pVertexBufferObjectManager);
         buttonText.setPosition((width - buttonText.getWidth()) / 2, (height - buttonText.getHeight()) / 2);
-        buttonText.setColor(Color.BLACK);
+        buttonText.setColor(Color.WHITE);
 
         rectangle = new Rectangle(0, 0, width, height, pVertexBufferObjectManager);
-        rectangle.setColor(Color.WHITE);
+        rectangle.setColor(Color.BLACK);
 
         this.attachChild(rectangle);
         this.attachChild(buttonText);

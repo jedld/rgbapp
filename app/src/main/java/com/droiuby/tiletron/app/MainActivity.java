@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.rgb.matrix.GameMatrix;
+import com.rgb.matrix.MainGrid;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.FixedStepEngine;
@@ -35,7 +36,7 @@ public class MainActivity extends BaseGameActivity {
     private static final float WIDTH = 480;
     private static final float HEIGHT = 800;
     private static final int BOARD_WIDTH = 8;
-    private static final int BOARD_HEIGHT = 12;
+    private static final int BOARD_HEIGHT = 10;
     private Camera mCamera;
     private Scene mScene;
     private GameMatrix matrix;
@@ -65,11 +66,13 @@ public class MainActivity extends BaseGameActivity {
         mFont.load();
         mFont.prepareLetters("Score: 0123456789 High: +0123456789".toCharArray());
 
-        mFontPoints = FontFactory.create(getFontManager(), getTextureManager(), 256, 256, typeface, 14f, true, Color.WHITE_ABGR_PACKED_INT);
+        Typeface typefaceMultiplier
+                = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
+        mFontPoints = FontFactory.create(getFontManager(), getTextureManager(), 256, 256, typefaceMultiplier, 14f, true, Color.WHITE_ABGR_PACKED_INT);
         mFontPoints.load();
         mFontPoints.prepareLetters("+0123456789".toCharArray());
 
-        mFontMultiplier = FontFactory.create(getFontManager(), getTextureManager(), 256, 256, typeface, 40f, true, Color.WHITE_ABGR_PACKED_INT);
+        mFontMultiplier = FontFactory.create(getFontManager(), getTextureManager(), 256, 256, typeface, 30f, true, Color.WHITE_ABGR_PACKED_INT);
         mFontMultiplier.load();
         mFontMultiplier.prepareLetters("x0123456789".toCharArray());
 
@@ -79,7 +82,7 @@ public class MainActivity extends BaseGameActivity {
     @Override
     public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) throws Exception {
         mScene = new Scene();
-        int offset_x = (int)((WIDTH / 2) - ((BOARD_WIDTH * GameMatrix.RECT_SIZE) / 2));
+        int offset_x = (int)((WIDTH / 2) - ((BOARD_WIDTH * MainGrid.RECT_SIZE) / 2));
 
         HashMap<String, Font> fontHashMap = new HashMap<String, Font>();
         fontHashMap.put("score", mFont);
@@ -87,6 +90,7 @@ public class MainActivity extends BaseGameActivity {
         fontHashMap.put("multiplier", mFontMultiplier);
 
         matrix = GameMatrix.getInstance(this, mScene, fontHashMap, getVertexBufferObjectManager(), BOARD_WIDTH, BOARD_HEIGHT, offset_x, 10);
+        mScene.attachChild(matrix.getMainGrid());
 //        mScene.registerUpdateHandler(matrix);
         mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
 
