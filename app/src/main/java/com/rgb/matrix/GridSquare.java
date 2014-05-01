@@ -226,6 +226,8 @@ public class GridSquare extends Entity {
                 return true;
             case GameMatrix.GREEN_BLOCK:
                 return true;
+            case GameMatrix.MULTIPLIERX4_COLORED:
+                return true;
         }
         return false;
     }
@@ -366,11 +368,10 @@ public class GridSquare extends Entity {
                     break;
                 case GameMatrix.MULTIPLIERX4_COLORED:
                     rectangle.setColor(toColor(getMultiplierColor()));
-                    rectangle.setAlpha(0.5f);
                     multiplierText.setVisible(true);
                     multiplierText.setText("X4");
                     multiplierText.setColor(Color.WHITE);
-                    multiplierBorder.setVisible(true);
+                    rectangle.setAlpha(0.7f);
                     break;
                 case GameMatrix.BUSTED:
                     rectangle.setColor(BUSTED_COLOR);
@@ -520,7 +521,8 @@ public class GridSquare extends Entity {
             return matrix.world[boardX][boardY].getTileType()== getMultiplierColor();
         } else {
             return (matrix.world[boardX][boardY].getTileType() == tileType) || (matrix.world[boardX][boardY].getTileType() +6 == tileType) ||
-                    (matrix.world[boardX][boardY].getTileType() == tileType + 6);
+                    (matrix.world[boardX][boardY].getTileType() == tileType + 6
+                            || (matrix.world[boardX][boardY].getTileType() == GameMatrix.MULTIPLIERX4_COLORED && matrix.world[boardX][boardY].getMultiplierColor() == tileType));
         }
     }
 

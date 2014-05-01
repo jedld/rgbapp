@@ -9,6 +9,10 @@ import android.view.MenuItem;
 import com.rgb.matrix.GameMatrix;
 import com.rgb.matrix.MainGrid;
 
+import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
+import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.FixedStepEngine;
 import org.andengine.engine.camera.Camera;
@@ -28,6 +32,7 @@ import org.andengine.ui.IGameInterface;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.color.Color;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 
@@ -43,11 +48,16 @@ public class MainActivity extends BaseGameActivity {
     private Font mFont;
     private Font mFontPoints;
     private Font mFontMultiplier;
+    private Sound mSound;
+    private Music mMusic;
+    HashMap<String, Sound> soundAssets = new HashMap<String, Sound>();
 
     @Override
     public EngineOptions onCreateEngineOptions() {
         mCamera = new Camera(0, 0, WIDTH, HEIGHT);
         EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(WIDTH,HEIGHT), mCamera);
+        engineOptions.getAudioOptions().setNeedsSound(true);
+        engineOptions.getAudioOptions().setNeedsMusic(true);
         return engineOptions;
     }
 
@@ -57,8 +67,31 @@ public class MainActivity extends BaseGameActivity {
         return new FixedStepEngine(pEngineOptions, 60);
     }
 
+    private void loadSound(String name, String filename) {
+        try {
+            soundAssets.put(name, SoundFactory.createSoundFromAsset(getSoundManager(), this, filename));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback) throws Exception {
+
+        SoundFactory.setAssetBasePath("sfx/");
+        MusicFactory.setAssetBasePath("sfx/");
+
+        loadSound("place_tile","place_tile.mp3");
+        loadSound("cascade","cascade.mp3");
+        loadSound("super","super_ready.mp3");
+        // Load our "music.mp3" file into a music object
+        try {
+            mMusic = MusicFactory.createMusicFromAsset(getMusicManager(), this, "bg_1.mp3");
+            mMusic.setLooping(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         Typeface typeface
                 = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
 
@@ -80,6 +113,24 @@ public class MainActivity extends BaseGameActivity {
     }
 
     @Override
+    public synchronized void onResumeGame() {
+        if(mMusic != null && !mMusic.isPlaying()){
+            mMusic.play();
+
+        }
+        super.onResumeGame();
+    }
+
+    @Override
+    public synchronized void onPauseGame() {
+        if(mMusic != null && mMusic.isPlaying()){
+            mMusic.pause();
+        }
+        super.onPauseGame();
+    }
+
+
+    @Override
     public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) throws Exception {
         mScene = new Scene();
         int offset_x = (int)((WIDTH / 2) - ((BOARD_WIDTH * MainGrid.RECT_SIZE) / 2));
@@ -89,7 +140,9 @@ public class MainActivity extends BaseGameActivity {
         fontHashMap.put("points", mFontPoints);
         fontHashMap.put("multiplier", mFontMultiplier);
 
-        matrix = GameMatrix.getInstance(this, mScene, fontHashMap, getVertexBufferObjectManager(), BOARD_WIDTH, BOARD_HEIGHT, offset_x, 10);
+
+
+        matrix = GameMatrix.getInstance(this, mScene, fontHashMap, soundAssets, getVertexBufferObjectManager(), BOARD_WIDTH, BOARD_HEIGHT, offset_x, 10);
         mScene.attachChild(matrix.getMainGrid());
 //        mScene.registerUpdateHandler(matrix);
         mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {

@@ -9,6 +9,7 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.util.Constants;
 import org.andengine.util.HorizontalAlign;
 import org.andengine.util.color.Color;
 
@@ -30,9 +31,9 @@ public class RectangleButton extends Entity {
     }
 
     public boolean isAreaTouched(TouchEvent pSceneTouchEvent) {
-
-        if ( getX() <= pSceneTouchEvent.getX() &&  (getX() + rectangle.getWidth()) >= pSceneTouchEvent.getX() &&
-                 getY() <= pSceneTouchEvent.getY() && (pSceneTouchEvent.getY() <= getY() + rectangle.getHeight()) ) {
+        float[] coordinates = convertLocalToSceneCoordinates(rectangle.getX(), rectangle.getY());
+        if (  coordinates[Constants.VERTEX_INDEX_X] <= pSceneTouchEvent.getX() &&  (coordinates[Constants.VERTEX_INDEX_X] + rectangle.getWidth()) >= pSceneTouchEvent.getX() &&
+                coordinates[Constants.VERTEX_INDEX_Y] <= pSceneTouchEvent.getY() && (pSceneTouchEvent.getY() <= coordinates[Constants.VERTEX_INDEX_Y] + rectangle.getHeight()) ) {
             return true;
         }
         return false;

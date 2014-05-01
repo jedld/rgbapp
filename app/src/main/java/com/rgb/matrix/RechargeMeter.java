@@ -5,6 +5,7 @@ import android.util.Log;
 import com.rgb.matrix.interfaces.Resizable;
 import com.rgb.matrix.modifiers.WidthModifier;
 
+import org.andengine.audio.sound.Sound;
 import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.AlphaModifier;
@@ -35,6 +36,7 @@ public class RechargeMeter extends Entity implements Resizable {
     private final int width;
     private final Rectangle pushButton;
     private final Text valueText;
+    private final HashMap<String, Sound> soundAssets;
     private int maxunits;
     private final Rectangle meterObject;
     private int currentState;
@@ -42,11 +44,12 @@ public class RechargeMeter extends Entity implements Resizable {
     private boolean isSuperActivated;
     private int level;
 
-    public RechargeMeter(float pX, float pY, int width, int maxunits, HashMap<String, Font> mFont, VertexBufferObjectManager vertexBufferObjectManager) {
+    public RechargeMeter(float pX, float pY, int width, int maxunits, HashMap<String, Font> mFont, HashMap<String, Sound> soundAssets, VertexBufferObjectManager vertexBufferObjectManager) {
         super(pX, pY);
 
         this.maxunits = maxunits;
         this.level = 1;
+        this.soundAssets = soundAssets;
         this.isSuperActivated = false;
         this.currentState = 0;
         this.vertexBufferObjectManager = vertexBufferObjectManager;
@@ -105,7 +108,7 @@ public class RechargeMeter extends Entity implements Resizable {
         this.maxunits = maxunits;
     }
 
-    public void reset() {
+    public void resetMeterState() {
         this.level = 1;
         this.currentState = 0;
         this.maxunits = 100;
@@ -170,6 +173,7 @@ public class RechargeMeter extends Entity implements Resizable {
                 public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
                     if (currentState >=maxunits) {
                         activateSuper();
+                        soundAssets.get("super").play();
                     }
                 }
             }));

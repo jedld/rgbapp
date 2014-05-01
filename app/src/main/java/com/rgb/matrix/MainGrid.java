@@ -2,6 +2,7 @@ package com.rgb.matrix;
 
 import android.util.Log;
 
+import org.andengine.audio.sound.Sound;
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Rectangle;
@@ -31,6 +32,7 @@ public class MainGrid extends Entity {
     private final VertexBufferObjectManager vertexBuffer;
     private final GameMatrix matrix;
     private final Font mFont;
+    private final HashMap<String, Sound> soundAssets;
     GridSquare world[][];
     GridSquare queueRectangles[] = new GridSquare[QUEUE_SIZE];
     private Text scoreText;
@@ -49,11 +51,12 @@ public class MainGrid extends Entity {
     private int score = 0;
     private String scoreTextString;
 
-    public MainGrid(float x, float y, int gridWidth, int gridHeight, GameMatrix matrix, HashMap<String, Font> fontDictionary, VertexBufferObjectManager vertexBuffer) {
+    public MainGrid(float x, float y, int gridWidth, int gridHeight, GameMatrix matrix, HashMap<String, Font> fontDictionary, HashMap<String, Sound> soundAssets, VertexBufferObjectManager vertexBuffer) {
         super(x, y);
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.matrix = matrix;
+        this.soundAssets = soundAssets;
         this.world = new GridSquare[gridWidth][gridHeight];
         this.vertexBuffer = vertexBuffer;
         this.fontDictionary = fontDictionary;
@@ -74,7 +77,7 @@ public class MainGrid extends Entity {
 
         int offsetY = (gridHeight * RECT_SIZE) + 10;
 
-        this.rechargeMeter = new RechargeMeter(0, offsetY, gridWidth * RECT_SIZE, 100, fontDictionary, vertexBuffer);
+        this.rechargeMeter = new RechargeMeter(0, offsetY, gridWidth * RECT_SIZE, 100, fontDictionary, soundAssets, vertexBuffer);
         attachChild(rechargeMeter);
 
         offsetY+=rechargeMeter.getHeight() +5;
@@ -193,7 +196,7 @@ public class MainGrid extends Entity {
         return false;
     }
 
-    public void reset() {
+    public void resetWorldState() {
         score = 0;
         scoreTextString = "Score: 0000";
         for (int i = 0; i < gridWidth; i++) {
@@ -202,7 +205,7 @@ public class MainGrid extends Entity {
             }
         }
         gameOverText.setVisible(false);
-        rechargeMeter.reset();
+        rechargeMeter.resetMeterState();
     }
 
 
@@ -237,6 +240,8 @@ public class MainGrid extends Entity {
     public boolean isValid(int grid_x, int grid_y) {
         if (grid_x < 0) return false;
         if (grid_y < 0) return false;
+        if (grid_x >= gridWidth) return false;
+        if (grid_y >= gridHeight) return false;
         if (!world[grid_x][grid_y].isEmpty()) return false;
 
 //        if (grid_x >= 0 && grid_y >= 0 && grid_x < gridWidth && grid_y < gridHeight) {
@@ -287,11 +292,12 @@ public class MainGrid extends Entity {
             }
         } else
         if (newGameButton.isAreaTouched(pSceneTouchEvent)) {
+            Log.d(TAG,"RESET GAME.............");
             matrix.resetWorld();
             matrix.populateInitial();
 
         } else if (getX() <= pSceneTouchEvent.getX() && getY() <= pSceneTouchEvent.getY() &&
-                getX() + gridWidth * MainGrid.RECT_SIZE >= pSceneTouchEvent.getX() && getY() + gridHeight * MainGrid.RECT_SIZE >= pSceneTouchEvent.getY()) {
+                getX() + gridWidth * MainGrid.RECT_SIZE >= pSceneTouchEvent.getX() && getX() + gridHeight * MainGrid.RECT_SIZE >= pSceneTouchEvent.getY()) {
 
             float normalized_x = pSceneTouchEvent.getX() - getX();
             float normalized_y = pSceneTouchEvent.getY() - getY();

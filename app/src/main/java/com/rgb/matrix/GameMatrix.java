@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.util.Pair;
 
+import org.andengine.audio.sound.Sound;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
@@ -32,6 +33,7 @@ public class GameMatrix implements IUpdateHandler {
     private final int gridWidth;
     private final int gridHeight;
     private final Scene scene;
+    private final HashMap<String, Sound> soundAssets;
     private int totalMoves = 0;
     private final Random random;
     private final SharedPreferences sharedPrefs;
@@ -67,13 +69,14 @@ public class GameMatrix implements IUpdateHandler {
 
     MainGrid mainGrid;
 
-    protected GameMatrix(Context context, Scene scene, HashMap<String, Font> fontDictionary, VertexBufferObjectManager vertexBuffer, int gridWidth, int gridHeight, int offset_x, int offset_y) {
+    protected GameMatrix(Context context, Scene scene, HashMap<String, Font> fontDictionary, HashMap<String, Sound> soundAssets, VertexBufferObjectManager vertexBuffer, int gridWidth, int gridHeight, int offset_x, int offset_y) {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.context = context;
         this.scene = scene;
+        this.soundAssets = soundAssets;
         sharedPrefs = context.getSharedPreferences("high_score", Context.MODE_PRIVATE);
-        this.mainGrid = new MainGrid(offset_x, offset_y, gridWidth, gridHeight, this, fontDictionary, vertexBuffer);
+        this.mainGrid = new MainGrid(offset_x, offset_y + 10, gridWidth, gridHeight, this, fontDictionary, soundAssets, vertexBuffer);
         this.fontDictionary = fontDictionary;
         this.vertexBuffer = vertexBuffer;
 
@@ -90,15 +93,15 @@ public class GameMatrix implements IUpdateHandler {
         }
     }
 
-    public static GameMatrix getInstance(Context context, Scene scene, HashMap<String, Font> fontDictionary, VertexBufferObjectManager vertexBuffer, int width, int height, int offset_x, int offset_y) {
+    public static GameMatrix getInstance(Context context, Scene scene, HashMap<String, Font> fontDictionary, HashMap<String, Sound> soundAssets, VertexBufferObjectManager vertexBuffer, int width, int height, int offset_x, int offset_y) {
         if (instance == null) {
-            instance = new GameMatrix(context, scene, fontDictionary, vertexBuffer, width, height, offset_x, offset_y);
+            instance = new GameMatrix(context, scene, fontDictionary, soundAssets, vertexBuffer, width, height, offset_x, offset_y);
         }
         return instance;
     }
 
     public void resetWorld() {
-        mainGrid.reset();
+        mainGrid.resetWorldState();
         blockQueue.clear();
         fillQueue();
     }
@@ -149,7 +152,7 @@ public class GameMatrix implements IUpdateHandler {
 
     public void clearBustedSquares() {
         for (int i = 0; i < gridWidth; i++) {
-            for (int i2 =0; i2 < gridHeight; i2++) {
+            for (int i2 = 0; i2 < gridHeight; i2++) {
                 GridSquare square = mainGrid.getSquareAt(i, i2);
                 if (square.getTileType() == BUSTED) {
                     square.reset();
@@ -210,7 +213,7 @@ public class GameMatrix implements IUpdateHandler {
                     currentTile.setAge(object.getAge());
                     currentTile.getBonusSources().clear();
                     currentTile.setMultiplierColor(object.getMultiplierColor());
-
+                    soundAssets.get("place_tile").play();
                     drawWorld();
 
                     if (!hasValidMoves()) {
@@ -310,7 +313,7 @@ public class GameMatrix implements IUpdateHandler {
         Log.d(TAG, "score = " + mainGrid.getScore());
         final String highScore = StringUtils.leftPad(Integer.toString(getHighScore()), 4, "0");
 
-        if (prevScore!=mainGrid.getScore()) {
+        if (prevScore != mainGrid.getScore()) {
             ScoreIncrementer scoreAnimator = new ScoreIncrementer(scene, 0.03f, prevScore, mainGrid.getScore(), getHighScore(), new ITimerCallback() {
 
                 @Override
@@ -341,10 +344,11 @@ public class GameMatrix implements IUpdateHandler {
 
                 int previous = gridSquare.getTotalPoints();
                 gridSquare.incrementAge();
-                if (gridSquare.getTileType()!=GameMatrix.BUSTED) {
+                if (gridSquare.getTileType() != GameMatrix.BUSTED) {
                     gridSquare.animateColorFlip(object.getTileType());
                 }
                 gridSquare.animateScore(previous, gridSquare.getTotalPoints());
+                soundAssets.get("cascade").play();
 
                 if (!gridSquare.getBonusSources().isEmpty()) {
                     for (GridSquare bonusSource : gridSquare.getBonusSources()) {
@@ -400,7 +404,12 @@ public class GameMatrix implements IUpdateHandler {
         if (currentCell.isBustedOrEmpty()) return;
 
         if (level == 0) {
-            color = currentCell.getTileType();
+
+            if (currentCell.getTileType() == MULTIPLIERX4_COLORED) {
+                color = currentCell.getMultiplierColor();
+            } else {
+                color = currentCell.getTileType();
+            }
 
             if (currentCell.isRepeater()) {
                 if (currentCell.getTileType() == parentObjectColor + 6) return;
@@ -419,8 +428,9 @@ public class GameMatrix implements IUpdateHandler {
                 updateList.add(new Pair(target_x, target_y));
                 return;
             }
-
-            if (currentCell.getTileType() != parentObjectColor) return;
+            if ( (currentCell.getTileType() == MULTIPLIERX4_COLORED) && (parentObjectColor != currentCell.getMultiplierColor())) {
+                return;
+            } else if (currentCell.getTileType() != parentObjectColor) return;
         }
 
         if (visitMap[target_x][target_y] == 1) return;
