@@ -43,11 +43,13 @@ public class RechargeMeter extends Entity implements Resizable {
     private int prevPoints;
     private boolean isSuperActivated;
     private int level;
+    private boolean animatePending;
 
     public RechargeMeter(float pX, float pY, int width, int maxunits, HashMap<String, Font> mFont, HashMap<String, Sound> soundAssets, VertexBufferObjectManager vertexBufferObjectManager) {
         super(pX, pY);
 
         this.maxunits = maxunits;
+        this.animatePending = false;
         this.level = 1;
         this.soundAssets = soundAssets;
         this.isSuperActivated = false;
@@ -77,9 +79,6 @@ public class RechargeMeter extends Entity implements Resizable {
                 pModifier.reset();
             }
         });
-
-
-
 
         pushButtonCenter.registerEntityModifier(blinkModifer);
         pushButtonCenter.setColor(Color.BLACK);
@@ -125,6 +124,9 @@ public class RechargeMeter extends Entity implements Resizable {
     public void addPoints(int currentState) {
         if (this.currentState + currentState > maxunits) {
             this.currentState = maxunits;
+            if (!isSuperActivated) {
+                this.animatePending = true;
+            }
         } else {
             this.currentState += currentState;
         }
@@ -154,10 +156,12 @@ public class RechargeMeter extends Entity implements Resizable {
         this.isSuperActivated = true;
         this.pushButton.setVisible(true);
         meterObject.setWidth(0);
+        soundAssets.get("super").play();
     }
 
     public void animate() {
-        if (prevPoints!=this.currentState) {
+        if (animatePending || prevPoints!=this.currentState) {
+            animatePending = false;
             float maxWidth = width - 4;
             float prevWidth = (maxWidth * prevPoints) / maxunits;
             float targetWidth = (maxWidth * this.currentState) / maxunits;
@@ -173,7 +177,6 @@ public class RechargeMeter extends Entity implements Resizable {
                 public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
                     if (currentState >=maxunits) {
                         activateSuper();
-                        soundAssets.get("super").play();
                     }
                 }
             }));
