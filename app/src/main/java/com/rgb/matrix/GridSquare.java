@@ -7,10 +7,12 @@ import com.rgb.matrix.modifiers.HeightModifier;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.AlphaModifier;
 import org.andengine.entity.modifier.ColorModifier;
 import org.andengine.entity.modifier.IEntityModifier;
+import org.andengine.entity.modifier.MoveYModifier;
 import org.andengine.entity.modifier.ScaleAtModifier;
-import org.andengine.entity.modifier.SingleValueChangeEntityModifier;
+import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.text.Text;
@@ -37,8 +39,12 @@ public class GridSquare extends Entity {
     private static final String TAG = GridSquare.class.getName();
     private static final float INNER_RECT_THICKNESS = 10;
     private static final Color EMPTY_COLOR = Color.WHITE;
+    private final float originalOffsetX;
+    private final float originalOffsetY;
     private int multiplierColor;
     private Rectangle innerRectangle;
+    private Rectangle gameOverRect;
+    private Text chainBonusRepeaterText;
 
     public int getBoardPositionX() {
         return boardPositionX;
@@ -114,6 +120,8 @@ public class GridSquare extends Entity {
 
     public GridSquare(int boardPositionX, int boardPositionY, float offset_x, float offset_y, MainGrid matrix, HashMap<String, Font> mFont, VertexBufferObjectManager vertexBuffer) {
         super(offset_x, offset_y);
+        this.originalOffsetX = offset_x;
+        this.originalOffsetY = offset_y;
         this.tileType = GameMatrix.EMPTY;
         this.age = 0;
         this.mfont = mFont;
@@ -143,20 +151,22 @@ public class GridSquare extends Entity {
 
     public void setupEntities() {
 
-        rectangle = new Rectangle(4, 4, MainGrid.RECT_SIZE - 8, MainGrid.RECT_SIZE - 8, vertexBuffer);
+        rectangle = new Rectangle(4, 4, MainGrid.getRectangleTileSizeInPixels() - 8, MainGrid.getRectangleTileSizeInPixels() - 8, vertexBuffer);
         attachChild(rectangle);
 
-        gridBorder = drawRect(0, 0, MainGrid.RECT_SIZE, MainGrid.RECT_SIZE, new Color(0xe6 / 255f, 0xe6 / 255f, 0xef / 255f), 2);
+        gameOverRect = new Rectangle(4, 4, MainGrid.getRectangleTileSizeInPixels() - 8, MainGrid.getRectangleTileSizeInPixels() - 8, vertexBuffer);
+        gameOverRect.setColor(Color.BLACK);
+        gameOverRect.setVisible(false);
+
+        gridBorder = drawRect(0, 0, MainGrid.getRectangleTileSizeInPixels(), MainGrid.getRectangleTileSizeInPixels(), new Color(0xe6 / 255f, 0xe6 / 255f, 0xef / 255f), 2);
         attachChild(gridBorder);
 
-        topConnector = new Rectangle(MainGrid.RECT_SIZE / 2 - CONNECTOR_WIDTH / 2, -CONNECTOR_HEIGHT / 2, CONNECTOR_WIDTH, CONNECTOR_HEIGHT, vertexBuffer);
-        leftConnector = new Rectangle(-CONNECTOR_HEIGHT / 2, MainGrid.RECT_SIZE / 2 - CONNECTOR_WIDTH / 2, CONNECTOR_HEIGHT, CONNECTOR_WIDTH, vertexBuffer);
-        rightConnector = new Rectangle(MainGrid.RECT_SIZE - CONNECTOR_HEIGHT / 2, MainGrid.RECT_SIZE / 2 - CONNECTOR_WIDTH / 2, CONNECTOR_HEIGHT, CONNECTOR_WIDTH, vertexBuffer);
-        bottomConnector = new Rectangle(MainGrid.RECT_SIZE / 2 - CONNECTOR_WIDTH / 2, MainGrid.RECT_SIZE - CONNECTOR_HEIGHT / 2, CONNECTOR_WIDTH, CONNECTOR_HEIGHT, vertexBuffer);
+        topConnector = new Rectangle(MainGrid.getRectangleTileSizeInPixels() / 2 - CONNECTOR_WIDTH / 2, -CONNECTOR_HEIGHT / 2, CONNECTOR_WIDTH, CONNECTOR_HEIGHT, vertexBuffer);
+        leftConnector = new Rectangle(-CONNECTOR_HEIGHT / 2, MainGrid.getRectangleTileSizeInPixels() / 2 - CONNECTOR_WIDTH / 2, CONNECTOR_HEIGHT, CONNECTOR_WIDTH, vertexBuffer);
+        rightConnector = new Rectangle(MainGrid.getRectangleTileSizeInPixels() - CONNECTOR_HEIGHT / 2, MainGrid.getRectangleTileSizeInPixels() / 2 - CONNECTOR_WIDTH / 2, CONNECTOR_HEIGHT, CONNECTOR_WIDTH, vertexBuffer);
+        bottomConnector = new Rectangle(MainGrid.getRectangleTileSizeInPixels() / 2 - CONNECTOR_WIDTH / 2, MainGrid.getRectangleTileSizeInPixels() - CONNECTOR_HEIGHT / 2, CONNECTOR_WIDTH, CONNECTOR_HEIGHT, vertexBuffer);
 
-
-
-        multiplierBorder = drawRect(3, 3, MainGrid.RECT_SIZE - 6, MainGrid.RECT_SIZE - 6, Color.BLACK, 3);
+        multiplierBorder = drawRect(3, 3, MainGrid.getRectangleTileSizeInPixels() - 6, MainGrid.getRectangleTileSizeInPixels() - 6, Color.BLACK, 3);
         multiplierBorder.setVisible(false);
         attachChild(multiplierBorder);
 
@@ -165,13 +175,17 @@ public class GridSquare extends Entity {
         attachChild(rightConnector);
         attachChild(bottomConnector);
         int points = age + 1;
-        valueText = new Text(MainGrid.RECT_SIZE - 35, MainGrid.RECT_SIZE - 25, mfont.get("points"), "+00", vertexBuffer);
+        valueText = new Text(MainGrid.getRectangleTileSizeInPixels() - 35, MainGrid.getRectangleTileSizeInPixels() - 25, mfont.get("points"), "+00", vertexBuffer);
         valueText.setText("+" + points);
         valueText.setColor(Color.BLACK);
 
-        multiplierText = new Text( (MainGrid.RECT_SIZE / 2) - 15, (MainGrid.RECT_SIZE / 2) - 7, mfont.get("multiplier"), "X2", vertexBuffer);
+        multiplierText = new Text( 0, 0, mfont.get("multiplier"), "X2", vertexBuffer);
+        multiplierText.setX(MainGrid.getRectangleTileSizeInPixels()/2 - multiplierText.getWidth()/2);
+        multiplierText.setY(MainGrid.getRectangleTileSizeInPixels()/2 - multiplierText.getHeight()/2);
         multiplierText.setColor(Color.RED);
         multiplierText.setVisible(false);
+
+
 
         if (getTileType() != GameMatrix.EMPTY && getTileType() != GameMatrix.BUSTED) {
             valueText.setVisible(true);
@@ -179,14 +193,14 @@ public class GridSquare extends Entity {
             valueText.setVisible(false);
         }
 
-
-        innerRectangle = new Rectangle(INNER_RECT_THICKNESS, INNER_RECT_THICKNESS, MainGrid.RECT_SIZE - INNER_RECT_THICKNESS * 2, MainGrid.RECT_SIZE - INNER_RECT_THICKNESS * 2, vertexBuffer);
+        innerRectangle = new Rectangle(INNER_RECT_THICKNESS, INNER_RECT_THICKNESS, MainGrid.getRectangleTileSizeInPixels() - INNER_RECT_THICKNESS * 2, MainGrid.getRectangleTileSizeInPixels() - INNER_RECT_THICKNESS * 2, vertexBuffer);
         innerRectangle.setColor(Color.WHITE);
 
         attachChild(innerRectangle);
 
         attachChild(valueText);
         attachChild(multiplierText);
+        attachChild(gameOverRect);
     }
 
     public Entity drawRect(float x, float y, float x1, float y1, Color color, float pLineWidth) {
@@ -261,23 +275,35 @@ public class GridSquare extends Entity {
         }));
     }
 
-    public void animateScore(int previous, final int current) {
+    public void animateScore(int previous, final int current, final int multiplierLevel) {
 
         if (previous == 0) {
             previous = current;
         }
+
         final int initialValue = previous;
+        float toScale = 1.5f;
+
+        if (multiplierLevel > 1) {
+            valueText.setColor(Color.RED);
+            toScale = 1.7f;
+        } else {
+            valueText.setColor(Color.BLACK);
+        }
+
+        final float finalToScale = toScale;
         valueText.registerEntityModifier(
 
-                new ScaleAtModifier(0.2f, 1f, 1.5f, valueText.getWidth()/2, valueText.getHeight() /2, new IEntityModifier.IEntityModifierListener() {
+                new ScaleAtModifier(0.2f, 1f, toScale, valueText.getWidth()/2, valueText.getHeight() /2, new IEntityModifier.IEntityModifierListener() {
                     @Override
                     public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-                        valueText.setText("+" + initialValue);
+
+                        valueText.setText("+" + initialValue * multiplierLevel);
                     }
 
                     @Override
                     public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-                        valueText.registerEntityModifier(new ScaleAtModifier(0.2f, 1.5f, 1f, valueText.getWidth()/2, valueText.getHeight() /2, new IEntityModifier.IEntityModifierListener() {
+                        valueText.registerEntityModifier(new ScaleAtModifier(0.2f, finalToScale, 1f, valueText.getWidth()/2, valueText.getHeight() /2, new IEntityModifier.IEntityModifierListener() {
 
                             @Override
                             public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
@@ -286,7 +312,7 @@ public class GridSquare extends Entity {
 
                             @Override
                             public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-
+                                valueText.setColor(Color.BLACK);
                             }
                         }));
                     }
@@ -321,8 +347,14 @@ public class GridSquare extends Entity {
         }
     }
 
-    public void updateSelf() {
+    public void animateGameOver() {
+        gameOverRect.setVisible(true);
+        gameOverRect.setAlpha(0);
+        gameOverRect.registerEntityModifier(new AlphaModifier(1f, 0f, 0.5f));
+    }
 
+    public void updateSelf() {
+        gameOverRect.setVisible(false);
         topConnector.setVisible(false);
         leftConnector.setVisible(false);
         rightConnector.setVisible(false);
@@ -337,13 +369,13 @@ public class GridSquare extends Entity {
             if (isRepeater()) {
                 rectangle.setX(16);
                 rectangle.setY(16);
-                rectangle.setHeight(MainGrid.RECT_SIZE - 32);
-                rectangle.setWidth(MainGrid.RECT_SIZE - 32);
+                rectangle.setHeight(MainGrid.getRectangleTileSizeInPixels() - 32);
+                rectangle.setWidth(MainGrid.getRectangleTileSizeInPixels() - 32);
             } else {
                 rectangle.setX(4);
                 rectangle.setY(4);
-                rectangle.setHeight(MainGrid.RECT_SIZE - 8);
-                rectangle.setWidth(MainGrid.RECT_SIZE - 8);
+                rectangle.setHeight(MainGrid.getRectangleTileSizeInPixels() - 8);
+                rectangle.setWidth(MainGrid.getRectangleTileSizeInPixels() - 8);
             }
 
             switch (tileType) {
@@ -426,8 +458,8 @@ public class GridSquare extends Entity {
         } else {
             rectangle.setX(0);
             rectangle.setY(0);
-            rectangle.setHeight(MainGrid.RECT_SIZE);
-            rectangle.setWidth(MainGrid.RECT_SIZE);
+            rectangle.setHeight(MainGrid.getRectangleTileSizeInPixels());
+            rectangle.setWidth(MainGrid.getRectangleTileSizeInPixels());
             gridBorder.setVisible(true);
             if (matrix.isValid(boardPositionX, boardPositionY)) {
                 rectangle.setColor(Color.WHITE);
@@ -443,7 +475,7 @@ public class GridSquare extends Entity {
         if (isColoredTile()) {
             innerRectangle.setVisible(true);
 
-            float rect_height = MainGrid.RECT_SIZE - INNER_RECT_THICKNESS * 2;
+            float rect_height = MainGrid.getRectangleTileSizeInPixels() - INNER_RECT_THICKNESS * 2;
             final float current_height = (rect_height * age)/MAX_AGE;
             if (getBoardPositionX() >=0 && innerRectangle.getHeight() < current_height) {
                innerRectangle.registerEntityModifier(new HeightModifier(1f, current_height - innerRectangle.getHeight(), new IEntityModifier.IEntityModifierListener() {

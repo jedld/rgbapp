@@ -37,6 +37,7 @@ repositories {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':library-andengine')
+    compile project(':library-facebook-sdk')
     compile 'org.apache.commons:commons-lang3:3.0'
     compile 'com.android.support:appcompat-v7:19.+'
 }

@@ -1,14 +1,19 @@
 package com.droiuby.tiletron.app;
 
-import android.content.Intent;
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
+import android.util.Log;
+import android.view.Display;
+import android.widget.Toast;
 
 import com.rgb.matrix.GameMatrix;
 import com.rgb.matrix.MainGrid;
 import com.rgb.matrix.Utils;
+import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.interfaces.OnSequenceFinished;
 import com.rgb.matrix.intro.LogoTiles;
+import com.rgb.matrix.menu.MainMenu;
 
 import org.andengine.audio.music.Music;
 import org.andengine.audio.music.MusicFactory;
@@ -41,10 +46,11 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class MainActivity extends BaseGameActivity {
+public class MainActivity extends BaseGameActivity implements GridEventListener {
 
-    private static final float WIDTH = 480;
-    private static final float HEIGHT = 800;
+    private static final String TAG = MainActivity.class.getName();
+    private static  float canvasWidth = 480;
+    private static  float canvasHeight = 800;
     private static final int BOARD_WIDTH = 8;
     private static final int BOARD_HEIGHT = 10;
     private Camera mCamera;
@@ -56,18 +62,34 @@ public class MainActivity extends BaseGameActivity {
     private Sound mSound;
     int currentMusicTrack = 0;
     private List<Music> trackList = new ArrayList<Music>();
-    HashMap<String, Sound> soundAssets = new HashMap<String, Sound>();
+    HashMap<String, SoundWrapper> soundAssets = new HashMap<String, SoundWrapper>();
     private HashMap<String, Font> fontHashMap;
     private ArrayList<String> logoLines;
     private LogoTiles logo;
     private boolean playMusic;
     private MainGrid grid;
+    private MainMenu mainMenu;
+    private boolean backedPressed = false;
 
 
     @Override
     public EngineOptions onCreateEngineOptions() {
-        mCamera = new Camera(0, 0, WIDTH, HEIGHT);
-        EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(WIDTH, HEIGHT), mCamera);
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+//
+//        if (width > canvasWidth) {
+//            canvasWidth = width;
+//        }
+//
+//        if (height > canvasHeight) {
+//            canvasHeight = height;
+//        }
+
+        mCamera = new Camera(0, 0, canvasWidth, canvasHeight);
+        EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(canvasWidth, canvasHeight), mCamera);
         engineOptions.getAudioOptions().setNeedsSound(true);
         engineOptions.getAudioOptions().setNeedsMusic(true);
         return engineOptions;
@@ -76,12 +98,12 @@ public class MainActivity extends BaseGameActivity {
     @Override
     public Engine onCreateEngine(EngineOptions pEngineOptions) {
         // Create a fixed step engine updating at 60 steps per second
-        return new FixedStepEngine(pEngineOptions, 60);
+        return new FixedStepEngine(pEngineOptions, 30);
     }
 
     private void loadSound(String name, String filename) {
         try {
-            soundAssets.put(name, SoundFactory.createSoundFromAsset(getSoundManager(), this, filename));
+            soundAssets.put(name, new SoundWrapper(this, SoundFactory.createSoundFromAsset(getSoundManager(), this, filename)));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -153,6 +175,13 @@ public class MainActivity extends BaseGameActivity {
     @Override
     public synchronized void onGameCreated() {
         super.onGameCreated();
+        Log.d(TAG,"onGameCreated() called");
+        startMainSequence();
+    }
+
+
+
+    private void startMainSequence() {
         if (!Utils.hasShownIntro(this)) {
             showIntro();
             logo.startAnimationSequence(new OnSequenceFinished() {
@@ -181,7 +210,7 @@ public class MainActivity extends BaseGameActivity {
 
     @Override
     public synchronized void onResumeGame() {
-        if (playMusic && currentTrack() != null && !currentTrack().isPlaying()) {
+        if (playMusic && Utils.getMusicState(this) && currentTrack() != null && !currentTrack().isPlaying()) {
             currentTrack().play();
         }
 
@@ -207,6 +236,7 @@ public class MainActivity extends BaseGameActivity {
         fontHashMap.put("score", mFont);
         fontHashMap.put("points", mFontPoints);
         fontHashMap.put("multiplier", mFontMultiplier);
+        fontHashMap.put("menu", mFontMultiplier);
 
         mScene.setBackground(new Background(Color.WHITE));
 
@@ -215,9 +245,14 @@ public class MainActivity extends BaseGameActivity {
 
     @Override
     public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback) throws Exception {
-        int offset_x = (int) ((WIDTH / 2) - ((BOARD_WIDTH * MainGrid.RECT_SIZE) / 2));
-        matrix = GameMatrix.getInstance(this, mScene, fontHashMap, soundAssets, getVertexBufferObjectManager(), BOARD_WIDTH, BOARD_HEIGHT, offset_x, 10);
+        int offset_x = (int) ((canvasWidth / 2) - ((BOARD_WIDTH * MainGrid.getRectangleTileSizeInPixels()) / 2));
+
+        mainMenu = new MainMenu(0, 0, fontHashMap, getVertexBufferObjectManager());
+        mainMenu.setVisible(false);
+
+        matrix = GameMatrix.getInstance(this, this, mScene, mainMenu, fontHashMap, soundAssets, getVertexBufferObjectManager(), BOARD_WIDTH, BOARD_HEIGHT, offset_x, 10);
         grid = matrix.getMainGrid();
+
         pOnPopulateSceneCallback.onPopulateSceneFinished();
     }
 
@@ -232,17 +267,18 @@ public class MainActivity extends BaseGameActivity {
 
     void showIntro() {
         mScene.detachChildren();
-        logo = new LogoTiles(0, 0, WIDTH, HEIGHT, logoLines, getVertexBufferObjectManager());
+        logo = new LogoTiles(0, 0, canvasWidth, canvasHeight, logoLines, getVertexBufferObjectManager());
         mScene.attachChild(logo);
     }
 
     void startEndlessMode() {
         mScene.detachChildren();
         mScene.attachChild(matrix.getMainGrid());
+        mScene.attachChild(mainMenu);
         matrix.drawWorld();
         playMusic = true;
 
-        if (currentTrack() != null && !currentTrack().isPlaying()) {
+        if (Utils.getMusicState(this) && currentTrack() != null && !currentTrack().isPlaying()) {
             currentTrack().play();
         }
 
@@ -260,5 +296,55 @@ public class MainActivity extends BaseGameActivity {
 
 
     }
+
+    @Override
+    public void toggleMusic(boolean state) {
+        Utils.saveMusicState(this, state);
+        if (currentTrack() != null ) {
+            if (!state && currentTrack().isPlaying()) {
+                currentTrack().pause();
+            } else {
+                currentTrack().play();
+            }
+        }
+    }
+
+    @Override
+    public void toggleSounds(boolean state) {
+        Utils.saveSoundState(this, state);
+    }
+
+    @Override
+    public boolean getMusicState() {
+        return Utils.getMusicState(this);
+    }
+
+    @Override
+    public boolean getSoundState() {
+        return Utils.getSoundState(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mainMenu.isVisible()) {
+            mainMenu.setVisible(false);
+        } else {
+            if (!backedPressed) {
+                Toast.makeText(this, "Press back again to exit", Toast.LENGTH_LONG).show();
+                backedPressed = true;
+            } else {
+                super.onBackPressed();
+                finish();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        System.exit(0);
+    }
+
 
 }

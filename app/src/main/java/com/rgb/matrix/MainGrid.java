@@ -2,8 +2,18 @@ package com.rgb.matrix;
 
 import android.util.Log;
 
+import com.droiuby.tiletron.app.SoundWrapper;
+import com.rgb.matrix.interfaces.GridEventListener;
+import com.rgb.matrix.menu.MainMenu;
+import com.rgb.matrix.menu.MenuItem;
+import com.rgb.matrix.menu.OnBackListener;
+import com.rgb.matrix.menu.OnMenuSelectedListener;
+
 import org.andengine.audio.sound.Sound;
 import org.andengine.entity.Entity;
+import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.AlphaModifier;
+import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.text.Text;
@@ -11,6 +21,7 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.color.Color;
+import org.andengine.util.modifier.IModifier;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -22,7 +33,8 @@ import java.util.HashMap;
 public class MainGrid extends Entity {
 
     public static final int QUEUE_SIZE = 7;
-    public static final int RECT_SIZE = 54;
+    public static  final int TILE_SIZE_IN_DIP = 54;
+    private static float rectangleTileSizeInPixels = 54;
     private static final String TAG = MainGrid.class.getName();
     public static final Color COLOR_QUEUE_CURRENT_BORDER = new Color(0xbd / 255f, 0xbd / 255f, 0xbd / 255f);
 
@@ -32,13 +44,25 @@ public class MainGrid extends Entity {
     private final VertexBufferObjectManager vertexBuffer;
     private final GameMatrix matrix;
     private final Font mFont;
-    private final HashMap<String, Sound> soundAssets;
+    private final HashMap<String, SoundWrapper> soundAssets;
+    private final GridEventListener gridEventListener;
     GridSquare world[][];
     GridSquare queueRectangles[] = new GridSquare[QUEUE_SIZE];
     private Text scoreText;
     private Text gameOverText;
     private RectangleButton newGameButton;
     private RechargeMeter rechargeMeter;
+    private MainMenu mainMenu;
+    private Text chainBonusRepeaterText;
+    private Rectangle chainBonusRepeaterBackground;
+
+    public static float getRectangleTileSizeInPixels() {
+        return rectangleTileSizeInPixels;
+    }
+
+    public static void setRectangleTileSizeInPixels(float rectangleTileSizeInPixels) {
+        MainGrid.rectangleTileSizeInPixels = rectangleTileSizeInPixels;
+    }
 
     public int getScore() {
         return score;
@@ -51,11 +75,17 @@ public class MainGrid extends Entity {
     private int score = 0;
     private String scoreTextString;
 
-    public MainGrid(float x, float y, int gridWidth, int gridHeight, GameMatrix matrix, HashMap<String, Font> fontDictionary, HashMap<String, Sound> soundAssets, VertexBufferObjectManager vertexBuffer) {
+    public MainGrid(float x, float y, int gridWidth, int gridHeight, GameMatrix matrix,
+                    MainMenu mainMenu, HashMap<String, Font> fontDictionary,
+                    HashMap<String, SoundWrapper> soundAssets,
+                    VertexBufferObjectManager vertexBuffer,
+                    GridEventListener gridEventListener) {
         super(x, y);
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.matrix = matrix;
+        this.gridEventListener = gridEventListener;
+        this.mainMenu = mainMenu;
         this.soundAssets = soundAssets;
         this.world = new GridSquare[gridWidth][gridHeight];
         this.vertexBuffer = vertexBuffer;
@@ -64,46 +94,54 @@ public class MainGrid extends Entity {
         setupWorld();
     }
 
+    public void fadeOutAllRectangles() {
+        for (int i = 0; i < gridWidth; i++) {
+            for (int i2 = 0; i2 < gridHeight; i2++) {
+                world[i][i2].animateGameOver();
+            }
+        }
+    }
+
     public void setupWorld() {
         for (int i = 0; i < gridWidth; i++) {
             for (int i2 = 0; i2 < gridHeight; i2++) {
-                float rect_x = (i * RECT_SIZE);
-                float rect_y = (i2 * RECT_SIZE);
+                float rect_x = (i * getRectangleTileSizeInPixels());
+                float rect_y = (i2 * getRectangleTileSizeInPixels());
                 GridSquare gridSquare = new GridSquare(i, i2, rect_x, rect_y, this, fontDictionary, vertexBuffer);
                 attachChild(gridSquare);
                 world[i][i2] = gridSquare;
             }
         }
 
-        int offsetY = (gridHeight * RECT_SIZE) + 10;
+        float offsetY = (gridHeight * getRectangleTileSizeInPixels()) + 10;
 
-        this.rechargeMeter = new RechargeMeter(0, offsetY, gridWidth * RECT_SIZE, 100, fontDictionary, soundAssets, vertexBuffer);
+        this.rechargeMeter = new RechargeMeter(0, offsetY, gridWidth * getRectangleTileSizeInPixels(), 100, fontDictionary, soundAssets, vertexBuffer);
         attachChild(rechargeMeter);
 
         offsetY+=rechargeMeter.getHeight() +5;
 
         for (int i = QUEUE_SIZE - 1; i >= 0; i--) {
 
-            float rect_x = (i * (RECT_SIZE + 5));
+            float rect_x = (i * (getRectangleTileSizeInPixels() + 5));
             float rect_y = offsetY;
 
             GridSquare gridSquare = null;
             if (i == 0) {
-                Rectangle container = new Rectangle(rect_x, rect_y, RECT_SIZE + 2, RECT_SIZE + 2, vertexBuffer);
-                Rectangle border = new Rectangle(1, 1, RECT_SIZE, RECT_SIZE, vertexBuffer);
+                Rectangle container = new Rectangle(rect_x, rect_y, getRectangleTileSizeInPixels() + 2, getRectangleTileSizeInPixels() + 2, vertexBuffer);
+                Rectangle border = new Rectangle(1, 1, getRectangleTileSizeInPixels(), getRectangleTileSizeInPixels(), vertexBuffer);
                 border.setColor(Color.WHITE);
                 container.attachChild(border);
                 container.setColor(Color.BLACK);
                 container.setAlpha(0.2f);
                 gridSquare = new GridSquare(-1, -1, 1, 1, this, fontDictionary, vertexBuffer);
-                container.setScaleCenter( (RECT_SIZE + 2) /2, (RECT_SIZE + 2)/2);
+                container.setScaleCenter( (getRectangleTileSizeInPixels() + 2) /2, (getRectangleTileSizeInPixels() + 2)/2);
                 container.setScale(1.5f);
                 border.attachChild(gridSquare);
                 attachChild(container);
             } else {
                 gridSquare = new GridSquare(-1, -1, rect_x, rect_y, this, fontDictionary, vertexBuffer);
                 gridSquare.setScale(1.1f);
-                gridSquare.setScaleCenter(RECT_SIZE/2,RECT_SIZE/2);
+                gridSquare.setScaleCenter(getRectangleTileSizeInPixels() /2, getRectangleTileSizeInPixels() /2);
                 attachChild(gridSquare);
 
             }
@@ -119,15 +157,93 @@ public class MainGrid extends Entity {
         scoreText.setColor(Color.BLACK);
         attachChild(scoreText);
 
-        int textOffet = (gridHeight * RECT_SIZE) / 2;
-
-        gameOverText = new Text((gridWidth * RECT_SIZE) / 2, textOffet, mFont, "GAME OVER", vertexBuffer);
+        gameOverText = new Text(0, 0, mFont, "G A M E   O V E R", vertexBuffer);
+        gameOverText.setX((gridWidth * getRectangleTileSizeInPixels()) / 2 - (gameOverText.getWidth()/2));
+        gameOverText.setY(gridHeight * getRectangleTileSizeInPixels() / 2);
         gameOverText.setColor(Color.RED);
         gameOverText.setVisible(false);
         attachChild(gameOverText);
 
-        newGameButton = new RectangleButton((gridWidth * RECT_SIZE) - 170, offsetY - 15, 170, 50, vertexBuffer, mFont, "New Game");
+        chainBonusRepeaterText = new Text( 0, 0, fontDictionary.get("multiplier"), "Chain Bonus X 2!", vertexBuffer);
+        chainBonusRepeaterText.setX((gridWidth * getRectangleTileSizeInPixels()) / 2 - (gameOverText.getWidth()/2));
+        chainBonusRepeaterText.setY(gridHeight * getRectangleTileSizeInPixels() / 2);
+        chainBonusRepeaterText.setColor(Color.RED);
+        chainBonusRepeaterText.setVisible(false);
+
+        chainBonusRepeaterBackground = new Rectangle(chainBonusRepeaterText.getX(),
+                chainBonusRepeaterText.getY(),chainBonusRepeaterText.getWidth(),
+                chainBonusRepeaterText.getHeight(),vertexBuffer);
+        chainBonusRepeaterBackground.setColor(Color.WHITE);
+        chainBonusRepeaterBackground.setAlpha(0.3f);
+        chainBonusRepeaterBackground.setVisible(false);
+        attachChild(chainBonusRepeaterBackground);
+        attachChild(chainBonusRepeaterText);
+
+        newGameButton = new RectangleButton((gridWidth * getRectangleTileSizeInPixels()) - 170, offsetY - 15, 170, 50, vertexBuffer, mFont, "Menu");
         attachChild(newGameButton);
+
+        mainMenu.addMenuItem("New Game", new OnMenuSelectedListener() {
+
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                mainMenu.setVisible(false);
+                newGame();
+            }
+        });
+
+        boolean defaultMusicState = true,  defaultSoundState = true;
+
+        if (gridEventListener!=null) {
+            defaultMusicState = gridEventListener.getMusicState();
+            defaultSoundState = gridEventListener.getSoundState();
+        }
+
+        mainMenu.addMenuItem("Music", true, defaultMusicState, new OnMenuSelectedListener() {
+
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                if (gridEventListener!=null) {
+                    item.setState(!item.getState());
+                    gridEventListener.toggleMusic(item.getState());
+                }
+            }
+        });
+
+        mainMenu.addMenuItem("Sounds", true, defaultSoundState, new OnMenuSelectedListener() {
+
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                if (gridEventListener!=null) {
+                    item.setState(!item.getState());
+                    gridEventListener.toggleSounds(item.getState());
+                }
+            }
+        });
+
+        mainMenu.setOnBackListener(new OnBackListener() {
+            @Override
+            public void onBackPressed(MainMenu mainMenu) {
+                mainMenu.setVisible(false);
+            }
+        });
+    }
+
+    public void showChainBonus(int multiplier) {
+        chainBonusRepeaterText.setVisible(true);
+        chainBonusRepeaterBackground.setVisible(true);
+        chainBonusRepeaterText.setText("Chain Bonus X "+multiplier+"!");
+        chainBonusRepeaterText.registerEntityModifier(new AlphaModifier(2f, 0f, 1f, new IEntityModifier.IEntityModifierListener() {
+            @Override
+            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+
+            @Override
+            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                chainBonusRepeaterText.setVisible(false);
+                chainBonusRepeaterBackground.setVisible(false);
+            }
+        }));
     }
 
     public Entity drawRect(float x, float y, float x1, float y1, Color color, float pLineWidth) {
@@ -276,6 +392,7 @@ public class MainGrid extends Entity {
     }
 
     public void showGameOver() {
+        fadeOutAllRectangles();
         gameOverText.setVisible(true);
     }
 
@@ -285,35 +402,43 @@ public class MainGrid extends Entity {
 
     public void onTouch(TouchEvent pSceneTouchEvent) {
         Log.d(TAG, "onTouch " + pSceneTouchEvent.getX() + " " + pSceneTouchEvent.getY());
+        if (mainMenu.isVisible()) {
+            mainMenu.handleOnTouch(pSceneTouchEvent);
+        } else
         if (rechargeMeter.isAreaTouched(pSceneTouchEvent)) {
-            Log.d(TAG, "use super?");
-            if (rechargeMeter.use()) {
-                clearBustedSquares();
-            }
+            useRechargeMeter();
         } else
         if (newGameButton.isAreaTouched(pSceneTouchEvent)) {
-            Log.d(TAG,"RESET GAME.............");
-            matrix.resetWorld();
-            matrix.populateInitial();
-
+            mainMenu.setVisible(true);
+            mainMenu.setAlpha(0f);
+            mainMenu.registerEntityModifier(new AlphaModifier(1f,0f,1f));
         } else if (getX() <= pSceneTouchEvent.getX() && getY() <= pSceneTouchEvent.getY() &&
-                getX() + gridWidth * MainGrid.RECT_SIZE >= pSceneTouchEvent.getX() && getX() + gridHeight * MainGrid.RECT_SIZE >= pSceneTouchEvent.getY()) {
+                getX() + gridWidth * MainGrid.getRectangleTileSizeInPixels() >= pSceneTouchEvent.getX() && getX() + gridHeight * MainGrid.getRectangleTileSizeInPixels() >= pSceneTouchEvent.getY()) {
 
             float normalized_x = pSceneTouchEvent.getX() - getX();
             float normalized_y = pSceneTouchEvent.getY() - getY();
 
-            int grid_x = (int) normalized_x / MainGrid.RECT_SIZE;
-            int grid_y = (int) normalized_y / MainGrid.RECT_SIZE;
+            int grid_x = (int) normalized_x / (int)MainGrid.getRectangleTileSizeInPixels();
+            int grid_y = (int) normalized_y / (int)MainGrid.getRectangleTileSizeInPixels();
 
             if (isValid(grid_x, grid_y)) {
-
                 NextObject object = matrix.blockQueue.remove(0);
                 matrix.fillQueue();
                 Log.d(TAG, "updating world " + grid_x + " , " + grid_y + " = " + object);
-                matrix.updateWorld(grid_x, grid_y, object, false);
-
-
+                matrix.updateWorld(grid_x, grid_y, object, 1, false);
             }
+        }
+    }
+
+    private void newGame() {
+        matrix.resetWorld();
+        matrix.populateInitial();
+    }
+
+    public void useRechargeMeter() {
+        Log.d(TAG, "use super?");
+        if (rechargeMeter.use()) {
+            clearBustedSquares();
         }
     }
 
@@ -336,4 +461,9 @@ public class MainGrid extends Entity {
     public void rechargeMeterMark() {
         rechargeMeter.markStart();
     }
+
+    public boolean hasRechargeMeter() {
+        return rechargeMeter.isSuperActive();
+    }
+
 }

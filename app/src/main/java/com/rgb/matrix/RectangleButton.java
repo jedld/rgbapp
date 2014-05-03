@@ -17,7 +17,7 @@ public class RectangleButton extends Entity {
 
     Rectangle rectangle;
 
-    public RectangleButton(int pX, int pY, int width, int height, VertexBufferObjectManager pVertexBufferObjectManager, Font pFont, String pText) {
+    public RectangleButton(float pX, float pY, float width, float height, VertexBufferObjectManager pVertexBufferObjectManager, Font pFont, String pText) {
         super(pX, pY);
         Text buttonText = new Text(0, 0, pFont, pText, pVertexBufferObjectManager);
         buttonText.setPosition((width - buttonText.getWidth()) / 2, (height - buttonText.getHeight()) / 2);

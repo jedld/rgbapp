@@ -2,6 +2,7 @@ package com.rgb.matrix;
 
 import android.util.Log;
 
+import com.droiuby.tiletron.app.SoundWrapper;
 import com.rgb.matrix.interfaces.Resizable;
 import com.rgb.matrix.modifiers.WidthModifier;
 
@@ -33,10 +34,10 @@ public class RechargeMeter extends Entity implements Resizable {
     private final VertexBufferObjectManager vertexBufferObjectManager;
     private final Rectangle background;
     private final Rectangle pushButtonBackground;
-    private final int width;
+    private final float width;
     private final Rectangle pushButton;
     private final Text valueText;
-    private final HashMap<String, Sound> soundAssets;
+    private final HashMap<String, SoundWrapper> soundAssets;
     private int maxunits;
     private final Rectangle meterObject;
     private int currentState;
@@ -45,7 +46,7 @@ public class RechargeMeter extends Entity implements Resizable {
     private int level;
     private boolean animatePending;
 
-    public RechargeMeter(float pX, float pY, int width, int maxunits, HashMap<String, Font> mFont, HashMap<String, Sound> soundAssets, VertexBufferObjectManager vertexBufferObjectManager) {
+    public RechargeMeter(float pX, float pY, float width, int maxunits, HashMap<String, Font> mFont, HashMap<String, SoundWrapper> soundAssets, VertexBufferObjectManager vertexBufferObjectManager) {
         super(pX, pY);
 
         this.maxunits = maxunits;
@@ -199,5 +200,9 @@ public class RechargeMeter extends Entity implements Resizable {
             return true;
         }
         return false;
+    }
+
+    public boolean isSuperActive() {
+        return isSuperActivated;
     }
 }

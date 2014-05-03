@@ -5,6 +5,10 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.util.Pair;
 
+import com.droiuby.tiletron.app.SoundWrapper;
+import com.rgb.matrix.interfaces.GridEventListener;
+import com.rgb.matrix.menu.MainMenu;
+
 import org.andengine.audio.sound.Sound;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.timer.ITimerCallback;
@@ -33,7 +37,9 @@ public class GameMatrix implements IUpdateHandler {
     private final int gridWidth;
     private final int gridHeight;
     private final Scene scene;
-    private final HashMap<String, Sound> soundAssets;
+    private final HashMap<String, SoundWrapper> soundAssets;
+    private final MainMenu mainMenu;
+    private final GridEventListener listener;
     private int totalMoves = 0;
     private final Random random;
     private final SharedPreferences sharedPrefs;
@@ -69,14 +75,23 @@ public class GameMatrix implements IUpdateHandler {
 
     MainGrid mainGrid;
 
-    protected GameMatrix(Context context, Scene scene, HashMap<String, Font> fontDictionary, HashMap<String, Sound> soundAssets, VertexBufferObjectManager vertexBuffer, int gridWidth, int gridHeight, int offset_x, int offset_y) {
+    protected GameMatrix(Context context, GridEventListener listener, Scene scene, MainMenu mainMenu, HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets, VertexBufferObjectManager vertexBuffer, int gridWidth, int gridHeight, int offset_x, int offset_y) {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.context = context;
         this.scene = scene;
+        this.mainMenu = mainMenu;
         this.soundAssets = soundAssets;
+        this.listener = listener;
         sharedPrefs = context.getSharedPreferences("high_score", Context.MODE_PRIVATE);
-        this.mainGrid = new MainGrid(offset_x, offset_y + 10, gridWidth, gridHeight, this, fontDictionary, soundAssets, vertexBuffer);
+//
+//        Resources r = context.getResources();
+//        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MainGrid.TILE_SIZE_IN_DIP, r.getDisplayMetrics());
+//        MainGrid.setRectangleTileSizeInPixels(px);
+
+        this.mainGrid = new MainGrid(offset_x, offset_y + 10, gridWidth, gridHeight, this, mainMenu, fontDictionary, soundAssets, vertexBuffer, listener);
+
+
         this.fontDictionary = fontDictionary;
         this.vertexBuffer = vertexBuffer;
 
@@ -93,9 +108,9 @@ public class GameMatrix implements IUpdateHandler {
         }
     }
 
-    public static GameMatrix getInstance(Context context, Scene scene, HashMap<String, Font> fontDictionary, HashMap<String, Sound> soundAssets, VertexBufferObjectManager vertexBuffer, int width, int height, int offset_x, int offset_y) {
+    public static GameMatrix getInstance(Context context, GridEventListener listener,  Scene scene, MainMenu mainMenu, HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets, VertexBufferObjectManager vertexBuffer, int width, int height, int offset_x, int offset_y) {
         if (instance == null) {
-            instance = new GameMatrix(context, scene, fontDictionary, soundAssets, vertexBuffer, width, height, offset_x, offset_y);
+            instance = new GameMatrix( context, listener, scene, mainMenu, fontDictionary, soundAssets, vertexBuffer, width, height, offset_x, offset_y);
         }
         return instance;
     }
@@ -126,7 +141,7 @@ public class GameMatrix implements IUpdateHandler {
         for (int i2 = 0; i2 < totalInitial; i2++) {
             int x = random.nextInt(gridWidth);
             int y = random.nextInt(gridHeight);
-            updateWorld(x, y, getNextObject(true), true);
+            updateWorld(x, y, getNextObject(true), 1, true);
         }
     }
 
@@ -194,18 +209,23 @@ public class GameMatrix implements IUpdateHandler {
         }
     }
 
-    public void updateWorld(final int x, final int y, final NextObject object, final boolean placeOnly) {
+    public void updateWorld(final int x, final int y, final NextObject object, int multiplierLevel, final boolean placeOnly) {
+        if (multiplierLevel > 5) {
+            multiplierLevel = 5;
+        }
+
         final GridSquare currentTile = mainGrid.getSquareAt(x, y);
         if (placeOnly) {
             currentTile.setTileType(object.getTileType());
             currentTile.setMultiplierColor(object.getMultiplierColor());
             currentTile.setAge(object.getAge());
             currentTile.getBonusSources().clear();
-            applyEntityUpdate(x, y, object, placeOnly);
+            applyEntityUpdate(x, y, object, multiplierLevel, placeOnly);
         } else {
             if (inProgress) return;
             inProgress = true;
-            currentTile.registerEntityModifier(new ScaleAtModifier(0.3f, 0f, 1f, MainGrid.RECT_SIZE / 2, MainGrid.RECT_SIZE / 2, new IEntityModifier.IEntityModifierListener() {
+            final int finalMultiplierLevel = multiplierLevel;
+            currentTile.registerEntityModifier(new ScaleAtModifier(0.3f, 0f, 1f, MainGrid.getRectangleTileSizeInPixels() / 2, MainGrid.getRectangleTileSizeInPixels() / 2, new IEntityModifier.IEntityModifierListener() {
                 @Override
                 public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 
@@ -213,19 +233,13 @@ public class GameMatrix implements IUpdateHandler {
                     currentTile.setAge(object.getAge());
                     currentTile.getBonusSources().clear();
                     currentTile.setMultiplierColor(object.getMultiplierColor());
-                    soundAssets.get("place_tile").play();
+                    playSound("place_tile");
                     drawWorld();
-
-                    if (!hasValidMoves()) {
-                        mainGrid.showGameOver();
-                    }
                 }
 
                 @Override
                 public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-                    int prevScore = mainGrid.getScore();
-                    applyEntityUpdate(x, y, object, placeOnly);
-                    inProgress = false;
+                    applyEntityUpdate(x, y, object, finalMultiplierLevel, placeOnly);
                 }
             }));
         }
@@ -253,9 +267,10 @@ public class GameMatrix implements IUpdateHandler {
         return results;
     }
 
-    private void applyEntityUpdate(int x, int y, NextObject object, boolean placeOnly) {
+    private void applyEntityUpdate(int x, int y, NextObject object, int multiplierLevel, boolean placeOnly) {
         int prevScore = mainGrid.getScore();
         mainGrid.rechargeMeterMark();
+        boolean checkValidMoves = true;
         if (!placeOnly) {
             GridSquare currentTile = mainGrid.getSquareAt(x, y);
 
@@ -283,13 +298,13 @@ public class GameMatrix implements IUpdateHandler {
                         }
                         int previous = gridSquare.getTotalPoints();
                         int current = gridSquare.addBonus(currentTile, gridSquare.getPoints() * multiplierFactor);
-                        gridSquare.animateScore(previous, current);
+                        gridSquare.animateScore(previous, current, multiplierLevel);
                     }
                 }
-
+                inProgress = false;
             } else if (currentTile.isColoredTile()) {
                 if (mainGrid.isRGB(x, y, object.getTileType())) {
-                    processRGBSequence(x, y, object);
+                    checkValidMoves = processRGBSequence(x, y, multiplierLevel, object);
                 } else {
                     for (GridSquare square : getAdjacentTiles(x, y)) {
                         if (square.isColoredTile() && square.getTileType() != object.getTileType()) {
@@ -299,14 +314,18 @@ public class GameMatrix implements IUpdateHandler {
                                 proxyNextObject.setMultiplierColor(currentTile.getMultiplierColor());
                                 proxyNextObject.setAge(currentTile.age);
                                 square.setTileType(currentTile.getTileType());
-                                processRGBSequence(square.getBoardPositionX(), square.getBoardPositionY(), proxyNextObject);
+                                if (!processRGBSequence(square.getBoardPositionX(), square.getBoardPositionY(), multiplierLevel, proxyNextObject)) {
+                                    checkValidMoves = false;
+                                };
                                 break;
                             }
                         }
                     }
                 }
 
-
+                inProgress = false;
+            } else {
+                inProgress = false;
             }
         }
 
@@ -326,20 +345,35 @@ public class GameMatrix implements IUpdateHandler {
         }
 
         drawWorld();
+
+        if (checkValidMoves && !hasValidMoves()) {
+            if (mainGrid.hasRechargeMeter()) {
+                mainGrid.useRechargeMeter();
+                if (!hasValidMoves()) {
+                    mainGrid.showGameOver();
+                }
+            } else {
+                mainGrid.showGameOver();
+            }
+        }
     }
 
-    private void processRGBSequence(int x, int y, NextObject object) {
+    private boolean processRGBSequence(int x, int y, final int multiplierLevel, NextObject object) {
         ArrayList<Pair<Integer, Integer>> updateList = new ArrayList<Pair<Integer, Integer>>();
         mainGrid.addScore(1);
         updateAdjacent(x, y, object.getTileType(), 0, updateList, getVisitMap());
 
         final ArrayList<GridSquare> secondaryEvents = new ArrayList<GridSquare>();
 
+        if (updateList.size() > 0 && multiplierLevel > 1) {
+            mainGrid.showChainBonus(multiplierLevel);
+        }
+
         for (Pair p : updateList) {
             Log.d(TAG, "Updating " + p.first + " " + p.second);
             GridSquare gridSquare = mainGrid.getSquareAt((Integer) p.first, (Integer) p.second);
             if (gridSquare.isColoredTile()) {
-                mainGrid.addScore(gridSquare.getPoints() + gridSquare.getBonus());
+                mainGrid.addScore( (gridSquare.getPoints() + gridSquare.getBonus()) * multiplierLevel);
                 gridSquare.setTileType(object.getTileType());
 
                 int previous = gridSquare.getTotalPoints();
@@ -347,8 +381,9 @@ public class GameMatrix implements IUpdateHandler {
                 if (gridSquare.getTileType() != GameMatrix.BUSTED) {
                     gridSquare.animateColorFlip(object.getTileType());
                 }
-                gridSquare.animateScore(previous, gridSquare.getTotalPoints());
-                soundAssets.get("cascade").play();
+
+                gridSquare.animateScore(previous, gridSquare.getTotalPoints(), multiplierLevel);
+                playSound("cascade");
 
                 if (!gridSquare.getBonusSources().isEmpty()) {
                     for (GridSquare bonusSource : gridSquare.getBonusSources()) {
@@ -370,19 +405,25 @@ public class GameMatrix implements IUpdateHandler {
             t.schedule(new TimerTask() {
                 @Override
                 public void run() {
+
                     for (GridSquare secondaryTriggers : secondaryEvents) {
                         NextObject generatedObject = new NextObject();
                         generatedObject.setTileType(secondaryTriggers.getTileType() - 6);
                         generatedObject.setAge(0);
                         inProgress = false;
                         updateWorld(secondaryTriggers.getBoardPositionX(), secondaryTriggers.getBoardPositionY(),
-                                generatedObject, false);
+                                generatedObject, multiplierLevel + 1, false);
                     }
                 }
             }, 1000);
+            return false;
         }
 
+        return true;
+    }
 
+    private void playSound(String sound) {
+        soundAssets.get(sound).play();
     }
 
     private void updateAdjacent(int x, int y, int squareColor, int level, ArrayList<Pair<Integer, Integer>> updateList, int visitMap[][]) {

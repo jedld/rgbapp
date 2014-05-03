@@ -1,2 +1,3 @@
 include ':app'
 include ':library-andengine'
+include ':library-facebook-sdk'

@@ -31,10 +31,13 @@ public class LogoTiles extends Entity {
     public static final int TILE_PADDING = 3;
     private static final int VERT_TILE_PADDING = 3;
 
-    private final VertexBufferObjectManager vertexBufferObjectManager;
-    private final Random random;
-    private final float maxWidth;
-    private final float maxHeight;
+    private VertexBufferObjectManager vertexBufferObjectManager;
+    private Random random;
+    private float maxWidth;
+    private float maxHeight;
+    private int tileSize;
+    private int tilePadding;
+    private int vertTilePadding;
 
     ArrayList<Pair<Float, Float>> finalPositions = new ArrayList<Pair<Float, Float>>();
     ArrayList<Rectangle> rectangles = new ArrayList<Rectangle>();
@@ -44,9 +47,24 @@ public class LogoTiles extends Entity {
     float textOffsetX = 0;
     float textOffsetY = 0;
 
-
-    public LogoTiles(float pX, float pY, float maxWidth, float maxHeight, List<String> lines, VertexBufferObjectManager vertexBufferObjectManager) {
+    public LogoTiles(float pX, float pY, float maxWidth, float maxHeight, List<String> lines,
+                     VertexBufferObjectManager vertexBufferObjectManager) {
         super(pX, pY);
+        setup(maxWidth, maxHeight, TILE_SIZE, TILE_PADDING, VERT_TILE_PADDING, lines, vertexBufferObjectManager);
+    }
+
+
+    public LogoTiles(float pX, float pY, float maxWidth, float maxHeight, int tileSize,
+                     int tilePadding, int vertTilePadding, List<String> lines,
+                     VertexBufferObjectManager vertexBufferObjectManager) {
+        super(pX, pY);
+        setup(maxWidth, maxHeight, tileSize, tilePadding, vertTilePadding, lines, vertexBufferObjectManager);
+    }
+
+    private void setup(float maxWidth, float maxHeight, int tileSize, int tilePadding, int vertTilePadding, List<String> lines, VertexBufferObjectManager vertexBufferObjectManager) {
+        this.tileSize = tileSize;
+        this.tilePadding = tilePadding;
+        this.vertTilePadding = vertTilePadding;
 
         this.vertexBufferObjectManager = vertexBufferObjectManager;
         this.maxWidth = maxWidth;
@@ -68,20 +86,20 @@ public class LogoTiles extends Entity {
                     }
                     finalPositions.add(new Pair(currentPosX, currentPosY));
                 }
-                currentPosX += TILE_SIZE + TILE_PADDING;
+                currentPosX += tileSize + tilePadding;
             }
-            currentPosY += TILE_SIZE + VERT_TILE_PADDING;
+            currentPosY += tileSize + vertTilePadding;
             currentPosX = 0;
         }
 
-        maxTextHeight += TILE_SIZE;
-        maxTextWidth += TILE_SIZE;
+        maxTextHeight += tileSize;
+        maxTextWidth += tileSize;
 
         textOffsetX = (maxWidth / 2) - (maxTextWidth / 2);
         textOffsetY = (maxHeight / 2) - (maxTextHeight / 2);
 
         for (int i = 0; i < finalPositions.size(); i++) {
-            Rectangle rectangle = new Rectangle(getRandomPosX(), getRandomPosY(), TILE_SIZE, TILE_SIZE, vertexBufferObjectManager);
+            Rectangle rectangle = new Rectangle(getRandomPosX(), getRandomPosY(), tileSize, tileSize, vertexBufferObjectManager);
             rectangle.setColor(getRandomColor());
             rectangle.setAlpha(0.7f);
             attachChild(rectangle);
