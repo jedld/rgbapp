@@ -1,4 +1,4 @@
-package com.droiuby.tiletron.app;
+package com.dayosoft.tiletron.app;
 
 import android.content.Context;
 

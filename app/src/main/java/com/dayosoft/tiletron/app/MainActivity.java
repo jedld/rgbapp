@@ -1,4 +1,4 @@
-package com.droiuby.tiletron.app;
+package com.dayosoft.tiletron.app;
 
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -97,7 +97,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
 
     @Override
     public Engine onCreateEngine(EngineOptions pEngineOptions) {
-        // Create a fixed step engine updating at 60 steps per second
+        // Create a fixed step engine updating at 30 steps per second
         return new FixedStepEngine(pEngineOptions, 30);
     }
 

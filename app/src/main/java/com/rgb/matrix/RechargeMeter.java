@@ -2,11 +2,10 @@ package com.rgb.matrix;
 
 import android.util.Log;
 
-import com.droiuby.tiletron.app.SoundWrapper;
+import com.dayosoft.tiletron.app.SoundWrapper;
 import com.rgb.matrix.interfaces.Resizable;
 import com.rgb.matrix.modifiers.WidthModifier;
 
-import org.andengine.audio.sound.Sound;
 import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.AlphaModifier;
@@ -28,8 +27,6 @@ import java.util.HashMap;
  */
 public class RechargeMeter extends Entity implements Resizable {
 
-    public static final int METER_HEIGHT = 15;
-    public static final int PUSH_BUTTON_SIZE = 54;
     private static final String TAG = RechargeMeter.class.getName();
     private final VertexBufferObjectManager vertexBufferObjectManager;
     private final Rectangle background;
@@ -57,17 +54,18 @@ public class RechargeMeter extends Entity implements Resizable {
         this.currentState = 0;
         this.vertexBufferObjectManager = vertexBufferObjectManager;
         this.width = width;
-        background = new Rectangle(0, 0, width , METER_HEIGHT, vertexBufferObjectManager);
+        background = new Rectangle(0, 0, width , ObjectDimensions.szMeterHeight, vertexBufferObjectManager);
         background.setColor(Color.BLACK);
 
-        pushButtonBackground = new Rectangle(width - PUSH_BUTTON_SIZE, 0, PUSH_BUTTON_SIZE , PUSH_BUTTON_SIZE, vertexBufferObjectManager);
+        pushButtonBackground = new Rectangle(width - ObjectDimensions.szPushButtonSize, 0, ObjectDimensions.szPushButtonSize, ObjectDimensions.szPushButtonSize, vertexBufferObjectManager);
         pushButtonBackground.setColor(Color.BLACK);
 
-        pushButton = new Rectangle(width - PUSH_BUTTON_SIZE + 4, 4, PUSH_BUTTON_SIZE - 8, PUSH_BUTTON_SIZE - 8, vertexBufferObjectManager);
+        pushButton = new Rectangle(width - ObjectDimensions.szPushButtonSize + ObjectDimensions.szPushButtonMargin, ObjectDimensions.szPushButtonMargin, ObjectDimensions.szPushButtonSize - ObjectDimensions.szPushButtonMargin * 2, ObjectDimensions.szPushButtonSize - ObjectDimensions.szPushButtonMargin * 2, vertexBufferObjectManager);
         pushButton.setColor(Color.WHITE);
 
-        int pushButtonCenterSize = PUSH_BUTTON_SIZE - 32;
-        Rectangle pushButtonCenter = new Rectangle( (PUSH_BUTTON_SIZE - 8) / 2 -  pushButtonCenterSize /2, (PUSH_BUTTON_SIZE - 8) / 2 -  pushButtonCenterSize /2, pushButtonCenterSize, pushButtonCenterSize, vertexBufferObjectManager);
+        int pushButtonCenterSize = ObjectDimensions.szPushButtonSize - ObjectDimensions.szPushButtonCenterMargin;
+        Rectangle pushButtonCenter = new Rectangle( (ObjectDimensions.szPushButtonSize - ObjectDimensions.szPushButtonMargin * 2) / 2 -  pushButtonCenterSize /2,
+                (ObjectDimensions.szPushButtonSize - ObjectDimensions.szPushButtonMargin * 2) / 2 -  pushButtonCenterSize /2, pushButtonCenterSize, pushButtonCenterSize, vertexBufferObjectManager);
 
         final AlphaModifier blinkModifer = new AlphaModifier(1, 0f, 1f, new IEntityModifier.IEntityModifierListener() {
             @Override
@@ -86,10 +84,10 @@ public class RechargeMeter extends Entity implements Resizable {
         pushButton.attachChild(pushButtonCenter);
         pushButton.setVisible(false);
 
-        meterObject = new Rectangle(2, 2, 0 , METER_HEIGHT - 4, vertexBufferObjectManager);
+        meterObject = new Rectangle(ObjectDimensions.szMeterObjectPadding, ObjectDimensions.szMeterObjectPadding, 0 , ObjectDimensions.szMeterHeight - ObjectDimensions.szMeterObjectPadding * 2, vertexBufferObjectManager);
         meterObject.setColor(Color.WHITE);
 
-        valueText = new Text(0, METER_HEIGHT + 5, mFont.get("multiplier"), "Level 00", vertexBufferObjectManager);
+        valueText = new Text(0, ObjectDimensions.szMeterHeight + 5, mFont.get("multiplier"), "Level 00", vertexBufferObjectManager);
         updateLevelText();
         valueText.setColor(Color.BLACK);
 
@@ -101,7 +99,7 @@ public class RechargeMeter extends Entity implements Resizable {
     }
 
     public int getHeight() {
-        return METER_HEIGHT + PUSH_BUTTON_SIZE;
+        return ObjectDimensions.szMeterHeight + ObjectDimensions.szPushButtonSize;
     }
 
     public void setMaxunits(int maxunits) {

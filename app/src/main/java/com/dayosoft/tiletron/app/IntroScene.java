@@ -1,4 +1,4 @@
-package com.droiuby.tiletron.app;
+package com.dayosoft.tiletron.app;
 
 import android.content.Intent;
 
@@ -15,7 +15,6 @@ import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.color.Color;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;

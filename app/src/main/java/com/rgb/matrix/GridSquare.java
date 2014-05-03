@@ -3,6 +3,7 @@ package com.rgb.matrix;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.rgb.matrix.interfaces.OnSequenceFinished;
 import com.rgb.matrix.modifiers.HeightModifier;
 
 import org.andengine.entity.Entity;
@@ -10,7 +11,6 @@ import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.AlphaModifier;
 import org.andengine.entity.modifier.ColorModifier;
 import org.andengine.entity.modifier.IEntityModifier;
-import org.andengine.entity.modifier.MoveYModifier;
 import org.andengine.entity.modifier.ScaleAtModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.primitive.Line;
@@ -29,22 +29,20 @@ import java.util.HashMap;
  */
 public class GridSquare extends Entity {
 
-    private static final float BAR_WIDTH = 5;
-    private static final float BAR_HEIGHT = 12;
     private static final int MAX_AGE = 4;
-    private static final int CONNECTOR_WIDTH = 16;
-    private static final int CONNECTOR_HEIGHT = 8;
     public static final Color BUSTED_COLOR = new Color(36 / 255f, 0x36 / 255f, 0x36 / 255f);
     public static final Color P_INVALID_TILE_COLOR = new Color(0xef / 255f, 0xf0 / 255f, 0xeb / 255f);
     private static final String TAG = GridSquare.class.getName();
-    private static final float INNER_RECT_THICKNESS = 10;
     private static final Color EMPTY_COLOR = Color.WHITE;
+    public static final Color GRID_BORDER_COLOR = new Color(0xe6 / 255f, 0xe6 / 255f, 0xef / 255f);
     private final float originalOffsetX;
     private final float originalOffsetY;
     private int multiplierColor;
     private Rectangle innerRectangle;
     private Rectangle gameOverRect;
     private Text chainBonusRepeaterText;
+    private Rectangle repeaterContainer;
+    private Rectangle repeaterCenterContainer;
 
     public int getBoardPositionX() {
         return boardPositionX;
@@ -102,8 +100,6 @@ public class GridSquare extends Entity {
     }
 
 
-
-
     MainGrid matrix;
     SparseArray<Rectangle> ageRectangles = new SparseArray<Rectangle>(5);
     Rectangle rectangle;
@@ -151,22 +147,27 @@ public class GridSquare extends Entity {
 
     public void setupEntities() {
 
-        rectangle = new Rectangle(4, 4, MainGrid.getRectangleTileSizeInPixels() - 8, MainGrid.getRectangleTileSizeInPixels() - 8, vertexBuffer);
+        setupRepeaterEntities();
+
+        rectangle = new Rectangle(ObjectDimensions.szTitleBorderMargin, ObjectDimensions.szTitleBorderMargin, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2, vertexBuffer);
+
         attachChild(rectangle);
 
-        gameOverRect = new Rectangle(4, 4, MainGrid.getRectangleTileSizeInPixels() - 8, MainGrid.getRectangleTileSizeInPixels() - 8, vertexBuffer);
+        gameOverRect = new Rectangle(ObjectDimensions.szTitleBorderMargin, ObjectDimensions.szTitleBorderMargin, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2, vertexBuffer);
         gameOverRect.setColor(Color.BLACK);
         gameOverRect.setVisible(false);
 
-        gridBorder = drawRect(0, 0, MainGrid.getRectangleTileSizeInPixels(), MainGrid.getRectangleTileSizeInPixels(), new Color(0xe6 / 255f, 0xe6 / 255f, 0xef / 255f), 2);
+        gridBorder = drawRect(0, 0, MainGrid.getRectangleTileSizeInPixels(), MainGrid.getRectangleTileSizeInPixels(), GRID_BORDER_COLOR, 2);
         attachChild(gridBorder);
 
-        topConnector = new Rectangle(MainGrid.getRectangleTileSizeInPixels() / 2 - CONNECTOR_WIDTH / 2, -CONNECTOR_HEIGHT / 2, CONNECTOR_WIDTH, CONNECTOR_HEIGHT, vertexBuffer);
-        leftConnector = new Rectangle(-CONNECTOR_HEIGHT / 2, MainGrid.getRectangleTileSizeInPixels() / 2 - CONNECTOR_WIDTH / 2, CONNECTOR_HEIGHT, CONNECTOR_WIDTH, vertexBuffer);
-        rightConnector = new Rectangle(MainGrid.getRectangleTileSizeInPixels() - CONNECTOR_HEIGHT / 2, MainGrid.getRectangleTileSizeInPixels() / 2 - CONNECTOR_WIDTH / 2, CONNECTOR_HEIGHT, CONNECTOR_WIDTH, vertexBuffer);
-        bottomConnector = new Rectangle(MainGrid.getRectangleTileSizeInPixels() / 2 - CONNECTOR_WIDTH / 2, MainGrid.getRectangleTileSizeInPixels() - CONNECTOR_HEIGHT / 2, CONNECTOR_WIDTH, CONNECTOR_HEIGHT, vertexBuffer);
+        topConnector = new Rectangle(MainGrid.getRectangleTileSizeInPixels() / 2 - ObjectDimensions.szConnectorWidth / 2, -ObjectDimensions.szConnectorHeight / 2, ObjectDimensions.szConnectorWidth, ObjectDimensions.szConnectorHeight, vertexBuffer);
+        leftConnector = new Rectangle(-ObjectDimensions.szConnectorHeight / 2, MainGrid.getRectangleTileSizeInPixels() / 2 - ObjectDimensions.szConnectorWidth / 2, ObjectDimensions.szConnectorHeight, ObjectDimensions.szConnectorWidth, vertexBuffer);
+        rightConnector = new Rectangle(MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szConnectorHeight / 2, MainGrid.getRectangleTileSizeInPixels() / 2 - ObjectDimensions.szConnectorWidth / 2, ObjectDimensions.szConnectorHeight, ObjectDimensions.szConnectorWidth, vertexBuffer);
+        bottomConnector = new Rectangle(MainGrid.getRectangleTileSizeInPixels() / 2 - ObjectDimensions.szConnectorWidth / 2, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szConnectorHeight / 2, ObjectDimensions.szConnectorWidth, ObjectDimensions.szConnectorHeight, vertexBuffer);
 
-        multiplierBorder = drawRect(3, 3, MainGrid.getRectangleTileSizeInPixels() - 6, MainGrid.getRectangleTileSizeInPixels() - 6, Color.BLACK, 3);
+
+        float borderSize = MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szMultiplierBorderMargin * 2;
+        multiplierBorder = new HollowRectangle(MainGrid.getRectangleTileSizeInPixels()/2 - borderSize /2, MainGrid.getRectangleTileSizeInPixels()/2 - borderSize /2, MainGrid.getRectangleTileSizeInPixels() - 8, MainGrid.getRectangleTileSizeInPixels() - 8, Color.BLACK, 4, vertexBuffer);
         multiplierBorder.setVisible(false);
         attachChild(multiplierBorder);
 
@@ -179,12 +180,11 @@ public class GridSquare extends Entity {
         valueText.setText("+" + points);
         valueText.setColor(Color.BLACK);
 
-        multiplierText = new Text( 0, 0, mfont.get("multiplier"), "X2", vertexBuffer);
-        multiplierText.setX(MainGrid.getRectangleTileSizeInPixels()/2 - multiplierText.getWidth()/2);
-        multiplierText.setY(MainGrid.getRectangleTileSizeInPixels()/2 - multiplierText.getHeight()/2);
+        multiplierText = new Text(0, 0, mfont.get("multiplier"), "X2", vertexBuffer);
+        multiplierText.setX(MainGrid.getRectangleTileSizeInPixels() / 2 - multiplierText.getWidth() / 2);
+        multiplierText.setY(MainGrid.getRectangleTileSizeInPixels() / 2 - multiplierText.getHeight() / 2);
         multiplierText.setColor(Color.RED);
         multiplierText.setVisible(false);
-
 
 
         if (getTileType() != GameMatrix.EMPTY && getTileType() != GameMatrix.BUSTED) {
@@ -193,7 +193,7 @@ public class GridSquare extends Entity {
             valueText.setVisible(false);
         }
 
-        innerRectangle = new Rectangle(INNER_RECT_THICKNESS, INNER_RECT_THICKNESS, MainGrid.getRectangleTileSizeInPixels() - INNER_RECT_THICKNESS * 2, MainGrid.getRectangleTileSizeInPixels() - INNER_RECT_THICKNESS * 2, vertexBuffer);
+        innerRectangle = new Rectangle(ObjectDimensions.szInnerRectThickness, ObjectDimensions.szInnerRectThickness, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szInnerRectThickness * 2, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szInnerRectThickness * 2, vertexBuffer);
         innerRectangle.setColor(Color.WHITE);
 
         attachChild(innerRectangle);
@@ -201,6 +201,21 @@ public class GridSquare extends Entity {
         attachChild(valueText);
         attachChild(multiplierText);
         attachChild(gameOverRect);
+    }
+
+    private void setupRepeaterEntities() {
+        float szRepeater = MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2;
+        repeaterContainer = new Rectangle(ObjectDimensions.szTitleBorderMargin, ObjectDimensions.szTitleBorderMargin, szRepeater, szRepeater, vertexBuffer);
+        repeaterContainer.setVisible(false);
+        attachChild(repeaterContainer);
+
+        repeaterCenterContainer = new Rectangle(ObjectDimensions.szRepeaterCenterContainerMargin,
+                ObjectDimensions.szRepeaterCenterContainerMargin,
+                szRepeater - ObjectDimensions.szRepeaterCenterContainerMargin * 2,
+                szRepeater - ObjectDimensions.szRepeaterCenterContainerMargin * 2, vertexBuffer);
+        repeaterCenterContainer.setColor(Color.WHITE);
+        repeaterCenterContainer.setVisible(true);
+        repeaterContainer.attachChild(repeaterCenterContainer);
     }
 
     public Entity drawRect(float x, float y, float x1, float y1, Color color, float pLineWidth) {
@@ -248,7 +263,7 @@ public class GridSquare extends Entity {
 
     public void animateColorFlip(int newTile) {
         Color newColor = toColor(newTile);
-        rectangle.registerEntityModifier( new ColorModifier(0.5f, rectangle.getColor(), newColor, new IEntityModifier.IEntityModifierListener() {
+        rectangle.registerEntityModifier(new ColorModifier(0.5f, rectangle.getColor(), newColor, new IEntityModifier.IEntityModifierListener() {
             @Override
             public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 
@@ -294,7 +309,7 @@ public class GridSquare extends Entity {
         final float finalToScale = toScale;
         valueText.registerEntityModifier(
 
-                new ScaleAtModifier(0.2f, 1f, toScale, valueText.getWidth()/2, valueText.getHeight() /2, new IEntityModifier.IEntityModifierListener() {
+                new ScaleAtModifier(0.2f, 1f, toScale, valueText.getWidth() / 2, valueText.getHeight() / 2, new IEntityModifier.IEntityModifierListener() {
                     @Override
                     public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 
@@ -303,7 +318,7 @@ public class GridSquare extends Entity {
 
                     @Override
                     public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-                        valueText.registerEntityModifier(new ScaleAtModifier(0.2f, finalToScale, 1f, valueText.getWidth()/2, valueText.getHeight() /2, new IEntityModifier.IEntityModifierListener() {
+                        valueText.registerEntityModifier(new ScaleAtModifier(0.2f, finalToScale, 1f, valueText.getWidth() / 2, valueText.getHeight() / 2, new IEntityModifier.IEntityModifierListener() {
 
                             @Override
                             public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
@@ -353,6 +368,34 @@ public class GridSquare extends Entity {
         gameOverRect.registerEntityModifier(new AlphaModifier(1f, 0f, 0.5f));
     }
 
+    public void animateRepeaterExpand(final OnSequenceFinished sequenceFinished) {
+        rectangle.setScaleCenterX(MainGrid.getRepeaterSizeInPixels()/2);
+        rectangle.setScaleCenterY(MainGrid.getRepeaterSizeInPixels() / 2);
+        repeaterContainer.registerEntityModifier(new AlphaModifier(1f, 1f, 0f, new IEntityModifier.IEntityModifierListener() {
+            @Override
+            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+
+            @Override
+            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+        }));
+        rectangle.registerEntityModifier(new ScaleModifier(1f, 1f, 1.5f, new IEntityModifier.IEntityModifierListener() {
+            @Override
+            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+
+            @Override
+            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+
+                sequenceFinished.completed();
+            }
+        }));
+    }
+
     public void updateSelf() {
         gameOverRect.setVisible(false);
         topConnector.setVisible(false);
@@ -361,23 +404,14 @@ public class GridSquare extends Entity {
         bottomConnector.setVisible(false);
         multiplierText.setVisible(false);
         multiplierBorder.setVisible(false);
+        repeaterContainer.setVisible(false);
         innerRectangle.setVisible(false);
         rectangle.setAlpha(1f);
+        rectangle.setScale(1f);
+        repeaterContainer.setAlpha(1f);
+
 
         if (!isEmpty()) {
-
-            if (isRepeater()) {
-                rectangle.setX(16);
-                rectangle.setY(16);
-                rectangle.setHeight(MainGrid.getRectangleTileSizeInPixels() - 32);
-                rectangle.setWidth(MainGrid.getRectangleTileSizeInPixels() - 32);
-            } else {
-                rectangle.setX(4);
-                rectangle.setY(4);
-                rectangle.setHeight(MainGrid.getRectangleTileSizeInPixels() - 8);
-                rectangle.setWidth(MainGrid.getRectangleTileSizeInPixels() - 8);
-            }
-
             switch (tileType) {
                 case GameMatrix.BLUE_BLOCK:
                 case GameMatrix.BLUE_REPEATER_BLOCK:
@@ -411,6 +445,20 @@ public class GridSquare extends Entity {
                     break;
             }
 
+            if (isRepeater()) {
+                rectangle.setX(MainGrid.getRectangleTileSizeInPixels() / 2 - MainGrid.getRepeaterSizeInPixels() / 2);
+                rectangle.setY(MainGrid.getRectangleTileSizeInPixels() / 2 - MainGrid.getRepeaterSizeInPixels() / 2);
+                rectangle.setHeight(MainGrid.getRepeaterSizeInPixels());
+                rectangle.setWidth(MainGrid.getRepeaterSizeInPixels());
+                repeaterContainer.setColor(rectangle.getColor());
+                repeaterContainer.setVisible(true);
+            } else {
+                rectangle.setX(ObjectDimensions.szTitleBorderMargin);
+                rectangle.setY(ObjectDimensions.szTitleBorderMargin);
+                rectangle.setHeight(MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2);
+                rectangle.setWidth(MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2);
+            }
+
             if (isColoredTile() || isRepeater()) {
 
                 if (hasAdjacentTop()) {
@@ -434,7 +482,7 @@ public class GridSquare extends Entity {
 //                }
 
                 rectangle.setAlpha(0.7f);
-            } else if ( (getTileType() == GameMatrix.MULTIPLIERX2) || (getTileType() == GameMatrix.MULTIPLIERX4_COLORED)) {
+            } else if ((getTileType() == GameMatrix.MULTIPLIERX2) || (getTileType() == GameMatrix.MULTIPLIERX4_COLORED)) {
                 if (multiplierConnector[0]) {
                     topConnector.setColor(getConnectorColor());
                     topConnector.setVisible(true);
@@ -475,20 +523,20 @@ public class GridSquare extends Entity {
         if (isColoredTile()) {
             innerRectangle.setVisible(true);
 
-            float rect_height = MainGrid.getRectangleTileSizeInPixels() - INNER_RECT_THICKNESS * 2;
-            final float current_height = (rect_height * age)/MAX_AGE;
-            if (getBoardPositionX() >=0 && innerRectangle.getHeight() < current_height) {
-               innerRectangle.registerEntityModifier(new HeightModifier(1f, current_height - innerRectangle.getHeight(), new IEntityModifier.IEntityModifierListener() {
-                   @Override
-                   public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+            float rect_height = MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szInnerRectThickness * 2;
+            final float current_height = (rect_height * age) / MAX_AGE;
+            if (getBoardPositionX() >= 0 && innerRectangle.getHeight() < current_height) {
+                innerRectangle.registerEntityModifier(new HeightModifier(1f, current_height - innerRectangle.getHeight(), new IEntityModifier.IEntityModifierListener() {
+                    @Override
+                    public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 
-                   }
+                    }
 
-                   @Override
-                   public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-                       innerRectangle.setHeight(current_height);
-                   }
-               }));
+                    @Override
+                    public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                        innerRectangle.setHeight(current_height);
+                    }
+                }));
             } else {
                 innerRectangle.setHeight(current_height);
             }
@@ -528,20 +576,20 @@ public class GridSquare extends Entity {
             return Color.BLACK;
         }
         if (getTileType() == GameMatrix.MULTIPLIERX4_COLORED) {
-            return  toColor(getMultiplierColor());
+            return toColor(getMultiplierColor());
         } else {
             return rectangle.getColor();
         }
     }
 
     public boolean isRepeater() {
-        switch(tileType) {
+        switch (tileType) {
             case GameMatrix.RED_REPEATER_BLOCK:
                 return true;
             case GameMatrix.BLUE_REPEATER_BLOCK:
                 return true;
             case GameMatrix.GREEN_REPEATER_BLOCK:
-                return  true;
+                return true;
         }
         return false;
     }
@@ -550,9 +598,9 @@ public class GridSquare extends Entity {
         if (getTileType() == GameMatrix.MULTIPLIERX2) {
             return isColoredTile(matrix.world[boardX][boardY].getTileType());
         } else if (getTileType() == GameMatrix.MULTIPLIERX4_COLORED) {
-            return matrix.world[boardX][boardY].getTileType()== getMultiplierColor();
+            return matrix.world[boardX][boardY].getTileType() == getMultiplierColor();
         } else {
-            return (matrix.world[boardX][boardY].getTileType() == tileType) || (matrix.world[boardX][boardY].getTileType() +6 == tileType) ||
+            return (matrix.world[boardX][boardY].getTileType() == tileType) || (matrix.world[boardX][boardY].getTileType() + 6 == tileType) ||
                     (matrix.world[boardX][boardY].getTileType() == tileType + 6
                             || (matrix.world[boardX][boardY].getTileType() == GameMatrix.MULTIPLIERX4_COLORED && matrix.world[boardX][boardY].getMultiplierColor() == tileType));
         }

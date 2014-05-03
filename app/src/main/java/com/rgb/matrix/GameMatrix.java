@@ -5,11 +5,11 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.util.Pair;
 
-import com.droiuby.tiletron.app.SoundWrapper;
+import com.dayosoft.tiletron.app.SoundWrapper;
 import com.rgb.matrix.interfaces.GridEventListener;
+import com.rgb.matrix.interfaces.OnSequenceFinished;
 import com.rgb.matrix.menu.MainMenu;
 
-import org.andengine.audio.sound.Sound;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
@@ -89,7 +89,7 @@ public class GameMatrix implements IUpdateHandler {
 //        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MainGrid.TILE_SIZE_IN_DIP, r.getDisplayMetrics());
 //        MainGrid.setRectangleTileSizeInPixels(px);
 
-        this.mainGrid = new MainGrid(offset_x, offset_y + 10, gridWidth, gridHeight, this, mainMenu, fontDictionary, soundAssets, vertexBuffer, listener);
+        this.mainGrid = new MainGrid(offset_x, offset_y + ObjectDimensions.szMainGridPaddingTop, gridWidth, gridHeight, this, mainMenu, fontDictionary, soundAssets, vertexBuffer, listener);
 
 
         this.fontDictionary = fontDictionary;
@@ -392,6 +392,12 @@ public class GameMatrix implements IUpdateHandler {
                     gridSquare.getBonusSources().clear();
                 }
             } else if (gridSquare.isRepeater()) {
+                gridSquare.animateRepeaterExpand(new OnSequenceFinished() {
+                    @Override
+                    public void completed() {
+
+                    }
+                });
                 secondaryEvents.add(gridSquare);
             }
         }

@@ -2,14 +2,13 @@ package com.rgb.matrix;
 
 import android.util.Log;
 
-import com.droiuby.tiletron.app.SoundWrapper;
+import com.dayosoft.tiletron.app.SoundWrapper;
 import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.menu.MainMenu;
 import com.rgb.matrix.menu.MenuItem;
 import com.rgb.matrix.menu.OnBackListener;
 import com.rgb.matrix.menu.OnMenuSelectedListener;
 
-import org.andengine.audio.sound.Sound;
 import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.AlphaModifier;
@@ -55,6 +54,7 @@ public class MainGrid extends Entity {
     private MainMenu mainMenu;
     private Text chainBonusRepeaterText;
     private Rectangle chainBonusRepeaterBackground;
+    private static float repeaterSizeInPixels = 15;
 
     public static float getRectangleTileSizeInPixels() {
         return rectangleTileSizeInPixels;
@@ -62,6 +62,14 @@ public class MainGrid extends Entity {
 
     public static void setRectangleTileSizeInPixels(float rectangleTileSizeInPixels) {
         MainGrid.rectangleTileSizeInPixels = rectangleTileSizeInPixels;
+    }
+
+    public static float getRepeaterSizeInPixels() {
+        return repeaterSizeInPixels;
+    }
+
+    public static void setRepeaterSizeInPixels(float repeaterSizeInPixels) {
+        MainGrid.repeaterSizeInPixels = repeaterSizeInPixels;
     }
 
     public int getScore() {
@@ -113,12 +121,12 @@ public class MainGrid extends Entity {
             }
         }
 
-        float offsetY = (gridHeight * getRectangleTileSizeInPixels()) + 10;
+        float offsetY = (gridHeight * getRectangleTileSizeInPixels()) + ObjectDimensions.szGridPaddingBottom;
 
         this.rechargeMeter = new RechargeMeter(0, offsetY, gridWidth * getRectangleTileSizeInPixels(), 100, fontDictionary, soundAssets, vertexBuffer);
         attachChild(rechargeMeter);
 
-        offsetY+=rechargeMeter.getHeight() +5;
+        offsetY+=rechargeMeter.getHeight() + ObjectDimensions.szRechargeMeterPaddingBottom;
 
         for (int i = QUEUE_SIZE - 1; i >= 0; i--) {
 
@@ -149,7 +157,7 @@ public class MainGrid extends Entity {
 
         }
 
-        offsetY += 100;
+        offsetY += ObjectDimensions.szQueuePaddingBottom;
 
         String highScore = StringUtils.leftPad(Integer.toString(matrix.getHighScore()), 4, "0");
         scoreText = new Text(0, offsetY, mFont, "Score: 0000 High: " + highScore, vertexBuffer);
