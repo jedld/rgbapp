@@ -95,8 +95,7 @@ public class AsyncRequestTests extends FacebookTestCase {
     @MediumTest
     @LargeTest
     public void testExecuteSingleGet() {
-        final TestSession session = openTestSessionWithSharedUser();
-        Request request = new Request(session, "TourEiffel", null, null, new ExpectSuccessCallback() {
+        Request request = new Request(null, "TourEiffel", null, null, new ExpectSuccessCallback() {
             @Override
             protected void performAsserts(Response response) {
                 assertNotNull(response);
@@ -116,8 +115,7 @@ public class AsyncRequestTests extends FacebookTestCase {
     @MediumTest
     @LargeTest
     public void testExecuteSingleGetUsingHttpURLConnection() {
-        final TestSession session = openTestSessionWithSharedUser();
-        Request request = new Request(session, "TourEiffel", null, null, new ExpectSuccessCallback() {
+        Request request = new Request(null, "TourEiffel", null, null, new ExpectSuccessCallback() {
             @Override
             protected void performAsserts(Response response) {
                 assertNotNull(response);
@@ -138,8 +136,7 @@ public class AsyncRequestTests extends FacebookTestCase {
     @MediumTest
     @LargeTest
     public void testExecuteSingleGetFailureCase() {
-        final TestSession session = openTestSessionWithSharedUser();
-        Request request = new Request(session, "-1", null, null, new ExpectFailureCallback());
+        Request request = new Request(null, "-1", null, null, new ExpectFailureCallback());
 
         TestRequestAsyncTask task = new TestRequestAsyncTask(request);
 

@@ -20,7 +20,7 @@ import android.app.Activity;
 
 public class FacebookTestCase extends FacebookActivityTestCase<FacebookTestCase.FacebookTestActivity> {
     public FacebookTestCase() {
-        super(FacebookTestActivity.class);
+        super(FacebookTestCase.FacebookTestActivity.class);
         Settings.addLoggingBehavior(LoggingBehavior.REQUESTS);
         Settings.addLoggingBehavior(LoggingBehavior.INCLUDE_RAW_RESPONSES);
     }

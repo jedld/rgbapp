@@ -40,11 +40,6 @@ public class BatchRequestTests extends FacebookTestCase {
         Request.setDefaultBatchApplicationId(null);
     }
 
-    protected String[] getPermissionsForDefaultTestSession()
-    {
-        return new String[] { "email", "publish_actions", "read_stream" };
-    };
-
     @SmallTest
     @MediumTest
     @LargeTest
@@ -94,12 +89,12 @@ public class BatchRequestTests extends FacebookTestCase {
         // ensures that paths passed to batch requests are encoded properly before
         // we send it up to the server
 
-        TestSession session = openTestSessionWithSharedUser();
+        setBatchApplicationIdForTestApp();
 
-        Request request1 = new Request(session, "TourEiffel");
+        Request request1 = new Request(null, "TourEiffel");
         request1.setBatchEntryName("eiffel");
         request1.setBatchEntryOmitResultOnSuccess(false);
-        Request request2 = new Request(session, "{result=eiffel:$.id}");
+        Request request2 = new Request(null, "{result=eiffel:$.id}");
 
         List<Response> responses = Request.executeBatchAndWait(request1, request2);
         assertEquals(2, responses.size());
@@ -118,10 +113,10 @@ public class BatchRequestTests extends FacebookTestCase {
     @MediumTest
     @LargeTest
     public void testExecuteBatchedGets() throws IOException {
-        TestSession session = openTestSessionWithSharedUser();
+        setBatchApplicationIdForTestApp();
 
-        Request request1 = new Request(session, "TourEiffel");
-        Request request2 = new Request(session, "SpaceNeedle");
+        Request request1 = new Request(null, "TourEiffel");
+        Request request2 = new Request(null, "SpaceNeedle");
 
         List<Response> responses = Request.executeBatchAndWait(request1, request2);
         assertEquals(2, responses.size());
@@ -165,10 +160,8 @@ public class BatchRequestTests extends FacebookTestCase {
 
         Request postRequest1 = Request.newPostRequest(session, "me/feed", statusUpdate1, null);
         postRequest1.setBatchEntryName("postRequest1");
-        postRequest1.setBatchEntryOmitResultOnSuccess(false);
         Request postRequest2 = Request.newPostRequest(session, "me/feed", statusUpdate2, null);
         postRequest2.setBatchEntryName("postRequest2");
-        postRequest2.setBatchEntryOmitResultOnSuccess(false);
         Request getRequest1 = new Request(session, "{result=postRequest1:$.id}");
         Request getRequest2 = new Request(session, "{result=postRequest2:$.id}");
 
@@ -214,7 +207,7 @@ public class BatchRequestTests extends FacebookTestCase {
         TestSession session = openTestSessionWithSharedUser();
 
         Request request1 = new Request(session, "me");
-        Request request2 = new Request(null, "me");
+        Request request2 = new Request(null, "zuck");
 
         List<Response> responses = Request.executeBatchAndWait(request1, request2);
         assertNotNull(responses);
@@ -224,16 +217,18 @@ public class BatchRequestTests extends FacebookTestCase {
         GraphUser user2 = responses.get(1).getGraphObjectAs(GraphUser.class);
 
         assertNotNull(user1);
-        assertNull(user2);
+        assertNotNull(user2);
 
+        assertFalse(user1.getId().equals(user2.getId()));
         assertEquals(session.getTestUserId(), user1.getId());
+        assertEquals("4", user2.getId());
     }
 
     @LargeTest
     public void testBatchWithNoSessionAndValidSession() {
         TestSession session = openTestSessionWithSharedUser();
 
-        Request request1 = new Request(null, "me");
+        Request request1 = new Request(null, "zuck");
         Request request2 = new Request(session, "me");
 
         List<Response> responses = Request.executeBatchAndWait(request1, request2);
@@ -243,9 +238,11 @@ public class BatchRequestTests extends FacebookTestCase {
         GraphUser user1 = responses.get(0).getGraphObjectAs(GraphUser.class);
         GraphUser user2 = responses.get(1).getGraphObjectAs(GraphUser.class);
 
-        assertNull(user1);
+        assertNotNull(user1);
         assertNotNull(user2);
 
+        assertFalse(user1.getId().equals(user2.getId()));
+        assertEquals("4", user1.getId());
         assertEquals(session.getTestUserId(), user2.getId());
     }
 
@@ -255,8 +252,8 @@ public class BatchRequestTests extends FacebookTestCase {
         String appId = session.getApplicationId();
         Request.setDefaultBatchApplicationId(appId);
 
-        Request request1 = new Request(null, "me");
-        Request request2 = new Request(null, "me");
+        Request request1 = new Request(null, "zuck");
+        Request request2 = new Request(null, "zuck");
 
         List<Response> responses = Request.executeBatchAndWait(request1, request2);
         assertNotNull(responses);
@@ -265,8 +262,11 @@ public class BatchRequestTests extends FacebookTestCase {
         GraphUser user1 = responses.get(0).getGraphObjectAs(GraphUser.class);
         GraphUser user2 = responses.get(1).getGraphObjectAs(GraphUser.class);
 
-        assertNull(user1);
-        assertNull(user2);
+        assertNotNull(user1);
+        assertNotNull(user2);
+
+        assertEquals("4", user1.getId());
+        assertEquals("4", user2.getId());
     }
 
     @LargeTest

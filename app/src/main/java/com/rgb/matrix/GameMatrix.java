@@ -8,6 +8,7 @@ import android.util.Pair;
 import com.dayosoft.tiletron.app.SoundWrapper;
 import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.interfaces.OnSequenceFinished;
+import com.rgb.matrix.interfaces.RGBProcessListener;
 import com.rgb.matrix.menu.MainMenu;
 
 import org.andengine.engine.handler.IUpdateHandler;
@@ -304,8 +305,14 @@ public class GameMatrix implements IUpdateHandler {
                 inProgress = false;
             } else if (currentTile.isColoredTile()) {
                 if (mainGrid.isRGB(x, y, object.getTileType())) {
-                    checkValidMoves = processRGBSequence(x, y, multiplierLevel, object);
+                    checkValidMoves = processRGBSequence(x, y, multiplierLevel, object , new RGBProcessListener() {
+                        @Override
+                        public void onComplete() {
+                            inProgress = false;
+                        }
+                    });
                 } else {
+                    inProgress = false;
                     for (GridSquare square : getAdjacentTiles(x, y)) {
                         if (square.isColoredTile() && square.getTileType() != object.getTileType()) {
                             if (mainGrid.isRGB(square.getBoardPositionX(), square.getBoardPositionY(), square.getTileType())) {
@@ -314,7 +321,13 @@ public class GameMatrix implements IUpdateHandler {
                                 proxyNextObject.setMultiplierColor(currentTile.getMultiplierColor());
                                 proxyNextObject.setAge(currentTile.age);
                                 square.setTileType(currentTile.getTileType());
-                                if (!processRGBSequence(square.getBoardPositionX(), square.getBoardPositionY(), multiplierLevel, proxyNextObject)) {
+                                inProgress = true;
+                                if (!processRGBSequence(square.getBoardPositionX(), square.getBoardPositionY(), multiplierLevel, proxyNextObject, new RGBProcessListener() {
+                                    @Override
+                                    public void onComplete() {
+                                        inProgress = false;
+                                    }
+                                })) {
                                     checkValidMoves = false;
                                 };
                                 break;
@@ -322,8 +335,6 @@ public class GameMatrix implements IUpdateHandler {
                         }
                     }
                 }
-
-                inProgress = false;
             } else {
                 inProgress = false;
             }
@@ -358,7 +369,7 @@ public class GameMatrix implements IUpdateHandler {
         }
     }
 
-    private boolean processRGBSequence(int x, int y, final int multiplierLevel, NextObject object) {
+    private boolean processRGBSequence(int x, int y, final int multiplierLevel, NextObject object, final RGBProcessListener listener) {
         ArrayList<Pair<Integer, Integer>> updateList = new ArrayList<Pair<Integer, Integer>>();
         mainGrid.addScore(1);
         updateAdjacent(x, y, object.getTileType(), 0, updateList, getVisitMap());
@@ -420,9 +431,12 @@ public class GameMatrix implements IUpdateHandler {
                         updateWorld(secondaryTriggers.getBoardPositionX(), secondaryTriggers.getBoardPositionY(),
                                 generatedObject, multiplierLevel + 1, false);
                     }
+                    listener.onComplete();
                 }
             }, 1000);
             return false;
+        } else {
+            listener.onComplete();
         }
 
         return true;

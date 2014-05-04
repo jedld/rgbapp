@@ -24,7 +24,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 public class FacebookActivityTests extends FacebookActivityTestCase<FacebookActivityTests.FacebookTestActivity> {
     public FacebookActivityTests() {
-        super(FacebookTestActivity.class);
+        super(FacebookActivityTests.FacebookTestActivity.class);
     }
 
     @Override

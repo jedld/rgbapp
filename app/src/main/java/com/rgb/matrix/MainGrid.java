@@ -3,6 +3,7 @@ package com.rgb.matrix;
 import android.util.Log;
 
 import com.dayosoft.tiletron.app.SoundWrapper;
+import com.rgb.matrix.interfaces.GameOverDialogEventListener;
 import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.menu.MainMenu;
 import com.rgb.matrix.menu.MenuItem;
@@ -16,6 +17,7 @@ import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.text.Text;
+import org.andengine.entity.util.ScreenCapture;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
@@ -48,13 +50,15 @@ public class MainGrid extends Entity {
     GridSquare world[][];
     GridSquare queueRectangles[] = new GridSquare[QUEUE_SIZE];
     private Text scoreText;
-    private Text gameOverText;
     private RectangleButton newGameButton;
     private RechargeMeter rechargeMeter;
     private MainMenu mainMenu;
     private Text chainBonusRepeaterText;
     private Rectangle chainBonusRepeaterBackground;
     private static float repeaterSizeInPixels = 15;
+    private GameOver gameOverText;
+    private ScreenCapture screenCapture;
+    private boolean highScoreAchieved;
 
     public static float getRectangleTileSizeInPixels() {
         return rectangleTileSizeInPixels;
@@ -98,6 +102,7 @@ public class MainGrid extends Entity {
         this.world = new GridSquare[gridWidth][gridHeight];
         this.vertexBuffer = vertexBuffer;
         this.fontDictionary = fontDictionary;
+        this.highScoreAchieved = false;
         this.mFont = fontDictionary.get("score");
         setupWorld();
     }
@@ -165,16 +170,11 @@ public class MainGrid extends Entity {
         scoreText.setColor(Color.BLACK);
         attachChild(scoreText);
 
-        gameOverText = new Text(0, 0, mFont, "G A M E   O V E R", vertexBuffer);
-        gameOverText.setX((gridWidth * getRectangleTileSizeInPixels()) / 2 - (gameOverText.getWidth()/2));
-        gameOverText.setY(gridHeight * getRectangleTileSizeInPixels() / 2);
-        gameOverText.setColor(Color.RED);
-        gameOverText.setVisible(false);
-        attachChild(gameOverText);
+
 
         chainBonusRepeaterText = new Text( 0, 0, fontDictionary.get("multiplier"), "Chain Bonus X 2!", vertexBuffer);
-        chainBonusRepeaterText.setX((gridWidth * getRectangleTileSizeInPixels()) / 2 - (gameOverText.getWidth()/2));
-        chainBonusRepeaterText.setY(gridHeight * getRectangleTileSizeInPixels() / 2);
+        chainBonusRepeaterText.setX((gridWidth * getRectangleTileSizeInPixels()) / 2 - (chainBonusRepeaterText.getWidth()/2));
+        chainBonusRepeaterText.setY(gridHeight * getRectangleTileSizeInPixels() / 2 - (chainBonusRepeaterText.getHeight() / 2));
         chainBonusRepeaterText.setColor(Color.RED);
         chainBonusRepeaterText.setVisible(false);
 
@@ -189,6 +189,16 @@ public class MainGrid extends Entity {
 
         newGameButton = new RectangleButton((gridWidth * getRectangleTileSizeInPixels()) - 170, offsetY - 15, 170, 50, vertexBuffer, mFont, "Menu");
         attachChild(newGameButton);
+
+        screenCapture = new ScreenCapture();
+        attachChild(screenCapture);
+
+        gameOverText = new GameOver(0,0, mFont, vertexBuffer);
+        gameOverText.setX((gridWidth * getRectangleTileSizeInPixels()) / 2 - (gameOverText.getWidth()/2));
+        gameOverText.setY( (800 / 2) - (gameOverText.getHeight()/2));
+        gameOverText.setVisible(false);
+        attachChild(gameOverText);
+
 
         mainMenu.addMenuItem("New Game", new OnMenuSelectedListener() {
 
@@ -234,6 +244,10 @@ public class MainGrid extends Entity {
                 mainMenu.setVisible(false);
             }
         });
+    }
+
+    public void shareOnFacebook() {
+            gridEventListener.onScreenCaptureHighScore(screenCapture);
     }
 
     public void showChainBonus(int multiplier) {
@@ -309,11 +323,16 @@ public class MainGrid extends Entity {
         int colorTest = 0;
         for (GridSquare adjacentColor : adjacentSquares) {
             Log.d(TAG, "test = " + adjacentColor);
-            if (adjacentColor.getTileType() != color) {
+            int itemColor = adjacentColor.getTileType();
+            if (adjacentColor.getTileType() == GameMatrix.MULTIPLIERX4_COLORED) {
+                itemColor = adjacentColor.getMultiplierColor();
+            }
+
+            if (itemColor != color) {
                 if (colorTest == 0) {
-                    colorTest = adjacentColor.getTileType();
+                    colorTest = itemColor;
                 } else {
-                    if (colorTest != adjacentColor.getTileType()) return true;
+                    if (colorTest != itemColor) return true;
                 }
             }
         }
@@ -322,6 +341,7 @@ public class MainGrid extends Entity {
 
     public void resetWorldState() {
         score = 0;
+        highScoreAchieved = false;
         scoreTextString = "Score: 0000";
         for (int i = 0; i < gridWidth; i++) {
             for (int i2 = 0; i2 < gridHeight; i2++) {
@@ -400,7 +420,7 @@ public class MainGrid extends Entity {
     }
 
     public void showGameOver() {
-        fadeOutAllRectangles();
+//        fadeOutAllRectangles();
         gameOverText.setVisible(true);
     }
 
@@ -412,28 +432,35 @@ public class MainGrid extends Entity {
         Log.d(TAG, "onTouch " + pSceneTouchEvent.getX() + " " + pSceneTouchEvent.getY());
         if (mainMenu.isVisible()) {
             mainMenu.handleOnTouch(pSceneTouchEvent);
-        } else
-        if (rechargeMeter.isAreaTouched(pSceneTouchEvent)) {
-            useRechargeMeter();
-        } else
-        if (newGameButton.isAreaTouched(pSceneTouchEvent)) {
-            mainMenu.setVisible(true);
-            mainMenu.setAlpha(0f);
-            mainMenu.registerEntityModifier(new AlphaModifier(1f,0f,1f));
-        } else if (getX() <= pSceneTouchEvent.getX() && getY() <= pSceneTouchEvent.getY() &&
-                getX() + gridWidth * MainGrid.getRectangleTileSizeInPixels() >= pSceneTouchEvent.getX() && getX() + gridHeight * MainGrid.getRectangleTileSizeInPixels() >= pSceneTouchEvent.getY()) {
+        } else {
+            if (rechargeMeter.isAreaTouched(pSceneTouchEvent)) {
+                useRechargeMeter();
+            } else if (newGameButton.isAreaTouched(pSceneTouchEvent)) {
+                mainMenu.setVisible(true);
+                mainMenu.setAlpha(0f);
+                mainMenu.registerEntityModifier(new AlphaModifier(1f, 0f, 1f));
+            } else if (gameOverText.isVisible()) {
+                gameOverText.handleTouch(pSceneTouchEvent, new GameOverDialogEventListener() {
+                    @Override
+                    public void onShare(RectangleButton shareButton) {
+                        gridEventListener.onScreenCaptureHighScore(screenCapture);
+                    }
+                });
+            } else if (getX() <= pSceneTouchEvent.getX() && getY() <= pSceneTouchEvent.getY() &&
+                    getX() + gridWidth * MainGrid.getRectangleTileSizeInPixels() >= pSceneTouchEvent.getX() && getX() + gridHeight * MainGrid.getRectangleTileSizeInPixels() >= pSceneTouchEvent.getY()) {
 
-            float normalized_x = pSceneTouchEvent.getX() - getX();
-            float normalized_y = pSceneTouchEvent.getY() - getY();
+                float normalized_x = pSceneTouchEvent.getX() - getX();
+                float normalized_y = pSceneTouchEvent.getY() - getY();
 
-            int grid_x = (int) normalized_x / (int)MainGrid.getRectangleTileSizeInPixels();
-            int grid_y = (int) normalized_y / (int)MainGrid.getRectangleTileSizeInPixels();
+                int grid_x = (int) normalized_x / (int) MainGrid.getRectangleTileSizeInPixels();
+                int grid_y = (int) normalized_y / (int) MainGrid.getRectangleTileSizeInPixels();
 
-            if (isValid(grid_x, grid_y)) {
-                NextObject object = matrix.blockQueue.remove(0);
-                matrix.fillQueue();
-                Log.d(TAG, "updating world " + grid_x + " , " + grid_y + " = " + object);
-                matrix.updateWorld(grid_x, grid_y, object, 1, false);
+                if (isValid(grid_x, grid_y)) {
+                    NextObject object = matrix.blockQueue.remove(0);
+                    matrix.fillQueue();
+                    Log.d(TAG, "updating world " + grid_x + " , " + grid_y + " = " + object);
+                    matrix.updateWorld(grid_x, grid_y, object, 1, false);
+                }
             }
         }
     }

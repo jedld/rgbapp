@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
-import com.facebook.internal.ServerProtocol;
 import com.facebook.model.*;
 
 import java.io.File;
@@ -37,11 +36,6 @@ import java.util.List;
 
 public class RequestTests extends FacebookTestCase {
     private final static String TEST_OG_TYPE = "facebooksdktests:test";
-
-    protected String[] getPermissionsForDefaultTestSession()
-    {
-        return new String[] { "email", "publish_actions", "read_stream" };
-    };
 
     @SmallTest
     @MediumTest
@@ -349,7 +343,7 @@ public class RequestTests extends FacebookTestCase {
         assertTrue(connection != null);
 
         assertEquals("GET", connection.getRequestMethod());
-        assertEquals("/" + ServerProtocol.getAPIVersion() + "/TourEiffel", connection.getURL().getPath());
+        assertEquals("/TourEiffel", connection.getURL().getPath());
 
         assertTrue(connection.getRequestProperty("User-Agent").startsWith("FBAndroidSDK"));
 
@@ -358,33 +352,15 @@ public class RequestTests extends FacebookTestCase {
         assertEquals("json", uri.getQueryParameter("format"));
     }
 
-    @SmallTest
-    @MediumTest
-    @LargeTest
-    public void testBuildsClientTokenIfNeeded() throws Exception {
-        Request requestMe = new Request(null, "TourEiffel");
-        HttpURLConnection connection = Request.toHttpConnection(requestMe);
-
-        assertTrue(connection != null);
-
-        Uri uri = Uri.parse(connection.getURL().toString());
-        String accessToken = uri.getQueryParameter("access_token");
-        assertNotNull(accessToken);
-        assertTrue(accessToken.contains(Settings.getApplicationId()));
-        assertTrue(accessToken.contains(Settings.getClientToken()));
-    }
-
     @MediumTest
     @LargeTest
     public void testExecuteSingleGet() {
-        TestSession session = openTestSessionWithSharedUser();
-        Request request = new Request(session, "TourEiffel");
+        Request request = new Request(null, "TourEiffel");
         Response response = request.executeAndWait();
 
         assertTrue(response != null);
         assertTrue(response.getError() == null);
         assertTrue(response.getGraphObject() != null);
-        assertNotNull(response.getRawResponse());
 
         GraphPlace graphPlace = response.getGraphObjectAs(GraphPlace.class);
         assertEquals("Paris", graphPlace.getLocation().getCity());
@@ -393,8 +369,7 @@ public class RequestTests extends FacebookTestCase {
     @MediumTest
     @LargeTest
     public void testExecuteSingleGetUsingHttpURLConnection() throws IOException {
-        TestSession session = openTestSessionWithSharedUser();
-        Request request = new Request(session, "TourEiffel");
+        Request request = new Request(null, "TourEiffel");
         HttpURLConnection connection = Request.toHttpConnection(request);
 
         List<Response> responses = Request.executeConnectionAndWait(connection, Arrays.asList(new Request[]{request}));
@@ -406,7 +381,6 @@ public class RequestTests extends FacebookTestCase {
         assertTrue(response != null);
         assertTrue(response.getError() == null);
         assertTrue(response.getGraphObject() != null);
-        assertNotNull(response.getRawResponse());
 
         GraphPlace graphPlace = response.getGraphObjectAs(GraphPlace.class);
         assertEquals("Paris", graphPlace.getLocation().getCity());
@@ -414,7 +388,7 @@ public class RequestTests extends FacebookTestCase {
         // Make sure calling code can still access HTTP headers and call disconnect themselves.
         int code = connection.getResponseCode();
         assertEquals(200, code);
-        assertTrue(connection.getHeaderFields().keySet().contains("Content-Type"));
+        assertTrue(connection.getHeaderFields().keySet().contains("Content-Length"));
         connection.disconnect();
     }
 
@@ -484,7 +458,6 @@ public class RequestTests extends FacebookTestCase {
         GraphUser me = response.getGraphObjectAs(GraphUser.class);
         assertNotNull(me);
         assertEquals(session.getTestUserId(), me.getId());
-        assertNotNull(response.getRawResponse());
     }
 
     @MediumTest
@@ -508,8 +481,6 @@ public class RequestTests extends FacebookTestCase {
 
         List<GraphObject> results = graphResult.getData();
         assertNotNull(results);
-
-        assertNotNull(response.getRawResponse());
     }
 
     @MediumTest
@@ -532,8 +503,6 @@ public class RequestTests extends FacebookTestCase {
 
         List<GraphObject> results = graphResult.getData();
         assertNotNull(results);
-
-        assertNotNull(response.getRawResponse());
     }
 
     @MediumTest
@@ -553,8 +522,6 @@ public class RequestTests extends FacebookTestCase {
 
         List<GraphObject> results = graphResult.getData();
         assertNotNull(results);
-
-        assertNotNull(response.getRawResponse());
     }
 
     @MediumTest
@@ -577,8 +544,6 @@ public class RequestTests extends FacebookTestCase {
 
         List<GraphObject> results = graphResult.getData();
         assertNotNull(results);
-
-        assertNotNull(response.getRawResponse());
     }
 
     private String executePostOpenGraphRequest() {
@@ -597,8 +562,6 @@ public class RequestTests extends FacebookTestCase {
         GraphObject graphResult = response.getGraphObject();
         assertNotNull(graphResult);
         assertNotNull(graphResult.getProperty("id"));
-
-        assertNotNull(response.getRawResponse());
 
         return (String) graphResult.getProperty("id");
     }
@@ -623,7 +586,6 @@ public class RequestTests extends FacebookTestCase {
         assertNotNull(result);
 
         assertTrue((Boolean) result.getProperty(Response.NON_JSON_RESPONSE_PROPERTY));
-        assertNotNull(response.getRawResponse());
     }
 
     @LargeTest
@@ -643,7 +605,6 @@ public class RequestTests extends FacebookTestCase {
 
         GraphObject result = response.getGraphObject();
         assertNotNull(result);
-        assertNotNull(response.getRawResponse());
     }
 
     @LargeTest
@@ -659,7 +620,6 @@ public class RequestTests extends FacebookTestCase {
 
         GraphObject result = response.getGraphObject();
         assertNotNull(result);
-        assertNotNull(response.getRawResponse());
     }
 
     @LargeTest
@@ -687,7 +647,6 @@ public class RequestTests extends FacebookTestCase {
 
             GraphObject result = response.getGraphObject();
             assertNotNull(result);
-            assertNotNull(response.getRawResponse());
         } finally {
             if (outStream != null) {
                 outStream.close();
@@ -713,7 +672,6 @@ public class RequestTests extends FacebookTestCase {
 
             GraphObject result = response.getGraphObject();
             assertNotNull(result);
-            assertNotNull(response.getRawResponse());
         } catch (Exception ex) {
             return;
         } finally {
@@ -754,8 +712,6 @@ public class RequestTests extends FacebookTestCase {
         GraphObject user = graphObjects.get(0);
         assertNotNull(user);
         assertEquals(testUserId, user.getProperty("uid").toString());
-
-        assertNotNull(response.getRawResponse());
     }
 
     @MediumTest

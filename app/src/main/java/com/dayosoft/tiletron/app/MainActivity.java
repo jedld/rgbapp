@@ -1,10 +1,26 @@
 package com.dayosoft.tiletron.app;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.Display;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rgb.matrix.GameMatrix;
@@ -14,6 +30,13 @@ import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.interfaces.OnSequenceFinished;
 import com.rgb.matrix.intro.LogoTiles;
 import com.rgb.matrix.menu.MainMenu;
+import com.sromku.simple.fb.Permission;
+import com.sromku.simple.fb.SimpleFacebook;
+import com.sromku.simple.fb.entities.Photo;
+import com.sromku.simple.fb.entities.Privacy;
+import com.sromku.simple.fb.entities.Score;
+import com.sromku.simple.fb.listeners.OnLoginListener;
+import com.sromku.simple.fb.listeners.OnPublishListener;
 
 import org.andengine.audio.music.Music;
 import org.andengine.audio.music.MusicFactory;
@@ -31,26 +54,41 @@ import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.util.ScreenCapture;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
+import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSource;
+import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder;
+import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder;
+import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.color.Color;
 import org.andengine.util.modifier.IModifier;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
 public class MainActivity extends BaseGameActivity implements GridEventListener {
 
     private static final String TAG = MainActivity.class.getName();
-    private static  float canvasWidth = 480;
-    private static  float canvasHeight = 800;
+    public static float canvasWidth = 480;
+    public static float canvasHeight = 800;
     private static final int BOARD_WIDTH = 8;
     private static final int BOARD_HEIGHT = 10;
     private Camera mCamera;
@@ -63,6 +101,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     int currentMusicTrack = 0;
     private List<Music> trackList = new ArrayList<Music>();
     HashMap<String, SoundWrapper> soundAssets = new HashMap<String, SoundWrapper>();
+    HashMap<String, Sprite> spriteAssets = new HashMap<String, Sprite>();
     private HashMap<String, Font> fontHashMap;
     private ArrayList<String> logoLines;
     private LogoTiles logo;
@@ -70,7 +109,60 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     private MainGrid grid;
     private MainMenu mainMenu;
     private boolean backedPressed = false;
+    private SimpleFacebook mSimpleFacebook;
 
+
+    OnLoginListener onLoginListener = new OnLoginListener() {
+        @Override
+        public void onLogin() {
+            // change the state of the button or do whatever you want
+            Log.i(TAG, "Logged in");
+        }
+
+        @Override
+        public void onNotAcceptingPermissions(Permission.Type type) {
+            // user didn't accept READ or WRITE permission
+            Log.w(TAG, String.format("You didn't accept %s permissions", type.name()));
+        }
+
+        @Override
+        public void onThinking() {
+
+        }
+
+        @Override
+        public void onException(Throwable throwable) {
+
+        }
+
+        @Override
+        public void onFail(String reason) {
+
+        }
+
+    /*
+     * You can override other methods here:
+     * onThinking(), onFail(String reason), onException(Throwable throwable)
+     */
+    };
+    private TextureRegion mSpriteTextureRegion;
+
+    @Override
+    protected void onCreate(Bundle pSavedInstanceState) {
+        super.onCreate(pSavedInstanceState);
+    }
+
+    @Override
+    protected synchronized void onResume() {
+        super.onResume();
+        mSimpleFacebook = SimpleFacebook.getInstance(this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mSimpleFacebook.onActivityResult(this, requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
     @Override
     public EngineOptions onCreateEngineOptions() {
@@ -133,6 +225,28 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
 
         SoundFactory.setAssetBasePath("sfx/");
         MusicFactory.setAssetBasePath("sfx/");
+        BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+
+        BuildableBitmapTextureAtlas mBitmapTextureAtlas = new BuildableBitmapTextureAtlas(mEngine.getTextureManager(), 256, 256,
+                TextureOptions.BILINEAR);
+
+        mSpriteTextureRegion = BitmapTextureAtlasTextureRegionFactory.
+                createFromAsset(mBitmapTextureAtlas, this, "fb_icon.png");
+
+        /* Build the bitmap texture atlas */
+        try {
+            mBitmapTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 1, 1));
+        } catch (ITextureAtlasBuilder.TextureAtlasBuilderException e) {
+            e.printStackTrace();
+        }
+
+        mBitmapTextureAtlas.load();
+
+        Sprite mSprite = new Sprite(0, 0,
+                mSpriteTextureRegion, mEngine.getVertexBufferObjectManager());
+
+        spriteAssets.put("fb_icon", mSprite);
+        Utils.getInstance(this, spriteAssets);
 
         loadSound("place_tile", "place_tile.mp3");
         loadSound("cascade", "cascade.mp3");
@@ -175,10 +289,9 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     @Override
     public synchronized void onGameCreated() {
         super.onGameCreated();
-        Log.d(TAG,"onGameCreated() called");
+        Log.d(TAG, "onGameCreated() called");
         startMainSequence();
     }
-
 
 
     private void startMainSequence() {
@@ -300,7 +413,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     @Override
     public void toggleMusic(boolean state) {
         Utils.saveMusicState(this, state);
-        if (currentTrack() != null ) {
+        if (currentTrack() != null) {
             if (!state && currentTrack().isPlaying()) {
                 currentTrack().pause();
             } else {
@@ -324,6 +437,153 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         return Utils.getSoundState(this);
     }
 
+
+    @Override
+    public void onScreenCaptureHighScore(ScreenCapture screenCapture) {
+        String filename = null;
+        try {
+            filename = getCacheDir().getCanonicalPath() + File.separator + "rgb_" + System.currentTimeMillis() + ".bmp";
+            final String outFilename = getCacheDir().getCanonicalPath() + File.separator +
+                    "rgb_" + System.currentTimeMillis() + ".png";
+            final String finalFilename = filename;
+            screenCapture.capture(mRenderSurfaceView.getWidth(), mRenderSurfaceView.getHeight(), filename,
+                    new ScreenCapture.IScreenCaptureCallback() {
+
+                        @Override
+                        public void onScreenCaptured(String pFilePath) {
+                            Log.d(TAG, "Screencap path" + pFilePath);
+                            AsyncTask<Void, Void, Void> compressImageTask = new AsyncTask<Void, Void, Void>() {
+
+                                @Override
+                                protected Void doInBackground(Void... voids) {
+
+                                    try {
+                                        Bitmap bitmap = BitmapFactory.decodeFile(finalFilename);
+
+                                        File outFile = new File(outFilename);
+                                        outFile.createNewFile();
+                                        FileOutputStream out = new FileOutputStream(outFile);
+                                        bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+                                        out.flush();
+                                        out.close();
+                                        Log.d(TAG, "compress image on " + outFilename);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    return null;
+                                }
+
+                                private void postScreenshot() {
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                    final Bitmap outBitmap = BitmapFactory.decodeFile(finalFilename);
+                                    View confirmation = getLayoutInflater().inflate(R.layout.confirmation_dialog, null);
+                                    TextView text = (TextView)confirmation.findViewById(R.id.message);
+                                    text.setText("Are you sure you want to share this screenshot to Facebook?");
+                                    ImageView image = (ImageView)confirmation.findViewById(R.id.imageView);
+                                    image.setImageDrawable(new BitmapDrawable(getResources(),outBitmap));
+
+                                    builder.setView(confirmation).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            dialogInterface.dismiss();
+
+                                            final ProgressDialog dialog = ProgressDialog.show(MainActivity.this, "Please Wait", "Uploading Screenshot.. please wait");
+                                            dialog.show();
+                                            Photo photo = new Photo.Builder()
+                                                    .setImage(outBitmap)
+                                                    .setName("Has played RGB and got a High Score of " + Utils.getHighScore(MainActivity.this))
+                                                    .build();
+                                            mSimpleFacebook.publish(photo, new OnPublishListener() {
+
+                                                @Override
+                                                public void onComplete(String id) {
+                                                    Score score = new Score.Builder()
+                                                            .setScore(Utils.getHighScore(MainActivity.this))
+                                                            .build();
+                                                    mSimpleFacebook.publish(score, new OnPublishListener() {
+                                                        @Override
+                                                        public void onComplete(String response) {
+                                                            dialog.dismiss();
+                                                        }
+
+                                                        @Override
+                                                        public void onFail(String reason) {
+                                                            super.onFail(reason);
+                                                            dialog.dismiss();
+                                                            Toast.makeText(MainActivity.this, "Unable to upload screenshot to facebook.", Toast.LENGTH_LONG).show();
+                                                        }
+
+                                                    });
+                                                }
+
+                                                @Override
+                                                public void onFail(String reason) {
+                                                    super.onFail(reason);
+                                                    dialog.dismiss();
+                                                    Toast.makeText(MainActivity.this, "Unable to upload screenshot to facebook.", Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+
+                                        }
+                                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            dialogInterface.dismiss();
+                                        }
+                                    }).show();
+
+                                }
+
+                                @Override
+                                protected void onPostExecute(Void aVoid) {
+                                    super.onPostExecute(aVoid);
+
+                                    mSimpleFacebook.login(new OnLoginListener() {
+                                        @Override
+                                        public void onLogin() {
+                                            postScreenshot();
+                                        }
+
+                                        @Override
+                                        public void onNotAcceptingPermissions(Permission.Type type) {
+
+                                        }
+
+                                        @Override
+                                        public void onThinking() {
+
+                                        }
+
+                                        @Override
+                                        public void onException(Throwable throwable) {
+
+                                        }
+
+                                        @Override
+                                        public void onFail(String reason) {
+                                            Toast.makeText(MainActivity.this,"Unable to login to facebook", Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                                }
+
+                            };
+                            compressImageTask.execute();
+                        }
+
+                        @Override
+                        public void onScreenCaptureFailed(String pFilePath, Exception pException) {
+
+                        }
+                    }
+            );
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     @Override
     public void onBackPressed() {
         if (mainMenu.isVisible()) {
@@ -340,11 +600,14 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
         System.exit(0);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
 
 }

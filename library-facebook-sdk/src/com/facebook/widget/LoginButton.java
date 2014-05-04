@@ -22,9 +22,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
@@ -33,7 +31,6 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-
 import com.facebook.*;
 import com.facebook.android.R;
 import com.facebook.internal.AnalyticsEvents;
@@ -41,7 +38,6 @@ import com.facebook.model.GraphUser;
 import com.facebook.internal.SessionAuthorizationType;
 import com.facebook.internal.SessionTracker;
 import com.facebook.internal.Utility;
-import com.facebook.internal.Utility.FetchedAppSettings;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,24 +55,6 @@ import java.util.List;
  * the {@link #setSession(com.facebook.Session)} method.
  */
 public class LoginButton extends Button {
-    
-    public static enum ToolTipMode {
-        /**
-         * Default display mode. A server query will determine if the tool tip should be displayed
-         * and, if so, what the string shown to the user should be.
-         */
-        DEFAULT,
-        
-        /**
-         * Display the tool tip with a local string--regardless of what the server returns 
-         */
-        DISPLAY_ALWAYS,
-        
-        /**
-         * Never display the tool tip--regardless of what the server says
-         */
-        NEVER_DISPLAY
-    }
 
     private static final String TAG = LoginButton.class.getName();
     private String applicationId = null;
@@ -91,11 +69,6 @@ public class LoginButton extends Button {
     private Fragment parentFragment;
     private LoginButtonProperties properties = new LoginButtonProperties();
     private String loginLogoutEventName = AnalyticsEvents.EVENT_LOGIN_VIEW_USAGE;
-    private OnClickListener listenerCallback;
-    private boolean nuxChecked;
-    private ToolTipPopup.Style nuxStyle = ToolTipPopup.Style.BLUE;
-    private ToolTipMode nuxMode = ToolTipMode.DEFAULT;
-    private long nuxDisplayTime = ToolTipPopup.DEFAULT_POPUP_DISPLAY_TIME;
 
     static class LoginButtonProperties {
         private SessionDefaultAudience defaultAudience = SessionDefaultAudience.FRIENDS;
@@ -496,52 +469,6 @@ public class LoginButton extends Button {
     public Session.StatusCallback getSessionStatusCallback() {
         return properties.getSessionStatusCallback();
     }
-    
-    /**
-     * Sets the style (background) of the Tool Tip popup. Currently a blue style and a black
-     * style are supported. Blue is default
-     * @param nuxStyle The style of the tool tip popup.
-     */
-    public void setToolTipStyle(ToolTipPopup.Style nuxStyle) {
-        this.nuxStyle = nuxStyle;
-    }
-    
-    /**
-     * Sets the mode of the Tool Tip popup. Currently supported modes are default (normal
-     * behavior), always_on (popup remains up until forcibly dismissed), and always_off (popup
-     * doesn't show)
-     * @param nuxMode The new mode for the tool tip
-     */
-    public void setToolTipMode(ToolTipMode nuxMode) {
-        this.nuxMode = nuxMode;
-    }
-    
-    /**
-     * Return the current {@link com.facebook.widget.LoginButton.ToolTipMode} for this LoginButton
-     * @return The {@link com.facebook.widget.LoginButton.ToolTipMode}
-     */
-    public ToolTipMode getToolTipMode() {
-        return nuxMode;
-    }
-    
-    /**
-     * Sets the amount of time (in milliseconds) that the tool tip will be shown to the user. The 
-     * default is {@value ToolTipPopup#DEFAULT_POPUP_DISPLAY_TIME}. Any value that is less than or
-     * equal to zero will cause the tool tip to be displayed indefinitely.
-     * @param displayTime The amount of time (in milliseconds) that the tool tip will be displayed
-     * to the user
-     */
-    public void setToolTipDisplayTime(long displayTime) {
-        this.nuxDisplayTime = displayTime;
-    }
-    
-    /**
-     * Gets the current amount of time (in ms) that the tool tip will be displayed to the user
-     * @return
-     */
-    public long getToolTipDisplayTime() {
-        return nuxDisplayTime;
-    }
 
     /**
      * Provides an implementation for {@link Activity#onActivityResult
@@ -600,7 +527,7 @@ public class LoginButton extends Button {
     }
 
     private void finishInit() {
-        super.setOnClickListener(new LoginClickListener());
+        setOnClickListener(new LoginClickListener());
         setButtonText();
         if (!isInEditMode()) {
             sessionTracker = new SessionTracker(getContext(), new LoginButtonCallback(), null, false);
@@ -628,54 +555,6 @@ public class LoginButton extends Button {
             fetchUserInfo();
             setButtonText();
         }
-    }
-    
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        if (!nuxChecked && nuxMode != ToolTipMode.NEVER_DISPLAY) {
-            nuxChecked = true;
-            checkNuxSettings();
-        }
-    }
-    
-    private void showNuxPerSettings(FetchedAppSettings settings) {
-        if (settings != null && settings.getNuxEnabled() && getVisibility() == View.VISIBLE) {
-            String nuxString = settings.getNuxContent();
-            displayNux(nuxString);
-        }
-    }
-    
-    private void displayNux(String nuxString) {
-        ToolTipPopup popup = new ToolTipPopup(nuxString, this);
-        popup.setStyle(nuxStyle);
-        popup.setNuxDisplayTime(nuxDisplayTime);
-        popup.show();
-    }
-    
-    private void checkNuxSettings() {
-        if (nuxMode == ToolTipMode.DISPLAY_ALWAYS) {
-            String nuxString = getResources().getString(R.string.com_facebook_tooltip_default);
-            displayNux(nuxString);
-        } else {
-            // kick off an async request
-            final String appId = Utility.getMetadataApplicationId(getContext());
-            AsyncTask<Void, Void, FetchedAppSettings> task = new AsyncTask<Void, Void, Utility.FetchedAppSettings>() {
-                @Override
-                protected FetchedAppSettings doInBackground(Void... params) {
-                    FetchedAppSettings settings = Utility.queryAppSettings(appId, false);
-                    return settings;
-                }
-
-                @Override
-                protected void onPostExecute(FetchedAppSettings result) {
-                    showNuxPerSettings(result);
-                }
-            };
-            task.execute((Void[])null);
-        }
-
     }
 
     @Override
@@ -767,16 +646,6 @@ public class LoginButton extends Button {
         }
     }
 
-    /**
-     * Allow a developer to set the OnClickListener for the button.  This will be called back after we do any handling
-     * internally for login
-     * @param clickListener
-     */
-    @Override
-    public void setOnClickListener(OnClickListener clickListener) {
-        listenerCallback = clickListener;
-    }
-
     private class LoginClickListener implements OnClickListener {
 
         @Override
@@ -845,10 +714,6 @@ public class LoginButton extends Button {
             parameters.putInt("logging_in", (openSession != null) ? 0 : 1);
 
             logger.logSdkEvent(loginLogoutEventName, null, parameters);
-
-            if (listenerCallback != null) {
-                listenerCallback.onClick(v);
-            }
         }
     }
 

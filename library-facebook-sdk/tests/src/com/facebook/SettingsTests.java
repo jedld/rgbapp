@@ -17,6 +17,7 @@
 package com.facebook;
 
 import android.os.ConditionVariable;
+import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -26,7 +27,7 @@ import com.facebook.internal.Utility;
 import java.io.IOException;
 import java.util.concurrent.Executor;
 
-public final class SettingsTests extends FacebookTestCase {
+public final class SettingsTests extends AndroidTestCase {
 
     @SmallTest @MediumTest @LargeTest
     public void testGetExecutor() {
@@ -97,27 +98,5 @@ public final class SettingsTests extends FacebookTestCase {
         assertEquals("https://graph.beta.facebook.com", graphUrlBase);
 
         Settings.setFacebookDomain("facebook.com");
-    }
-
-    @SmallTest @MediumTest @LargeTest
-    public void testLoadDefaults() {
-        Settings.setApplicationId(null);
-        Settings.setClientToken(null);
-
-        Settings.loadDefaultsFromMetadata(getActivity());
-
-        assertEquals("1234567890", Settings.getApplicationId());
-        assertEquals("abcdef123456", Settings.getClientToken());
-    }
-
-    @SmallTest @MediumTest @LargeTest
-    public void testLoadDefaultsDoesNotOverwrite() {
-        Settings.setApplicationId("hello");
-        Settings.setClientToken("world");
-
-        Settings.loadDefaultsFromMetadata(getActivity());
-
-        assertEquals("hello", Settings.getApplicationId());
-        assertEquals("world", Settings.getClientToken());
     }
 }

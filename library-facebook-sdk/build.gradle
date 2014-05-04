@@ -2,7 +2,6 @@ apply plugin: 'android-library'
 
 dependencies {
     compile 'com.android.support:support-v4:13.0.+'
-    compile files('libs/bolts.jar')
 }
 
 android {
@@ -12,10 +11,6 @@ android {
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 19
-    }
-
-    lintOptions {
-        abortOnError false
     }
 
     sourceSets {

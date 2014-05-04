@@ -10,6 +10,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:name=".Tiletron"
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.dayosoft.tiletron.app.MainActivity"
@@ -23,6 +24,8 @@
             android:name="com.dayosoft.tiletron.app.IntroScene"
             android:label="@string/title_activity_intro_scene" >
         </activity>
+        <activity android:name="com.facebook.LoginActivity"/>
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id"/>
     </application>
 
 </manifest>

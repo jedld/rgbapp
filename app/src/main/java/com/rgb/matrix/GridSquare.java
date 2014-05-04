@@ -167,7 +167,7 @@ public class GridSquare extends Entity {
 
 
         float borderSize = MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szMultiplierBorderMargin * 2;
-        multiplierBorder = new HollowRectangle(MainGrid.getRectangleTileSizeInPixels()/2 - borderSize /2, MainGrid.getRectangleTileSizeInPixels()/2 - borderSize /2, MainGrid.getRectangleTileSizeInPixels() - 8, MainGrid.getRectangleTileSizeInPixels() - 8, Color.BLACK, 4, vertexBuffer);
+        multiplierBorder = new HollowRectangle(MainGrid.getRectangleTileSizeInPixels() / 2 - borderSize / 2, MainGrid.getRectangleTileSizeInPixels() / 2 - borderSize / 2, MainGrid.getRectangleTileSizeInPixels() - 8, MainGrid.getRectangleTileSizeInPixels() - 8, Color.BLACK, 4, vertexBuffer);
         multiplierBorder.setVisible(false);
         attachChild(multiplierBorder);
 
@@ -369,7 +369,7 @@ public class GridSquare extends Entity {
     }
 
     public void animateRepeaterExpand(final OnSequenceFinished sequenceFinished) {
-        rectangle.setScaleCenterX(MainGrid.getRepeaterSizeInPixels()/2);
+        rectangle.setScaleCenterX(MainGrid.getRepeaterSizeInPixels() / 2);
         rectangle.setScaleCenterY(MainGrid.getRepeaterSizeInPixels() / 2);
         repeaterContainer.registerEntityModifier(new AlphaModifier(1f, 1f, 0f, new IEntityModifier.IEntityModifierListener() {
             @Override
@@ -452,6 +452,7 @@ public class GridSquare extends Entity {
                 rectangle.setWidth(MainGrid.getRepeaterSizeInPixels());
                 repeaterContainer.setColor(rectangle.getColor());
                 repeaterContainer.setVisible(true);
+
             } else {
                 rectangle.setX(ObjectDimensions.szTitleBorderMargin);
                 rectangle.setY(ObjectDimensions.szTitleBorderMargin);
@@ -598,11 +599,15 @@ public class GridSquare extends Entity {
         if (getTileType() == GameMatrix.MULTIPLIERX2) {
             return isColoredTile(matrix.world[boardX][boardY].getTileType());
         } else if (getTileType() == GameMatrix.MULTIPLIERX4_COLORED) {
-            return matrix.world[boardX][boardY].getTileType() == getMultiplierColor();
+            return (matrix.world[boardX][boardY].getTileType() == getMultiplierColor()) ||
+                    (matrix.world[boardX][boardY].getTileType() == getMultiplierColor() + 6);
         } else {
             return (matrix.world[boardX][boardY].getTileType() == tileType) || (matrix.world[boardX][boardY].getTileType() + 6 == tileType) ||
                     (matrix.world[boardX][boardY].getTileType() == tileType + 6
-                            || (matrix.world[boardX][boardY].getTileType() == GameMatrix.MULTIPLIERX4_COLORED && matrix.world[boardX][boardY].getMultiplierColor() == tileType));
+                            ||
+                            (matrix.world[boardX][boardY].getTileType() == GameMatrix.MULTIPLIERX4_COLORED && matrix.world[boardX][boardY].getMultiplierColor() == tileType)
+                    || (matrix.world[boardX][boardY].getTileType() == GameMatrix.MULTIPLIERX4_COLORED && matrix.world[boardX][boardY].getMultiplierColor() + 6 == tileType)
+                    );
         }
     }
 

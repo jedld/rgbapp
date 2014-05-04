@@ -15,11 +15,29 @@ import org.andengine.util.color.Color;
 
 public class RectangleButton extends Entity {
 
+    public static final int SPRITE_RIGHT_MARGIN = 10;
+    private static final float SPRITE_LEFT_MARGIN = 10;
+    private final Text buttonText;
+    private final float height;
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
+    private final float width;
     Rectangle rectangle;
 
-    public RectangleButton(float pX, float pY, float width, float height, VertexBufferObjectManager pVertexBufferObjectManager, Font pFont, String pText) {
+    public RectangleButton(float pX, float pY, float width, float height,
+                           VertexBufferObjectManager pVertexBufferObjectManager,
+                           Font pFont, String pText) {
         super(pX, pY);
-        Text buttonText = new Text(0, 0, pFont, pText, pVertexBufferObjectManager);
+        this.height = height;
+        this.width = width;
+        buttonText = new Text(0, 0, pFont, pText, pVertexBufferObjectManager);
         buttonText.setPosition((width - buttonText.getWidth()) / 2, (height - buttonText.getHeight()) / 2);
         buttonText.setColor(Color.WHITE);
 
@@ -28,6 +46,24 @@ public class RectangleButton extends Entity {
 
         this.attachChild(rectangle);
         this.attachChild(buttonText);
+    }
+
+    public void setTextColor(Color color) {
+        buttonText.setColor(color);
+    }
+
+    @Override
+    public void setColor(Color color) {
+        rectangle.setColor(color);
+    }
+
+    public void setSprite(Sprite sprite) {
+        sprite.setSize(buttonText.getHeight(), buttonText.getHeight());
+        buttonText.setX(buttonText.getX() + sprite.getWidth());
+        sprite.setX(SPRITE_LEFT_MARGIN);
+        sprite.setY((height - sprite.getHeight()) / 2);
+
+        attachChild(sprite);
     }
 
     public boolean isAreaTouched(TouchEvent pSceneTouchEvent) {
