@@ -2,9 +2,11 @@ package com.rgb.matrix.menu;
 
 import android.util.Log;
 
-import com.rgb.matrix.MainGrid;
+import com.rgb.matrix.Utils;
 
-import org.andengine.entity.Entity;
+import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.AlphaModifier;
+import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.text.Text;
 import org.andengine.input.touch.TouchEvent;
@@ -12,11 +14,11 @@ import org.andengine.opengl.font.Font;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.Constants;
 import org.andengine.util.color.Color;
+import org.andengine.util.modifier.IModifier;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MainMenu extends Entity {
+public class MainMenu extends MenuEntity {
 
     public static final float MENU_WIDTH = 400;
     public static final float MENU_HEIGHT = 600;
@@ -26,72 +28,100 @@ public class MainMenu extends Entity {
     private static final float SCENE_HEIGHT = 800;
     private static final String TAG = MainMenu.class.getName();
 
-    private final VertexBufferObjectManager vertexBufferObjectManager;
-    private final HashMap<String, Font> fontHashMap;
-    private final Rectangle backgroundRectangle;
     private final Text backButton;
-    private ArrayList<MenuItem> items = new ArrayList<MenuItem>();
+    private final Rectangle overlayRectangle;
     private OnBackListener onBackListener;
 
-    public MainMenu(float pX, float pY, HashMap<String, Font> fontHashMap, VertexBufferObjectManager vertexBufferObjectManager) {
-        super(pX, pY);
-        this.fontHashMap = fontHashMap;
-        this.vertexBufferObjectManager = vertexBufferObjectManager;
 
-        Rectangle overlayRectangle = new Rectangle(0, 0, SCENE_WIDTH, SCENE_HEIGHT, vertexBufferObjectManager);
+    public MainMenu(float pX, float pY, HashMap<String, Font> fontHashMap, VertexBufferObjectManager vertexBufferObjectManager) {
+        super(pX, pY, vertexBufferObjectManager);
+
+        overlayRectangle = new Rectangle(0, 0, SCENE_WIDTH, SCENE_HEIGHT, vertexBufferObjectManager);
         overlayRectangle.setColor(Color.BLACK);
         overlayRectangle.setAlpha(0.3f);
         attachChild(overlayRectangle);
 
-        backgroundRectangle = new Rectangle( (SCENE_WIDTH / 2) - (MENU_WIDTH / 2),
-                (SCENE_HEIGHT / 2) - (MENU_HEIGHT / 2), MENU_WIDTH, MENU_HEIGHT, vertexBufferObjectManager);
-        backgroundRectangle.setColor(Color.BLACK);
-        attachChild(backgroundRectangle);
+        setBackgroundRectangle(new Rectangle( (SCENE_WIDTH / 2) - (MENU_WIDTH / 2),
+                (SCENE_HEIGHT / 2) - (MENU_HEIGHT / 2), MENU_WIDTH, MENU_HEIGHT, vertexBufferObjectManager));
+        getBackgroundRectangle().setColor(Color.BLACK);
+        attachChild(getBackgroundRectangle());
 
         backButton = new Text(MENU_MARGINS, MENU_MARGINS, fontHashMap.get("menu"), "Back", vertexBufferObjectManager);
         backButton.setColor(Color.WHITE);
-        backgroundRectangle.attachChild(backButton);
+        getBackgroundRectangle().attachChild(backButton);
+
+        menuOffsetY = 100;
     }
 
-    public void addMenuItem(String label, boolean isStateful, boolean defaultValue, OnMenuSelectedListener listener) {
-        MenuItem menuItem = new MenuItem();
-        menuItem.setLabel(label);
-        menuItem.setListener(listener);
-
-        float boundRectangleWidth = MENU_WIDTH - MENU_MARGINS * 2;
-        Rectangle rectangle = new Rectangle(MENU_MARGINS, items.size() * (MENU_MARGINS + MENU_ITEM_HEIGHT) + 100, boundRectangleWidth,
-                MENU_ITEM_HEIGHT, vertexBufferObjectManager);
-        rectangle.setColor(Color.WHITE);
-        Text menuText = null;
-        if (isStateful) {
-            String menuLabel = "";
-            if (defaultValue) {
-                menuLabel = label + " - ON ";
-            } else {
-                menuLabel = label + " - OFF";
+    public void animateShow() {
+        setVisible(true);
+        overlayRectangle.registerEntityModifier(new AlphaModifier(0.2f, 0f, 0.3f, new IEntityModifier.IEntityModifierListener() {
+            @Override
+            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+                getBackgroundRectangle().setAlpha(0f);
+                resetChildAlpha();
             }
 
-            menuText = new Text(0, 0, fontHashMap.get("menu"), menuLabel, vertexBufferObjectManager);
-            menuItem.setText(menuText);
-            menuItem.setState(defaultValue);
-        } else {
-           menuText = new Text(0, 0, fontHashMap.get("menu"), label, vertexBufferObjectManager);
-            menuItem.setText(menuText);
+            @Override
+            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                getBackgroundRectangle().registerEntityModifier(new AlphaModifier(0.2f, 0, 1f, new IEntityModifier.IEntityModifierListener() {
+                    @Override
+                    public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+                    }
+
+                    @Override
+                    public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                        setChildAlpha();
+                    }
+                }));
+
+            }
+        }));
+
+        Utils.getInstance().getSound("menu").play();
+    }
+
+    private void setChildAlpha() {
+        for(int i = 0; i < getBackgroundRectangle().getChildCount(); i++) {
+            IEntity child = getBackgroundRectangle().getChildByIndex(i);
+            child.setVisible(true);
+            child.registerEntityModifier(new AlphaModifier(0.5f, 0, 1f));
         }
-        menuText.setX(boundRectangleWidth/2 - menuText.getWidth()/2);
-        menuText.setY(MENU_ITEM_HEIGHT/2 - menuText.getHeight()/2);
-        menuText.setColor(Color.BLACK);
-        rectangle.attachChild(menuText);
-        menuItem.setRectangle(rectangle);
-
-
-        backgroundRectangle.attachChild(rectangle);
-        items.add(menuItem);
     }
 
-    public void addMenuItem(String label, OnMenuSelectedListener listener) {
-        addMenuItem(label, false, false, listener);
+    private void resetChildAlpha() {
+        for(int i = 0; i < getBackgroundRectangle().getChildCount(); i++) {
+            IEntity child = getBackgroundRectangle().getChildByIndex(i);
+            child.setVisible(false);
+        }
     }
+
+    public void animateHide() {
+        getBackgroundRectangle().registerEntityModifier(new AlphaModifier(0.5f, 1, 0f, new IEntityModifier.IEntityModifierListener() {
+            @Override
+            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+
+            @Override
+            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                overlayRectangle.registerEntityModifier(new AlphaModifier(0.5f, 0.3f, 0f, new IEntityModifier.IEntityModifierListener() {
+                    @Override
+                    public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+                    }
+
+                    @Override
+                    public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                        setVisible(false);
+                    }
+                }));
+            }
+        }));
+    }
+
+
 
 
     public void setOnBackListener(OnBackListener listener) {
@@ -106,31 +136,10 @@ public class MainMenu extends Entity {
                 pSceneTouchEvent.getX() <= backButtonCoordinates[Constants.VERTEX_INDEX_X] + backButton.getWidth()
                 && pSceneTouchEvent.getY() >= backButtonCoordinates[Constants.VERTEX_INDEX_Y] &&
                 pSceneTouchEvent.getY() <= backButtonCoordinates[Constants.VERTEX_INDEX_Y] + backButton.getHeight()) {
-            if (onBackListener!=null) {
+            if (onBackListener != null) {
                 onBackListener.onBackPressed(this);
             }
-
-
         }
-
-
-        for (MenuItem item : items) {
-
-            float[] coordinates = backgroundRectangle.convertLocalToSceneCoordinates(item.getRectangle().getX(), item.getRectangle().getY());
-            float rectWidth = item.getRectangle().getWidth();
-            float rectHeight = item.getRectangle().getHeight();
-
-            Log.d(TAG,"menu coords " + coordinates[Constants.VERTEX_INDEX_X] + " , " + coordinates[Constants.VERTEX_INDEX_Y]);
-
-            if (pSceneTouchEvent.getX() >= coordinates[Constants.VERTEX_INDEX_X] &&
-                pSceneTouchEvent.getX() <= coordinates[Constants.VERTEX_INDEX_X] + rectWidth
-                && pSceneTouchEvent.getY() >= coordinates[Constants.VERTEX_INDEX_Y] &&
-                pSceneTouchEvent.getY() <= coordinates[Constants.VERTEX_INDEX_Y] + rectHeight) {
-
-               item.getListener().onMenuItemSelected(item);
-
-            }
-        }
-
+        super.handleOnTouch(pSceneTouchEvent);
     }
 }

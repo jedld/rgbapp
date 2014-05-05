@@ -14,6 +14,7 @@ public class ObjectDimensions {
     public static  int szPushButtonSize = 54;
     public static  int szPushButtonMargin = 4;
     public static  int szPushButtonCenterMargin = 32;
+    private static float szVertSpacing = 15;
 
     public static int getSzRechargeMeterPaddingBottom() {
         return szRechargeMeterPaddingBottom;
@@ -141,4 +142,12 @@ public class ObjectDimensions {
     public static  int szConnectorHeight = 8;
     public static  float szInnerRectThickness = 10;
     public static  int szRepeaterCenterContainerMargin = 4;
+
+    public static float getSzVertSpacing() {
+        return szVertSpacing;
+    }
+
+    public static void setSzVertSpacing(float szVertSpacing) {
+        ObjectDimensions.szVertSpacing = szVertSpacing;
+    }
 }

@@ -200,12 +200,19 @@ public class MainGrid extends Entity {
         attachChild(gameOverText);
 
 
-        mainMenu.addMenuItem("New Game", new OnMenuSelectedListener() {
+        mainMenu.addMenuItem("Restart", new OnMenuSelectedListener() {
 
             @Override
             public void onMenuItemSelected(MenuItem item) {
                 mainMenu.setVisible(false);
                 newGame();
+            }
+        });
+
+        mainMenu.addMenuItem("Exit to Title Screen", new OnMenuSelectedListener() {
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                gridEventListener.onExitGrid(item);
             }
         });
 
@@ -241,7 +248,7 @@ public class MainGrid extends Entity {
         mainMenu.setOnBackListener(new OnBackListener() {
             @Override
             public void onBackPressed(MainMenu mainMenu) {
-                mainMenu.setVisible(false);
+                mainMenu.animateHide();
             }
         });
     }
@@ -374,6 +381,7 @@ public class MainGrid extends Entity {
     }
 
     public synchronized void updateSelf() {
+//        showGameOver();
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
                 world[x][y].updateSelf();
@@ -436,14 +444,17 @@ public class MainGrid extends Entity {
             if (rechargeMeter.isAreaTouched(pSceneTouchEvent)) {
                 useRechargeMeter();
             } else if (newGameButton.isAreaTouched(pSceneTouchEvent)) {
-                mainMenu.setVisible(true);
-                mainMenu.setAlpha(0f);
-                mainMenu.registerEntityModifier(new AlphaModifier(1f, 0f, 1f));
+                showMenu();
             } else if (gameOverText.isVisible()) {
                 gameOverText.handleTouch(pSceneTouchEvent, new GameOverDialogEventListener() {
                     @Override
                     public void onShare(RectangleButton shareButton) {
                         gridEventListener.onScreenCaptureHighScore(screenCapture);
+                    }
+
+                    @Override
+                    public void onRestart(RectangleButton restartButton) {
+                        newGame();
                     }
                 });
             } else if (getX() <= pSceneTouchEvent.getX() && getY() <= pSceneTouchEvent.getY() &&
@@ -463,6 +474,10 @@ public class MainGrid extends Entity {
                 }
             }
         }
+    }
+
+    private void showMenu() {
+        mainMenu.animateShow();
     }
 
     private void newGame() {

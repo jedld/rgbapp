@@ -22,9 +22,6 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * Created by joseph on 5/2/14.
- */
 public class LogoTiles extends Entity {
 
     public static final int TILE_SIZE = 10;
@@ -39,13 +36,8 @@ public class LogoTiles extends Entity {
     private int tilePadding;
     private int vertTilePadding;
 
-    ArrayList<Pair<Float, Float>> finalPositions = new ArrayList<Pair<Float, Float>>();
+    PositionsInfo finalPositions, finalPositionsNoGap;
     ArrayList<Rectangle> rectangles = new ArrayList<Rectangle>();
-
-    float maxTextWidth = 0;
-    float maxTextHeight = 0;
-    float textOffsetX = 0;
-    float textOffsetY = 0;
 
     public LogoTiles(float pX, float pY, float maxWidth, float maxHeight, List<String> lines,
                      VertexBufferObjectManager vertexBufferObjectManager) {
@@ -74,6 +66,23 @@ public class LogoTiles extends Entity {
         float currentPosX = 0;
         float currentPosY = 0;
 
+        finalPositions = generateFinalPositions(tileSize, tilePadding, vertTilePadding, lines, currentPosX, currentPosY);
+        finalPositionsNoGap = generateFinalPositions(tileSize, 0, 0, lines, currentPosX, currentPosY);
+
+        for (int i = 0; i < finalPositions.getFinalPositions().size(); i++) {
+            Rectangle rectangle = new Rectangle(getRandomPosX(), getRandomPosY(), tileSize, tileSize, vertexBufferObjectManager);
+            rectangle.setColor(getRandomColor());
+            rectangle.setAlpha(0.7f);
+            attachChild(rectangle);
+            rectangles.add(rectangle);
+        }
+    }
+
+    private PositionsInfo generateFinalPositions(int tileSize, int tilePadding, int vertTilePadding, List<String> lines, float currentPosX, float currentPosY) {
+        ArrayList<TargetPosition> finalPositions = new ArrayList<TargetPosition>();
+        PositionsInfo positionsInfo = new PositionsInfo();
+        float maxTextWidth = 0, maxTextHeight = 0, textOffsetX = 0, textOffsetY = 0;
+
         for (String line : lines) {
             for (int i = 0; i < line.length(); i++) {
                 char pos = line.charAt(i);
@@ -84,7 +93,9 @@ public class LogoTiles extends Entity {
                     if (currentPosY > maxTextHeight) {
                         maxTextHeight = currentPosY;
                     }
-                    finalPositions.add(new Pair(currentPosX, currentPosY));
+                    TargetPosition target = new TargetPosition();
+                    target.setPosition(new Pair(currentPosX, currentPosY));
+                    finalPositions.add(target);
                 }
                 currentPosX += tileSize + tilePadding;
             }
@@ -97,20 +108,21 @@ public class LogoTiles extends Entity {
 
         textOffsetX = (maxWidth / 2) - (maxTextWidth / 2);
         textOffsetY = (maxHeight / 2) - (maxTextHeight / 2);
-
-        for (int i = 0; i < finalPositions.size(); i++) {
-            Rectangle rectangle = new Rectangle(getRandomPosX(), getRandomPosY(), tileSize, tileSize, vertexBufferObjectManager);
-            rectangle.setColor(getRandomColor());
-            rectangle.setAlpha(0.7f);
-            attachChild(rectangle);
-            rectangles.add(rectangle);
-        }
+        positionsInfo.setFinalPositions(finalPositions);
+        positionsInfo.setMaxTextHeight(maxTextHeight);
+        positionsInfo.setMaxTextWidth(maxTextWidth);
+        positionsInfo.setTextOffsetX(textOffsetX);
+        positionsInfo.setTextOffsetY(textOffsetY);
+        return positionsInfo;
     }
 
     public void easeOutSequence(final OnSequenceFinished listener) {
-        for (Rectangle rect : rectangles) {
-            rect.registerEntityModifier(new ColorModifier(1f, rect.getColor(), Color.BLACK, new IEntityModifier.IEntityModifierListener() {
+        int index = 0;
+        for (final Rectangle rect : rectangles) {
+            TargetPosition finalPost = finalPositionsNoGap.getFinalPositions().get(index++);
 
+            rect.registerEntityModifier(new MoveModifier(1f, rect.getX(), finalPost.getPosition().first + finalPositionsNoGap.getTextOffsetX(),
+                    rect.getY(), finalPost.getPosition().second + finalPositionsNoGap.getTextOffsetY(), new IEntityModifier.IEntityModifierListener() {
                 @Override
                 public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 
@@ -118,16 +130,44 @@ public class LogoTiles extends Entity {
 
                 @Override
                 public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-                    listener.completed();
+                    rect.registerEntityModifier(new ColorModifier(1f, rect.getColor(), Color.BLACK, new IEntityModifier.IEntityModifierListener() {
+
+                        @Override
+                        public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+                        }
+
+                        @Override
+                        public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                            listener.completed();
+                        }
+                    }));
                 }
-            }));
+            }
+            ));
+
+
+        }
+    }
+
+    @Override
+    public void setAlpha(float alpha) {
+        for (Rectangle rect : rectangles) {
+            rect.setAlpha(alpha);
+        }
+    }
+
+    @Override
+    public void setColor(Color color) {
+        for (Rectangle rect : rectangles) {
+            rect.setColor(color);
         }
     }
 
     public void startAnimationSequence(final OnSequenceFinished listener) {
         int index = 0;
         for (Rectangle rect : rectangles) {
-            Pair<Float, Float> finalPost = finalPositions.get(index++);
+            TargetPosition finalPost = finalPositions.getFinalPositions().get(index++);
 
             IEntityModifier.IEntityModifierListener entityModifierListener = new IEntityModifier.IEntityModifierListener() {
                 @Override
@@ -140,8 +180,8 @@ public class LogoTiles extends Entity {
                     easeOutSequence(listener);
                 }
             };
-            rect.registerEntityModifier(new MoveModifier(3f, rect.getX(), finalPost.first + textOffsetX,
-                    rect.getY(), finalPost.second + textOffsetY, entityModifierListener
+            rect.registerEntityModifier(new MoveModifier(2f, rect.getX(), finalPost.getPosition().first + finalPositions.getTextOffsetX(),
+                    rect.getY(), finalPost.getPosition().second + finalPositions.getTextOffsetY(), entityModifierListener
             ));
         }
     }

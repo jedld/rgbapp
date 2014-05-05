@@ -2,10 +2,10 @@
 <merger>
 
     <dataSet config="main" >
-        <source path="/Users/joseph/workspace/facebook-android-sdk/facebook/src/main/assets" />
+        <source path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/src/main/assets" />
     </dataSet>
     <dataSet config="debug" >
-        <source path="/Users/joseph/workspace/facebook-android-sdk/facebook/src/debug/assets" />
+        <source path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/src/debug/assets" />
     </dataSet>
 
 </merger>

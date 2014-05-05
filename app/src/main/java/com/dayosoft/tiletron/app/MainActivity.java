@@ -30,6 +30,9 @@ import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.interfaces.OnSequenceFinished;
 import com.rgb.matrix.intro.LogoTiles;
 import com.rgb.matrix.menu.MainMenu;
+import com.rgb.matrix.menu.MenuItem;
+import com.rgb.matrix.menu.OnMenuSelectedListener;
+import com.rgb.matrix.title.TitleScreen;
 import com.sromku.simple.fb.Permission;
 import com.sromku.simple.fb.SimpleFacebook;
 import com.sromku.simple.fb.entities.Photo;
@@ -50,6 +53,7 @@ import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.AlphaModifier;
+import org.andengine.entity.modifier.ColorModifier;
 import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
@@ -94,16 +98,14 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     private Camera mCamera;
     private Scene mScene;
     private GameMatrix matrix;
-    private Font mFont;
-    private Font mFontPoints;
-    private Font mFontMultiplier;
     private Sound mSound;
     int currentMusicTrack = 0;
     private List<Music> trackList = new ArrayList<Music>();
     HashMap<String, SoundWrapper> soundAssets = new HashMap<String, SoundWrapper>();
     HashMap<String, Sprite> spriteAssets = new HashMap<String, Sprite>();
     private HashMap<String, Font> fontHashMap;
-    private ArrayList<String> logoLines;
+    private ArrayList<String> logoLines = new ArrayList<String>();
+    private List<String> titleLines = new ArrayList<String>();
     private LogoTiles logo;
     private boolean playMusic;
     private MainGrid grid;
@@ -146,6 +148,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
      */
     };
     private TextureRegion mSpriteTextureRegion;
+
 
     @Override
     protected void onCreate(Bundle pSavedInstanceState) {
@@ -221,7 +224,8 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     @Override
     public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback) throws Exception {
 
-        loadLogoText();
+        loadLogoText(logoLines, "logo.txt");
+        loadLogoText(titleLines, "title.txt");
 
         SoundFactory.setAssetBasePath("sfx/");
         MusicFactory.setAssetBasePath("sfx/");
@@ -246,34 +250,44 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
                 mSpriteTextureRegion, mEngine.getVertexBufferObjectManager());
 
         spriteAssets.put("fb_icon", mSprite);
-        Utils.getInstance(this, spriteAssets);
 
         loadSound("place_tile", "place_tile.mp3");
         loadSound("cascade", "cascade.mp3");
         loadSound("super", "super_ready.mp3");
+        loadSound("menu", "menu.mp3");
+
 
         // Load our "music.mp3" file into a music object
         loadMusic("bg_1.mp3");
         loadMusic("bg_2.mp3");
 
         playMusic = false;
-        Typeface typeface
-                = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
 
-        mFont = FontFactory.create(getFontManager(), getTextureManager(), 256, 256, typeface, 24f, true, Color.WHITE_ABGR_PACKED_INT);
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/roboto_bold.ttf");
+
+        Font mFont = FontFactory.create(getFontManager(), getTextureManager(), 256, 256, typeface, 24f, true, Color.WHITE_ABGR_PACKED_INT);
         mFont.load();
         mFont.prepareLetters("Score: 0123456789 High: +0123456789".toCharArray());
 
-        Typeface typefaceMultiplier
-                = Typeface.create(Typeface.DEFAULT, Typeface.BOLD);
-        mFontPoints = FontFactory.create(getFontManager(), getTextureManager(), 256, 256, typefaceMultiplier, 14f, true, Color.WHITE_ABGR_PACKED_INT);
+        Font mFontPoints = FontFactory.create(getFontManager(), getTextureManager(), 256, 256, typeface, 14f, true, Color.WHITE_ABGR_PACKED_INT);
         mFontPoints.load();
         mFontPoints.prepareLetters("+0123456789".toCharArray());
 
-        mFontMultiplier = FontFactory.create(getFontManager(), getTextureManager(), 256, 256, typeface, 30f, true, Color.WHITE_ABGR_PACKED_INT);
+        Font mFontMultiplier = FontFactory.create(getFontManager(), getTextureManager(), 256, 256, typeface, 30f, true, Color.WHITE_ABGR_PACKED_INT);
         mFontMultiplier.load();
         mFontMultiplier.prepareLetters("x0123456789".toCharArray());
 
+        Font titleScreenFont = FontFactory.create(getFontManager(), getTextureManager(), 256, 256, typeface, 40f, true, Color.WHITE_ABGR_PACKED_INT);
+        titleScreenFont.load();
+        titleScreenFont.prepareLetters("x0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray());
+
+        fontHashMap = new HashMap<String, Font>();
+        fontHashMap.put("score", mFont);
+        fontHashMap.put("points", mFontPoints);
+        fontHashMap.put("multiplier", mFontMultiplier);
+        fontHashMap.put("menu", mFontMultiplier);
+        fontHashMap.put("title", titleScreenFont);
+        
         pOnCreateResourcesCallback.onCreateResourcesFinished();
     }
 
@@ -302,7 +316,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
                 public void completed() {
                     Utils.introShown(MainActivity.this);
 
-                    logo.registerEntityModifier(new AlphaModifier(1.0f, 0.0f, 1.0f, new IEntityModifier.IEntityModifierListener() {
+                    logo.registerEntityModifier(new ColorModifier(0.5f, Color.BLACK, Color.WHITE, new IEntityModifier.IEntityModifierListener() {
                         @Override
                         public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 
@@ -311,14 +325,48 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
                         @Override
                         public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
                             logo.setVisible(false);
-                            startEndlessMode();
+                            showTitleScreen();
+//                            startEndlessMode();
                         }
                     }));
                 }
             });
         } else {
-            startEndlessMode();
+//            startEndlessMode();
+            showTitleScreen();
         }
+    }
+
+    private void showTitleScreen() {
+        mScene.detachChildren();
+        final TitleScreen titleScreen = new TitleScreen(0, 0, canvasWidth, canvasHeight, titleLines, getVertexBufferObjectManager());
+        titleScreen.addMenuItem("Endless Mode", new OnMenuSelectedListener() {
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                startEndlessMode();
+            }
+        });
+
+        titleScreen.addMenuItem("Story Mode", new OnMenuSelectedListener() {
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+
+            }
+        });
+
+        mScene.attachChild(titleScreen);
+
+        mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
+
+            @Override
+            public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
+                if (pSceneTouchEvent.isActionDown()) {
+                    titleScreen.handleOnTouch(pSceneTouchEvent);
+                }
+
+                return false;
+            }
+        });
     }
 
     @Override
@@ -345,14 +393,8 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) throws Exception {
         mScene = new Scene();
 
-        fontHashMap = new HashMap<String, Font>();
-        fontHashMap.put("score", mFont);
-        fontHashMap.put("points", mFontPoints);
-        fontHashMap.put("multiplier", mFontMultiplier);
-        fontHashMap.put("menu", mFontMultiplier);
-
         mScene.setBackground(new Background(Color.WHITE));
-
+        Utils.getInstance(this, spriteAssets, soundAssets, fontHashMap);
         pOnCreateSceneCallback.onCreateSceneFinished(mScene);
     }
 
@@ -369,12 +411,12 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         pOnPopulateSceneCallback.onPopulateSceneFinished();
     }
 
-    private void loadLogoText() throws IOException {
-        logoLines = new ArrayList<String>();
-        InputStreamReader inputStreamReader = new InputStreamReader(getAssets().open("logo.txt"));
+    private void loadLogoText(List<String> lines, String filename) throws IOException {
+        lines.clear();
+        InputStreamReader inputStreamReader = new InputStreamReader(getAssets().open(filename));
         BufferedReader reader = new BufferedReader(inputStreamReader);
         while (reader.ready()) {
-            logoLines.add(reader.readLine());
+            lines.add(reader.readLine());
         }
     }
 
@@ -477,10 +519,10 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
                                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                                     final Bitmap outBitmap = BitmapFactory.decodeFile(finalFilename);
                                     View confirmation = getLayoutInflater().inflate(R.layout.confirmation_dialog, null);
-                                    TextView text = (TextView)confirmation.findViewById(R.id.message);
+                                    TextView text = (TextView) confirmation.findViewById(R.id.message);
                                     text.setText("Are you sure you want to share this screenshot to Facebook?");
-                                    ImageView image = (ImageView)confirmation.findViewById(R.id.imageView);
-                                    image.setImageDrawable(new BitmapDrawable(getResources(),outBitmap));
+                                    ImageView image = (ImageView) confirmation.findViewById(R.id.imageView);
+                                    image.setImageDrawable(new BitmapDrawable(getResources(), outBitmap));
 
                                     builder.setView(confirmation).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                         @Override
@@ -561,7 +603,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
 
                                         @Override
                                         public void onFail(String reason) {
-                                            Toast.makeText(MainActivity.this,"Unable to login to facebook", Toast.LENGTH_LONG).show();
+                                            Toast.makeText(MainActivity.this, "Unable to login to facebook", Toast.LENGTH_LONG).show();
                                         }
                                     });
                                 }
@@ -582,6 +624,13 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void onExitGrid(MenuItem item) {
+        mScene.detachChildren();
+        mScene.setOnSceneTouchListener(null);
+        showTitleScreen();
     }
 
     @Override

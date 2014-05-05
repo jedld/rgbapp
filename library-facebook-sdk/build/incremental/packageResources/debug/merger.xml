@@ -2,489 +2,364 @@
 <merger>
 
     <dataSet config="main" >
-        <source path="/Users/joseph/workspace/facebook-android-sdk/facebook/res" >
+        <source path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res" >
             <file
                 name="com_facebook_button_blue"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_button_blue.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_button_blue.xml"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_button_blue_focused"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_button_blue_focused.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_button_blue_focused.9.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_button_blue_normal"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_button_blue_normal.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_button_blue_normal.9.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_button_blue_pressed"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_button_blue_pressed.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_button_blue_pressed.9.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_button_check"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_button_check.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_button_check.xml"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_button_check_off"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_button_check_off.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_button_check_off.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_button_check_on"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_button_check_on.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_button_check_on.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_button_grey_focused"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_button_grey_focused.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_button_grey_focused.9.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_button_grey_normal"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_button_grey_normal.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_button_grey_normal.9.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_button_grey_pressed"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_button_grey_pressed.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_button_grey_pressed.9.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_close"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_close.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_close.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_inverse_icon"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_inverse_icon.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_inverse_icon.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_list_divider"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_list_divider.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_list_divider.9.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_list_section_header_background"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_list_section_header_background.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_list_section_header_background.9.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_loginbutton_silver"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_loginbutton_silver.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_loginbutton_silver.xml"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_logo"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_logo.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_logo.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_picker_item_background"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_picker_item_background.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_picker_item_background.xml"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_picker_list_focused"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_picker_list_focused.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_picker_list_focused.9.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_picker_list_longpressed"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_picker_list_longpressed.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_picker_list_longpressed.9.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_picker_list_pressed"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_picker_list_pressed.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_picker_list_pressed.9.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_picker_list_selector"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_picker_list_selector.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_picker_list_selector.xml"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_picker_list_selector_background_transition"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_picker_list_selector_background_transition.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_picker_list_selector_background_transition.xml"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_picker_list_selector_disabled"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_picker_list_selector_disabled.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_picker_list_selector_disabled.9.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_picker_top_button"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_picker_top_button.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_picker_top_button.xml"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_place_default_icon"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_place_default_icon.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_place_default_icon.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_profile_default_icon"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_profile_default_icon.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_profile_default_icon.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_profile_picture_blank_portrait"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_profile_picture_blank_portrait.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_profile_picture_blank_portrait.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_profile_picture_blank_square"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_profile_picture_blank_square.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_profile_picture_blank_square.png"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_top_background"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_top_background.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_top_background.xml"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_top_button"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_top_button.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_top_button.xml"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_usersettingsfragment_background_gradient"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable/com_facebook_usersettingsfragment_background_gradient.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable/com_facebook_usersettingsfragment_background_gradient.xml"
                 qualifiers=""
                 type="drawable" />
             <file
                 name="com_facebook_button_blue_focused"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_button_blue_focused.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-hdpi/com_facebook_button_blue_focused.9.png"
                 qualifiers="hdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_blue_normal"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_button_blue_normal.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-hdpi/com_facebook_button_blue_normal.9.png"
                 qualifiers="hdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_blue_pressed"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_button_blue_pressed.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-hdpi/com_facebook_button_blue_pressed.9.png"
                 qualifiers="hdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_grey_focused"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_button_grey_focused.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-hdpi/com_facebook_button_grey_focused.9.png"
                 qualifiers="hdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_grey_normal"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_button_grey_normal.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-hdpi/com_facebook_button_grey_normal.9.png"
                 qualifiers="hdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_grey_pressed"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_button_grey_pressed.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-hdpi/com_facebook_button_grey_pressed.9.png"
                 qualifiers="hdpi"
                 type="drawable" />
             <file
                 name="com_facebook_close"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_close.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-hdpi/com_facebook_close.png"
                 qualifiers="hdpi"
                 type="drawable" />
             <file
                 name="com_facebook_inverse_icon"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_inverse_icon.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-hdpi/com_facebook_inverse_icon.png"
                 qualifiers="hdpi"
                 type="drawable" />
             <file
                 name="com_facebook_logo"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_logo.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-hdpi/com_facebook_logo.png"
                 qualifiers="hdpi"
                 type="drawable" />
             <file
                 name="com_facebook_picker_magnifier"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_picker_magnifier.png"
-                qualifiers="hdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_black_background"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_tooltip_black_background.9.png"
-                qualifiers="hdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_black_bottomnub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_tooltip_black_bottomnub.png"
-                qualifiers="hdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_black_topnub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_tooltip_black_topnub.png"
-                qualifiers="hdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_black_xout"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_tooltip_black_xout.png"
-                qualifiers="hdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_blue_background"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_tooltip_blue_background.9.png"
-                qualifiers="hdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_blue_bottomnub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_tooltip_blue_bottomnub.png"
-                qualifiers="hdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_blue_topnub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_tooltip_blue_topnub.png"
-                qualifiers="hdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_blue_xout"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-hdpi/com_facebook_tooltip_blue_xout.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-hdpi/com_facebook_picker_magnifier.png"
                 qualifiers="hdpi"
                 type="drawable" />
             <file
                 name="com_facebook_close"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-ldpi/com_facebook_close.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-ldpi/com_facebook_close.png"
                 qualifiers="ldpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_blue_focused"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_button_blue_focused.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-mdpi/com_facebook_button_blue_focused.9.png"
                 qualifiers="mdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_blue_normal"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_button_blue_normal.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-mdpi/com_facebook_button_blue_normal.9.png"
                 qualifiers="mdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_blue_pressed"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_button_blue_pressed.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-mdpi/com_facebook_button_blue_pressed.9.png"
                 qualifiers="mdpi"
                 type="drawable" />
             <file
                 name="com_facebook_inverse_icon"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_inverse_icon.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-mdpi/com_facebook_inverse_icon.png"
                 qualifiers="mdpi"
                 type="drawable" />
             <file
                 name="com_facebook_picker_magnifier"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_picker_magnifier.png"
-                qualifiers="mdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_black_background"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_tooltip_black_background.9.png"
-                qualifiers="mdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_black_bottomnub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_tooltip_black_bottomnub.png"
-                qualifiers="mdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_black_topnub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_tooltip_black_topnub.png"
-                qualifiers="mdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_black_xout"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_tooltip_black_xout.png"
-                qualifiers="mdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_blue_background"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_tooltip_blue_background.9.png"
-                qualifiers="mdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_blue_bottomnub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_tooltip_blue_bottomnub.png"
-                qualifiers="mdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_blue_topnub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_tooltip_blue_topnub.png"
-                qualifiers="mdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_blue_xout"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-mdpi/com_facebook_tooltip_blue_xout.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-mdpi/com_facebook_picker_magnifier.png"
                 qualifiers="mdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_blue_focused"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_button_blue_focused.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-xhdpi/com_facebook_button_blue_focused.9.png"
                 qualifiers="xhdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_blue_normal"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_button_blue_normal.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-xhdpi/com_facebook_button_blue_normal.9.png"
                 qualifiers="xhdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_blue_pressed"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_button_blue_pressed.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-xhdpi/com_facebook_button_blue_pressed.9.png"
                 qualifiers="xhdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_grey_focused"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_button_grey_focused.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-xhdpi/com_facebook_button_grey_focused.9.png"
                 qualifiers="xhdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_grey_normal"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_button_grey_normal.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-xhdpi/com_facebook_button_grey_normal.9.png"
                 qualifiers="xhdpi"
                 type="drawable" />
             <file
                 name="com_facebook_button_grey_pressed"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_button_grey_pressed.9.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-xhdpi/com_facebook_button_grey_pressed.9.png"
                 qualifiers="xhdpi"
                 type="drawable" />
             <file
                 name="com_facebook_close"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_close.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-xhdpi/com_facebook_close.png"
                 qualifiers="xhdpi"
                 type="drawable" />
             <file
                 name="com_facebook_inverse_icon"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_inverse_icon.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-xhdpi/com_facebook_inverse_icon.png"
                 qualifiers="xhdpi"
                 type="drawable" />
             <file
                 name="com_facebook_logo"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_logo.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-xhdpi/com_facebook_logo.png"
                 qualifiers="xhdpi"
                 type="drawable" />
             <file
                 name="com_facebook_picker_magnifier"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_picker_magnifier.png"
-                qualifiers="xhdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_black_background"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_tooltip_black_background.9.png"
-                qualifiers="xhdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_black_bottomnub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_tooltip_black_bottomnub.png"
-                qualifiers="xhdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_black_topnub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_tooltip_black_topnub.png"
-                qualifiers="xhdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_black_xout"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_tooltip_black_xout.png"
-                qualifiers="xhdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_blue_background"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_tooltip_blue_background.9.png"
-                qualifiers="xhdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_blue_bottomnub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_tooltip_blue_bottomnub.png"
-                qualifiers="xhdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_blue_topnub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_tooltip_blue_topnub.png"
-                qualifiers="xhdpi"
-                type="drawable" />
-            <file
-                name="com_facebook_tooltip_blue_xout"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/drawable-xhdpi/com_facebook_tooltip_blue_xout.png"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/drawable-xhdpi/com_facebook_picker_magnifier.png"
                 qualifiers="xhdpi"
                 type="drawable" />
             <file
                 name="com_facebook_friendpickerfragment"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_friendpickerfragment.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_friendpickerfragment.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_login_activity_layout"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_login_activity_layout.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_login_activity_layout.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_picker_activity_circle_row"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_picker_activity_circle_row.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_picker_activity_circle_row.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_picker_checkbox"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_picker_checkbox.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_picker_checkbox.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_picker_image"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_picker_image.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_picker_image.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_picker_list_row"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_picker_list_row.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_picker_list_row.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_picker_list_section_header"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_picker_list_section_header.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_picker_list_section_header.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_picker_search_box"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_picker_search_box.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_picker_search_box.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_picker_title_bar"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_picker_title_bar.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_picker_title_bar.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_picker_title_bar_stub"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_picker_title_bar_stub.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_picker_title_bar_stub.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_placepickerfragment"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_placepickerfragment.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_placepickerfragment.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_placepickerfragment_list_row"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_placepickerfragment_list_row.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_placepickerfragment_list_row.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_search_bar_layout"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_search_bar_layout.xml"
-                qualifiers=""
-                type="layout" />
-            <file
-                name="com_facebook_tooltip_bubble"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_tooltip_bubble.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_search_bar_layout.xml"
                 qualifiers=""
                 type="layout" />
             <file
                 name="com_facebook_usersettingsfragment"
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/layout/com_facebook_usersettingsfragment.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/layout/com_facebook_usersettingsfragment.xml"
                 qualifiers=""
                 type="layout" />
             <file
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/attrs.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/attrs.xml"
                 qualifiers="" >
                 <declare-styleable name="com_facebook_profile_picture_view" >
                     <attr name="preset_size" >
@@ -562,7 +437,7 @@
                 </declare-styleable>
             </file>
             <file
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/colors.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/colors.xml"
                 qualifiers="" >
                 <color name="com_facebook_picker_search_bar_background" >#f5f5f7
                 </color>
@@ -573,14 +448,14 @@
                 </dimen>
             </file>
             <file
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/drawables.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/drawables.xml"
                 qualifiers="" >
                 <drawable name="com_facebook_picker_default_separator_color" >
 #33464c59
                 </drawable>
             </file>
             <file
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/strings.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/strings.xml"
                 qualifiers="" >
                 <string name="com_facebook_usersettingsfragment_logged_in" >Logged in
                 </string>
@@ -602,9 +477,9 @@
                 </string>
                 <string name="com_facebook_requesterror_web_login" >Your Facebook account is locked. Please log into www.facebook.com to continue.
                 </string>
-                <string name="com_facebook_requesterror_permissions" >This app doesn’t have permission to do this. To change permissions, try logging into the app again.
-                </string>
                 <string name="com_facebook_loginview_log_out_action" >Log out
+                </string>
+                <string name="com_facebook_requesterror_permissions" >This app doesn’t have permission to do this. To change permissions, try logging into the app again.
                 </string>
                 <string name="com_facebook_dialogloginactivity_ok_button" >OK
                 </string>
@@ -614,11 +489,9 @@
                 </string>
                 <string name="com_facebook_nearby" >Nearby
                 </string>
-                <string name="com_facebook_tooltip_default" >New! You\'re in control - choose what info you want to share with apps.
+                <string name="com_facebook_placepicker_subtitle_catetory_only_format" >%1$s
                 </string>
                 <string name="com_facebook_loginview_logged_in_as" >Logged in as: %1$s
-                </string>
-                <string name="com_facebook_placepicker_subtitle_catetory_only_format" >%1$s
                 </string>
                 <string name="com_facebook_loading" >Loading...
                 </string>
@@ -636,7 +509,7 @@
                 </string>
             </file>
             <file
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/styles.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/styles.xml"
                 qualifiers="" >
                 <color name="com_facebook_usersettingsfragment_connected_text_color" >#FFFFFF
                 </color>
@@ -661,28 +534,6 @@
                 </dimen>
                 <dimen name="com_facebook_profilepictureview_preset_size_large" >180dp
                 </dimen>
-
-                <style name="tooltip_bubble_text" >
-                    <item name="android:textColor">
-@android:color/white
-                    </item>
-                    <item name="android:gravity">
-left
-                    </item>
-                    <item name="android:textSize">
-12sp
-                    </item>
-                    <item name="android:shadowDy">
--1
-                    </item>
-                    <item name="android:shadowRadius">
-0.25
-                    </item>
-                    <item name="android:shadowColor">
-#40000000
-                    </item>
-                </style>
-
                 <dimen name="com_facebook_loginview_padding_bottom" >12dp
                 </dimen>
 
@@ -718,8 +569,6 @@ center
                 <color name="com_facebook_usersettingsfragment_connected_shadow_color" >#000000
                 </color>
 
-                <dimen name="com_facebook_tooltip_horizontal_padding" >10dp
-                </dimen>
                 <dimen name="com_facebook_loginview_text_size" >16.0sp
                 </dimen>
 
@@ -758,7 +607,7 @@ center
                 </dimen>
             </file>
             <file
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/values-es/strings.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values-es/strings.xml"
                 qualifiers="es" >
                 <string name="com_facebook_nearby" >Cercano
                 </string>
@@ -812,13 +661,13 @@ center
                 </string>
             </file>
             <file
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/values-hdpi/dimens.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values-hdpi/dimens.xml"
                 qualifiers="hdpi" >
                 <dimen name="com_facebook_picker_divider_width" >1px
                 </dimen>
             </file>
             <file
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/values-he/strings.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values-he/strings.xml"
                 qualifiers="he" >
                 <string name="com_facebook_requesterror_password_changed" >.הסיסמה שלך בפייסבוק השתנתה, אנא חבר מחדש את האפליקציה עם פייסבוק
                 </string>
@@ -864,15 +713,15 @@ center
                 </string>
                 <string name="com_facebook_loginview_logged_in_using_facebook" >מחובר באמצעות פייסבוק
                 </string>
-                <string name="com_facebook_dialogloginactivity_ok_button" >אישור
-                </string>
                 <string name="com_facebook_requesterror_permissions" >.חיבור האפליקציה עם פייסבוק נכשל בשל הרשאות לא מספקות, אנא הענק הרשאות לאפליקציה בכדי שהפעולה תוכל להתבצע
+                </string>
+                <string name="com_facebook_dialogloginactivity_ok_button" >אישור
                 </string>
                 <string name="com_facebook_loginview_log_out_action" >התנתק
                 </string>
             </file>
             <file
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/values-iw/strings.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values-iw/strings.xml"
                 qualifiers="iw" >
                 <string name="com_facebook_usersettingsfragment_log_in_button" >התחבר…
                 </string>
@@ -914,9 +763,9 @@ center
                 </string>
                 <string name="com_facebook_logo_content_description" >פייסבוק לוגו
                 </string>
-                <string name="com_facebook_dialogloginactivity_ok_button" >אישור
-                </string>
                 <string name="com_facebook_loading" >..מעלה
+                </string>
+                <string name="com_facebook_dialogloginactivity_ok_button" >אישור
                 </string>
                 <string name="com_facebook_loginview_log_in_button" >התחבר לפייסבוק
                 </string>
@@ -926,29 +775,29 @@ center
                 </string>
             </file>
             <file
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/values-ldpi/dimens.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values-ldpi/dimens.xml"
                 qualifiers="ldpi" >
                 <dimen name="com_facebook_picker_divider_width" >1px
                 </dimen>
             </file>
             <file
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/values-mdpi/dimens.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values-mdpi/dimens.xml"
                 qualifiers="mdpi" >
                 <dimen name="com_facebook_picker_divider_width" >1px
                 </dimen>
             </file>
             <file
-                path="/Users/joseph/workspace/facebook-android-sdk/facebook/res/values-xhdpi/dimens.xml"
+                path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values-xhdpi/dimens.xml"
                 qualifiers="xhdpi" >
                 <dimen name="com_facebook_picker_divider_width" >2px
                 </dimen>
             </file>
         </source>
-        <source path="/Users/joseph/workspace/facebook-android-sdk/facebook/build/res/rs/debug" />
-        <source path="/Users/joseph/workspace/facebook-android-sdk/facebook/build/res/generated/debug" />
+        <source path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/build/res/rs/debug" />
+        <source path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/build/res/generated/debug" />
     </dataSet>
     <dataSet config="debug" >
-        <source path="/Users/joseph/workspace/facebook-android-sdk/facebook/src/debug/res" />
+        <source path="/Users/joseph/workspace/TiletronApp/library-facebook-sdk/src/debug/res" />
     </dataSet>
 
 </merger>

@@ -39,6 +39,7 @@ dependencies {
     compile project(':library-andengine')
     compile project(':library-facebook-sdk')
     compile project(':library-simple-facebook')
+    compile 'org.yaml:snakeyaml:1.5'
     compile 'org.apache.commons:commons-lang3:3.0'
     compile 'com.android.support:appcompat-v7:19.+'
 }

@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- From: file:/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/styles.xml -->
+    <!-- From: file:/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/styles.xml -->
     <eat-comment />
 
     <color name="com_facebook_blue">#3B5998</color>
     <color name="com_facebook_loginview_text_color">#FFFFFF</color>
-    <!-- From: file:/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/colors.xml -->
+    <!-- From: file:/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/colors.xml -->
     <eat-comment />
 
     <color name="com_facebook_picker_search_bar_background">#f5f5f7</color>
     <color name="com_facebook_picker_search_bar_text">#bcbdc2</color>
-    <!-- From: file:/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/styles.xml -->
+    <!-- From: file:/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/styles.xml -->
     <eat-comment />
 
     <color name="com_facebook_usersettingsfragment_connected_shadow_color">#000000</color>
     <color name="com_facebook_usersettingsfragment_connected_text_color">#FFFFFF</color>
     <color name="com_facebook_usersettingsfragment_not_connected_text_color">#A6AED7</color>
-    <!-- From: file:/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/attrs.xml -->
+    <!-- From: file:/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/attrs.xml -->
     <eat-comment />
 
     <declare-styleable name="com_facebook_friend_picker_fragment">
@@ -54,7 +54,7 @@
         </attr>
         <attr name="is_cropped" format="boolean" />
     </declare-styleable>
-    <!-- From: file:/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/styles.xml -->
+    <!-- From: file:/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/styles.xml -->
     <eat-comment />
 
     <dimen name="com_facebook_loginview_compound_drawable_padding">12dp</dimen>
@@ -63,24 +63,23 @@
     <dimen name="com_facebook_loginview_padding_right">16dp</dimen>
     <dimen name="com_facebook_loginview_padding_top">12dp</dimen>
     <dimen name="com_facebook_loginview_text_size">16.0sp</dimen>
-    <!-- From: file:/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/colors.xml -->
+    <!-- From: file:/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/colors.xml -->
     <eat-comment />
 
     <dimen name="com_facebook_picker_place_image_size">64dp</dimen>
-    <!-- From: file:/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/styles.xml -->
+    <!-- From: file:/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/styles.xml -->
     <eat-comment />
 
     <dimen name="com_facebook_profilepictureview_preset_size_large">180dp</dimen>
     <dimen name="com_facebook_profilepictureview_preset_size_normal">100dp</dimen>
     <dimen name="com_facebook_profilepictureview_preset_size_small">50dp</dimen>
-    <dimen name="com_facebook_tooltip_horizontal_padding">10dp</dimen>
     <dimen name="com_facebook_usersettingsfragment_profile_picture_height">64dp</dimen>
     <dimen name="com_facebook_usersettingsfragment_profile_picture_width">64dp</dimen>
-    <!-- From: file:/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/drawables.xml -->
+    <!-- From: file:/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/drawables.xml -->
     <eat-comment />
 
     <drawable name="com_facebook_picker_default_separator_color">#33464c59</drawable>
-    <!-- From: file:/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/strings.xml -->
+    <!-- From: file:/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/strings.xml -->
     <eat-comment />
 
     <string name="com_facebook_choose_friends">Choose Friends</string>
@@ -105,11 +104,10 @@
     <string name="com_facebook_requesterror_reconnect">Please log into this app again to reconnect your Facebook account.</string>
     <string name="com_facebook_requesterror_relogin">Please log into this app again to reconnect your Facebook account.</string>
     <string name="com_facebook_requesterror_web_login">Your Facebook account is locked. Please log into www.facebook.com to continue.</string>
-    <string name="com_facebook_tooltip_default">New! You\'re in control - choose what info you want to share with apps.</string>
     <string name="com_facebook_usersettingsfragment_log_in_button">Log in…</string>
     <string name="com_facebook_usersettingsfragment_logged_in">Logged in</string>
     <string name="com_facebook_usersettingsfragment_not_logged_in">Not logged in</string>
-    <!-- From: file:/Users/joseph/workspace/facebook-android-sdk/facebook/res/values/styles.xml -->
+    <!-- From: file:/Users/joseph/workspace/TiletronApp/library-facebook-sdk/res/values/styles.xml -->
     <eat-comment />
 
     <style name="com_facebook_loginview_default_style" parent="@android:style/Widget.Button">
@@ -131,15 +129,6 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">#4B5164</item>
         <item name="android:gravity">center</item>
-    </style>
-
-    <style name="tooltip_bubble_text">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:gravity">left</item>
-        <item name="android:textSize">12sp</item>
-        <item name="android:shadowDy">-1</item>
-        <item name="android:shadowRadius">0.25</item>
-        <item name="android:shadowColor">#40000000</item>
     </style>
 
 </resources>

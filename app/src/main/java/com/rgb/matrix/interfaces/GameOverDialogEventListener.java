@@ -7,4 +7,6 @@ import com.rgb.matrix.RectangleButton;
  */
 public interface GameOverDialogEventListener {
     void onShare(RectangleButton shareButton);
+
+    void onRestart(RectangleButton restartButton);
 }

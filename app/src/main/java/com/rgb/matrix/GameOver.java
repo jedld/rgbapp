@@ -29,10 +29,13 @@ public class GameOver extends Entity {
     private final VertexBufferObjectManager vertexBufferObjectManager;
     private final Text gameOverText;
     private final RectangleButton shareButton;
+    private final RectangleButton restartButton;
 
     public GameOver(float pX, float pY, Font mFont, VertexBufferObjectManager vertexBufferObjectManager) {
         super(pX, pY);
         this.vertexBufferObjectManager = vertexBufferObjectManager;
+
+        float offsetY = 0;
 
         Rectangle rectangle = new Rectangle(0, 0, GAMEOVER_DIALOG_WIDTH, GAMEOVER_DIALOG_HEIGHT, vertexBufferObjectManager);
         rectangle.setColor(Color.BLACK);
@@ -41,8 +44,16 @@ public class GameOver extends Entity {
         gameOverText.setX(GAMEOVER_DIALOG_WIDTH / 2 - gameOverText.getWidth() / 2);
         gameOverText.setColor(Color.RED);
 
+        offsetY += GAME_OVER_DIALOG_MARGIN + gameOverText.getHeight() + ObjectDimensions.getSzVertSpacing();
+
+        restartButton = new RectangleButton(SHARE_BUTTON_MARGIN, offsetY,
+                GAMEOVER_DIALOG_WIDTH - SHARE_BUTTON_MARGIN * 2, FB_SHARE_BUTTON_HEIGHT,
+                vertexBufferObjectManager, mFont, "Restart");
+        restartButton.setColor(Color.WHITE);
+        restartButton.setTextColor(Color.BLACK);
+
         shareButton = new RectangleButton(SHARE_BUTTON_MARGIN, GAMEOVER_DIALOG_HEIGHT - SHARE_BUTTON_MARGIN - FB_SHARE_BUTTON_HEIGHT,
-                GAMEOVER_DIALOG_WIDTH  - SHARE_BUTTON_MARGIN * 2, FB_SHARE_BUTTON_HEIGHT,
+                GAMEOVER_DIALOG_WIDTH - SHARE_BUTTON_MARGIN * 2, FB_SHARE_BUTTON_HEIGHT,
                 vertexBufferObjectManager, mFont, "Share on Facebook");
         shareButton.setColor(Color.WHITE);
         shareButton.setTextColor(FB_SHARE_BUTTON_COLOR);
@@ -50,6 +61,7 @@ public class GameOver extends Entity {
         attachChild(rectangle);
         attachChild(gameOverText);
         attachChild(shareButton);
+        attachChild(restartButton);
     }
 
     public float getWidth() {
@@ -64,6 +76,8 @@ public class GameOver extends Entity {
     public void handleTouch(TouchEvent pSceneTouchEvent, GameOverDialogEventListener listener) {
         if (Utils.withinTouchBounds(shareButton, pSceneTouchEvent)) {
             listener.onShare(shareButton);
+        } else if (Utils.withinTouchBounds(restartButton, pSceneTouchEvent)) {
+            listener.onRestart(restartButton);
         }
     }
 }
