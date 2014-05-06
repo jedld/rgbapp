@@ -1,29 +1,24 @@
 package com.dayosoft.tiletron.app;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rgb.matrix.GameMatrix;
+import com.rgb.matrix.GameOver;
 import com.rgb.matrix.MainGrid;
 import com.rgb.matrix.Utils;
 import com.rgb.matrix.interfaces.GridEventListener;
@@ -32,11 +27,12 @@ import com.rgb.matrix.intro.LogoTiles;
 import com.rgb.matrix.menu.MainMenu;
 import com.rgb.matrix.menu.MenuItem;
 import com.rgb.matrix.menu.OnMenuSelectedListener;
+import com.rgb.matrix.storymode.Level;
+import com.rgb.matrix.storymode.StoryMode;
 import com.rgb.matrix.title.TitleScreen;
 import com.sromku.simple.fb.Permission;
 import com.sromku.simple.fb.SimpleFacebook;
 import com.sromku.simple.fb.entities.Photo;
-import com.sromku.simple.fb.entities.Privacy;
 import com.sromku.simple.fb.entities.Score;
 import com.sromku.simple.fb.listeners.OnLoginListener;
 import com.sromku.simple.fb.listeners.OnPublishListener;
@@ -52,13 +48,11 @@ import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.IEntity;
-import org.andengine.entity.modifier.AlphaModifier;
 import org.andengine.entity.modifier.ColorModifier;
 import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
-import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.ScreenCapture;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
@@ -74,13 +68,9 @@ import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.color.Color;
 import org.andengine.util.modifier.IModifier;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -102,7 +92,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     int currentMusicTrack = 0;
     private List<Music> trackList = new ArrayList<Music>();
     HashMap<String, SoundWrapper> soundAssets = new HashMap<String, SoundWrapper>();
-    HashMap<String, Sprite> spriteAssets = new HashMap<String, Sprite>();
+    HashMap<String, TextureRegion> spriteAssets = new HashMap<String, TextureRegion>();
     private HashMap<String, Font> fontHashMap;
     private ArrayList<String> logoLines = new ArrayList<String>();
     private List<String> titleLines = new ArrayList<String>();
@@ -148,6 +138,8 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
      */
     };
     private TextureRegion mSpriteTextureRegion;
+    private TitleScreen titleScreen;
+    private StoryMode storyMode;
 
 
     @Override
@@ -169,20 +161,6 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
 
     @Override
     public EngineOptions onCreateEngineOptions() {
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int width = size.x;
-        int height = size.y;
-//
-//        if (width > canvasWidth) {
-//            canvasWidth = width;
-//        }
-//
-//        if (height > canvasHeight) {
-//            canvasHeight = height;
-//        }
-
         mCamera = new Camera(0, 0, canvasWidth, canvasHeight);
         EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(canvasWidth, canvasHeight), mCamera);
         engineOptions.getAudioOptions().setNeedsSound(true);
@@ -246,10 +224,8 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
 
         mBitmapTextureAtlas.load();
 
-        Sprite mSprite = new Sprite(0, 0,
-                mSpriteTextureRegion, mEngine.getVertexBufferObjectManager());
 
-        spriteAssets.put("fb_icon", mSprite);
+        spriteAssets.put("fb_icon", mSpriteTextureRegion);
 
         loadSound("place_tile", "place_tile.mp3");
         loadSound("cascade", "cascade.mp3");
@@ -339,23 +315,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
 
     private void showTitleScreen() {
         mScene.detachChildren();
-        final TitleScreen titleScreen = new TitleScreen(0, 0, canvasWidth, canvasHeight, titleLines, getVertexBufferObjectManager());
-        titleScreen.addMenuItem("Endless Mode", new OnMenuSelectedListener() {
-            @Override
-            public void onMenuItemSelected(MenuItem item) {
-                startEndlessMode();
-            }
-        });
-
-        titleScreen.addMenuItem("Story Mode", new OnMenuSelectedListener() {
-            @Override
-            public void onMenuItemSelected(MenuItem item) {
-
-            }
-        });
-
         mScene.attachChild(titleScreen);
-
         mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
 
             @Override
@@ -394,7 +354,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         mScene = new Scene();
 
         mScene.setBackground(new Background(Color.WHITE));
-        Utils.getInstance(this, spriteAssets, soundAssets, fontHashMap);
+        Utils.getInstance(this, spriteAssets, soundAssets, fontHashMap, getVertexBufferObjectManager());
         pOnCreateSceneCallback.onCreateSceneFinished(mScene);
     }
 
@@ -405,10 +365,34 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         mainMenu = new MainMenu(0, 0, fontHashMap, getVertexBufferObjectManager());
         mainMenu.setVisible(false);
 
-        matrix = GameMatrix.getInstance(this, this, mScene, mainMenu, fontHashMap, soundAssets, getVertexBufferObjectManager(), BOARD_WIDTH, BOARD_HEIGHT, offset_x, 10);
+        matrix = new GameMatrix(this, this, mScene, mainMenu, fontHashMap, soundAssets, getVertexBufferObjectManager(), BOARD_WIDTH, BOARD_HEIGHT, offset_x, 10);
         grid = matrix.getMainGrid();
 
+        storyMode = new StoryMode(this, mScene, offset_x, getVertexBufferObjectManager(),
+                 mainMenu,fontHashMap, soundAssets);
+
+        titleScreen = new TitleScreen(0, 0, canvasWidth, canvasHeight, titleLines, getVertexBufferObjectManager());
+        titleScreen.addMenuItem("Endless Mode", new OnMenuSelectedListener() {
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                startEndlessMode();
+            }
+        });
+
+        titleScreen.addMenuItem("Story Mode", new OnMenuSelectedListener() {
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                startStoryMode();
+            }
+        });
+
+
         pOnPopulateSceneCallback.onPopulateSceneFinished();
+    }
+
+    private void startStoryMode() {
+        Level level = storyMode.loadLevel();
+        storyMode.renderLevel(level, this);
     }
 
     private void loadLogoText(List<String> lines, String filename) throws IOException {
@@ -481,9 +465,10 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
 
 
     @Override
-    public void onScreenCaptureHighScore(ScreenCapture screenCapture) {
+    public void onScreenCaptureHighScore(final GameOver gameOverText, ScreenCapture screenCapture) {
         String filename = null;
         try {
+
             filename = getCacheDir().getCanonicalPath() + File.separator + "rgb_" + System.currentTimeMillis() + ".bmp";
             final String outFilename = getCacheDir().getCanonicalPath() + File.separator +
                     "rgb_" + System.currentTimeMillis() + ".png";
@@ -495,6 +480,13 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
                         public void onScreenCaptured(String pFilePath) {
                             Log.d(TAG, "Screencap path" + pFilePath);
                             AsyncTask<Void, Void, Void> compressImageTask = new AsyncTask<Void, Void, Void>() {
+
+                                public ProgressDialog dialog;
+
+                                @Override
+                                protected void onPreExecute() {
+                                    super.onPreExecute();
+                                }
 
                                 @Override
                                 protected Void doInBackground(Void... voids) {
@@ -546,12 +538,15 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
                                                         @Override
                                                         public void onComplete(String response) {
                                                             dialog.dismiss();
+                                                            Toast.makeText(MainActivity.this,"upload complete!",Toast.LENGTH_LONG).show();
+                                                            gameOverText.hideShare();
                                                         }
 
                                                         @Override
                                                         public void onFail(String reason) {
                                                             super.onFail(reason);
                                                             dialog.dismiss();
+                                                            Log.e(TAG,"Unable to upload reason - " + reason);
                                                             Toast.makeText(MainActivity.this, "Unable to upload screenshot to facebook.", Toast.LENGTH_LONG).show();
                                                         }
 
@@ -562,6 +557,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
                                                 public void onFail(String reason) {
                                                     super.onFail(reason);
                                                     dialog.dismiss();
+                                                    Log.e(TAG,"Unable to upload reason - " + reason);
                                                     Toast.makeText(MainActivity.this, "Unable to upload screenshot to facebook.", Toast.LENGTH_LONG).show();
                                                 }
                                             });
@@ -579,7 +575,6 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
                                 @Override
                                 protected void onPostExecute(Void aVoid) {
                                     super.onPostExecute(aVoid);
-
                                     mSimpleFacebook.login(new OnLoginListener() {
                                         @Override
                                         public void onLogin() {
@@ -603,6 +598,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
 
                                         @Override
                                         public void onFail(String reason) {
+                                            Log.e(TAG,"Unable to upload reason - " + reason);
                                             Toast.makeText(MainActivity.this, "Unable to login to facebook", Toast.LENGTH_LONG).show();
                                         }
                                     });

@@ -30,6 +30,7 @@ public class MainMenu extends MenuEntity {
 
     private final Text backButton;
     private final Rectangle overlayRectangle;
+
     private OnBackListener onBackListener;
 
 
@@ -50,7 +51,7 @@ public class MainMenu extends MenuEntity {
         backButton.setColor(Color.WHITE);
         getBackgroundRectangle().attachChild(backButton);
 
-        menuOffsetY = 100;
+        menuStartOffsetY = 100;
     }
 
     public void animateShow() {
@@ -128,6 +129,11 @@ public class MainMenu extends MenuEntity {
         this.onBackListener = listener;
     }
 
+    @Override
+    public float getMenuWidth() {
+        return MainMenu.MENU_WIDTH;
+    }
+
     public void handleOnTouch(TouchEvent pSceneTouchEvent) {
         Log.d(TAG, "handle onTouch " + pSceneTouchEvent.getX() + "," + pSceneTouchEvent.getY());
         float[] backButtonCoordinates = backButton.getParent().convertLocalToSceneCoordinates(backButton.getX(), backButton.getY());
@@ -142,4 +148,6 @@ public class MainMenu extends MenuEntity {
         }
         super.handleOnTouch(pSceneTouchEvent);
     }
+
+
 }

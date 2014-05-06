@@ -44,7 +44,24 @@ public class GameMatrix implements IUpdateHandler {
     private int totalMoves = 0;
     private final Random random;
     private final SharedPreferences sharedPrefs;
-    private boolean inProgress = false;
+
+    public synchronized boolean setAndGetinProgress() {
+        if (inProgress > 0) return false;
+        inProgress++;
+        return true;
+    }
+
+    public synchronized void decrementInProgress() {
+        if (inProgress == 0) return;
+        inProgress--;
+    }
+
+    public boolean isInProgress() {
+        return inProgress > 0;
+    }
+
+
+    private int inProgress = 0;
     private Random random2;
 
     public VertexBufferObjectManager getVertexBuffer() {
@@ -72,11 +89,9 @@ public class GameMatrix implements IUpdateHandler {
     Vector<NextObject> blockQueue = new Vector<NextObject>();
     HashMap<String, Font> fontDictionary = new HashMap<String, Font>();
 
-    static GameMatrix instance;
-
     MainGrid mainGrid;
 
-    protected GameMatrix(Context context, GridEventListener listener, Scene scene, MainMenu mainMenu, HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets, VertexBufferObjectManager vertexBuffer, int gridWidth, int gridHeight, int offset_x, int offset_y) {
+    public GameMatrix(Context context, GridEventListener listener, Scene scene, MainMenu mainMenu, HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets, VertexBufferObjectManager vertexBuffer, int gridWidth, int gridHeight, int offset_x, int offset_y) {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.context = context;
@@ -85,11 +100,6 @@ public class GameMatrix implements IUpdateHandler {
         this.soundAssets = soundAssets;
         this.listener = listener;
         sharedPrefs = context.getSharedPreferences("high_score", Context.MODE_PRIVATE);
-//
-//        Resources r = context.getResources();
-//        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MainGrid.TILE_SIZE_IN_DIP, r.getDisplayMetrics());
-//        MainGrid.setRectangleTileSizeInPixels(px);
-
         this.mainGrid = new MainGrid(offset_x, offset_y + ObjectDimensions.szMainGridPaddingTop, gridWidth, gridHeight, this, mainMenu, fontDictionary, soundAssets, vertexBuffer, listener);
 
 
@@ -109,12 +119,6 @@ public class GameMatrix implements IUpdateHandler {
         }
     }
 
-    public static GameMatrix getInstance(Context context, GridEventListener listener,  Scene scene, MainMenu mainMenu, HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets, VertexBufferObjectManager vertexBuffer, int width, int height, int offset_x, int offset_y) {
-        if (instance == null) {
-            instance = new GameMatrix( context, listener, scene, mainMenu, fontDictionary, soundAssets, vertexBuffer, width, height, offset_x, offset_y);
-        }
-        return instance;
-    }
 
     public void resetWorld() {
         mainGrid.resetWorldState();
@@ -223,9 +227,8 @@ public class GameMatrix implements IUpdateHandler {
             currentTile.getBonusSources().clear();
             applyEntityUpdate(x, y, object, multiplierLevel, placeOnly);
         } else {
-            if (inProgress) return;
-            inProgress = true;
             final int finalMultiplierLevel = multiplierLevel;
+            inProgress++;
             currentTile.registerEntityModifier(new ScaleAtModifier(0.3f, 0f, 1f, MainGrid.getRectangleTileSizeInPixels() / 2, MainGrid.getRectangleTileSizeInPixels() / 2, new IEntityModifier.IEntityModifierListener() {
                 @Override
                 public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
@@ -241,6 +244,7 @@ public class GameMatrix implements IUpdateHandler {
                 @Override
                 public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
                     applyEntityUpdate(x, y, object, finalMultiplierLevel, placeOnly);
+                    decrementInProgress();
                 }
             }));
         }
@@ -302,17 +306,10 @@ public class GameMatrix implements IUpdateHandler {
                         gridSquare.animateScore(previous, current, multiplierLevel);
                     }
                 }
-                inProgress = false;
             } else if (currentTile.isColoredTile()) {
                 if (mainGrid.isRGB(x, y, object.getTileType())) {
-                    checkValidMoves = processRGBSequence(x, y, multiplierLevel, object , new RGBProcessListener() {
-                        @Override
-                        public void onComplete() {
-                            inProgress = false;
-                        }
-                    });
+                    checkValidMoves = processRGBSequence(x, y, multiplierLevel, object);
                 } else {
-                    inProgress = false;
                     for (GridSquare square : getAdjacentTiles(x, y)) {
                         if (square.isColoredTile() && square.getTileType() != object.getTileType()) {
                             if (mainGrid.isRGB(square.getBoardPositionX(), square.getBoardPositionY(), square.getTileType())) {
@@ -321,13 +318,7 @@ public class GameMatrix implements IUpdateHandler {
                                 proxyNextObject.setMultiplierColor(currentTile.getMultiplierColor());
                                 proxyNextObject.setAge(currentTile.age);
                                 square.setTileType(currentTile.getTileType());
-                                inProgress = true;
-                                if (!processRGBSequence(square.getBoardPositionX(), square.getBoardPositionY(), multiplierLevel, proxyNextObject, new RGBProcessListener() {
-                                    @Override
-                                    public void onComplete() {
-                                        inProgress = false;
-                                    }
-                                })) {
+                                if (!processRGBSequence(square.getBoardPositionX(), square.getBoardPositionY(), multiplierLevel, proxyNextObject)) {
                                     checkValidMoves = false;
                                 };
                                 break;
@@ -335,8 +326,6 @@ public class GameMatrix implements IUpdateHandler {
                         }
                     }
                 }
-            } else {
-                inProgress = false;
             }
         }
 
@@ -369,7 +358,7 @@ public class GameMatrix implements IUpdateHandler {
         }
     }
 
-    private boolean processRGBSequence(int x, int y, final int multiplierLevel, NextObject object, final RGBProcessListener listener) {
+    private boolean processRGBSequence(int x, int y, final int multiplierLevel, NextObject object) {
         ArrayList<Pair<Integer, Integer>> updateList = new ArrayList<Pair<Integer, Integer>>();
         mainGrid.addScore(1);
         updateAdjacent(x, y, object.getTileType(), 0, updateList, getVisitMap());
@@ -418,27 +407,23 @@ public class GameMatrix implements IUpdateHandler {
         }
 
         if (secondaryEvents.size() > 0) {
+            inProgress++;
             Timer t = new Timer();
             t.schedule(new TimerTask() {
                 @Override
                 public void run() {
-
                     for (GridSquare secondaryTriggers : secondaryEvents) {
                         NextObject generatedObject = new NextObject();
                         generatedObject.setTileType(secondaryTriggers.getTileType() - 6);
                         generatedObject.setAge(0);
-                        inProgress = false;
                         updateWorld(secondaryTriggers.getBoardPositionX(), secondaryTriggers.getBoardPositionY(),
                                 generatedObject, multiplierLevel + 1, false);
                     }
-                    listener.onComplete();
+                    decrementInProgress();
                 }
             }, 1000);
             return false;
-        } else {
-            listener.onComplete();
         }
-
         return true;
     }
 

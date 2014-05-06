@@ -2,6 +2,7 @@ package com.rgb.matrix.intro;
 
 import android.util.Pair;
 
+import com.rgb.matrix.ColorConstants;
 import com.rgb.matrix.GridSquare;
 import com.rgb.matrix.NextObject;
 import com.rgb.matrix.interfaces.OnSequenceFinished;
@@ -201,11 +202,11 @@ public class LogoTiles extends Entity {
         int randColor = random.nextInt(3);
         switch (randColor) {
             case 0:
-                return Color.RED;
+                return ColorConstants.RED;
             case 1:
-                return Color.BLUE;
+                return ColorConstants.BLUE;
             case 2:
-                return Color.GREEN;
+                return ColorConstants.GREEN;
         }
         return null;
     }

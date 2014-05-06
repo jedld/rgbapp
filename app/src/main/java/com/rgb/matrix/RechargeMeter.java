@@ -137,7 +137,7 @@ public class RechargeMeter extends Entity implements Resizable {
             isSuperActivated = false;
             meterObject.setWidth(0);
             pushButton.setVisible(false);
-            maxunits += (maxunits / 4);
+            maxunits += (maxunits / 3);
             currentState = 0;
             prevPoints = 0;
             level+=1;

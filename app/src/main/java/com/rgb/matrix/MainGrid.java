@@ -128,7 +128,7 @@ public class MainGrid extends Entity {
 
         float offsetY = (gridHeight * getRectangleTileSizeInPixels()) + ObjectDimensions.szGridPaddingBottom;
 
-        this.rechargeMeter = new RechargeMeter(0, offsetY, gridWidth * getRectangleTileSizeInPixels(), 100, fontDictionary, soundAssets, vertexBuffer);
+        this.rechargeMeter = new RechargeMeter(0, offsetY, gridWidth * getRectangleTileSizeInPixels(), 150, fontDictionary, soundAssets, vertexBuffer);
         attachChild(rechargeMeter);
 
         offsetY+=rechargeMeter.getHeight() + ObjectDimensions.szRechargeMeterPaddingBottom;
@@ -198,7 +198,7 @@ public class MainGrid extends Entity {
         gameOverText.setY( (800 / 2) - (gameOverText.getHeight()/2));
         gameOverText.setVisible(false);
         attachChild(gameOverText);
-
+        mainMenu.clearItems();
 
         mainMenu.addMenuItem("Restart", new OnMenuSelectedListener() {
 
@@ -254,7 +254,7 @@ public class MainGrid extends Entity {
     }
 
     public void shareOnFacebook() {
-            gridEventListener.onScreenCaptureHighScore(screenCapture);
+            gridEventListener.onScreenCaptureHighScore(gameOverText, screenCapture);
     }
 
     public void showChainBonus(int multiplier) {
@@ -429,7 +429,7 @@ public class MainGrid extends Entity {
 
     public void showGameOver() {
 //        fadeOutAllRectangles();
-        gameOverText.setVisible(true);
+        gameOverText.show();
     }
 
     public GridSquare getQueueRect(int i) {
@@ -449,7 +449,7 @@ public class MainGrid extends Entity {
                 gameOverText.handleTouch(pSceneTouchEvent, new GameOverDialogEventListener() {
                     @Override
                     public void onShare(RectangleButton shareButton) {
-                        gridEventListener.onScreenCaptureHighScore(screenCapture);
+                        gridEventListener.onScreenCaptureHighScore(gameOverText, screenCapture);
                     }
 
                     @Override
@@ -466,11 +466,12 @@ public class MainGrid extends Entity {
                 int grid_x = (int) normalized_x / (int) MainGrid.getRectangleTileSizeInPixels();
                 int grid_y = (int) normalized_y / (int) MainGrid.getRectangleTileSizeInPixels();
 
-                if (isValid(grid_x, grid_y)) {
+                if (isValid(grid_x, grid_y) && matrix.setAndGetinProgress()) {
                     NextObject object = matrix.blockQueue.remove(0);
                     matrix.fillQueue();
                     Log.d(TAG, "updating world " + grid_x + " , " + grid_y + " = " + object);
                     matrix.updateWorld(grid_x, grid_y, object, 1, false);
+                    matrix.decrementInProgress();
                 }
             }
         }

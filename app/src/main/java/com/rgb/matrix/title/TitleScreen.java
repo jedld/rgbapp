@@ -1,8 +1,8 @@
 package com.rgb.matrix.title;
 
-import android.util.Log;
 import android.util.Pair;
 
+import com.rgb.matrix.ColorConstants;
 import com.rgb.matrix.GridSquare;
 import com.rgb.matrix.intro.PositionsInfo;
 import com.rgb.matrix.intro.TargetPosition;
@@ -33,7 +33,8 @@ public class TitleScreen extends MenuEntity {
     private final List<String> lines;
     private final float width;
     private final Random random;
-    ArrayList<Rectangle> backgroundRect = new ArrayList<Rectangle>();
+    private final Rectangle backgroundRectangle;
+    ArrayList<Rectangle> backgroundRectangleCollection = new ArrayList<Rectangle>();
     private final Entity parentLogoEntity;
     float maxTextWidth = 0, maxTextHeight = 0;
 
@@ -46,7 +47,7 @@ public class TitleScreen extends MenuEntity {
         this.lines = lines;
         random = new Random(System.nanoTime());
 
-        Rectangle backgroundRectangle = new Rectangle(0, 0, width, height, vertexBufferObjectManager);
+        backgroundRectangle = new Rectangle(0, 0, width, height, vertexBufferObjectManager);
         backgroundRectangle.setColor(Color.WHITE);
 
         attachChild(backgroundRectangle);
@@ -66,18 +67,18 @@ public class TitleScreen extends MenuEntity {
             rectangles.add(rectangle);
         }
 
-        menuOffsetY = maxTextHeight + 250;
+        menuStartOffsetY = maxTextHeight + 300;
 
         for (int i = 0; i < TITLE_TILES_WIDTH; i++) {
             Line line = new Line(i * TITLE_TILES_SIZE, TITLE_TILES_SIZE, i * TITLE_TILES_SIZE, height, vertexBufferObjectManager);
             line.setColor(GridSquare.GRID_BORDER_COLOR);
-            attachChild(line);
+            backgroundRectangle.attachChild(line);
         }
 
         for (int i2 = 0; i2 < TITLE_TILES_HEIGHT; i2++) {
             Line line = new Line(0, i2 * TITLE_TILES_SIZE, width, i2 * TITLE_TILES_SIZE, vertexBufferObjectManager);
             line.setColor(GridSquare.GRID_BORDER_COLOR);
-            attachChild(line);
+            backgroundRectangle.attachChild(line);
         }
 
         randomTilePlacement();
@@ -85,8 +86,9 @@ public class TitleScreen extends MenuEntity {
         attachChild(parentLogoEntity);
     }
 
+    @Override
     public Entity getBackgroundRectangle() {
-        return parentLogoEntity;
+        return backgroundRectangle;
     }
 
     public float getMenuWidth() {
@@ -103,13 +105,13 @@ public class TitleScreen extends MenuEntity {
                         TITLE_TILES_SIZE - backgroundTileMargin * 2, vertexBufferObjectManager);
                 backgroundTile.setColor(getRandomColor());
                 backgroundTile.setAlpha(0.2f);
-                backgroundRect.add(backgroundTile);
-                attachChild(backgroundTile);
+                backgroundRectangleCollection.add(backgroundTile);
+                backgroundRectangle.attachChild(backgroundTile);
             }
         }
 
-        for(int i = 0; i < backgroundRect.size(); i++) {
-            int shouldAnim = random.nextInt(4);
+        for(int i = 0; i < backgroundRectangleCollection.size(); i++) {
+            int shouldAnim = random.nextInt(5);
             if (shouldAnim == 1) {
                 setRandomAnim();
             }
@@ -117,7 +119,7 @@ public class TitleScreen extends MenuEntity {
     }
 
     private void setRandomAnim() {
-        final Rectangle backgroundTile = backgroundRect.get(random.nextInt(backgroundRect.size()));
+        final Rectangle backgroundTile = backgroundRectangleCollection.get(random.nextInt(backgroundRectangleCollection.size()));
         backgroundTile.registerEntityModifier(new AlphaModifier(1f, 0.2f, 0f, new IEntityModifier.IEntityModifierListener() {
 
             @Override
@@ -150,13 +152,13 @@ public class TitleScreen extends MenuEntity {
 
         switch (randColor) {
             case 0:
-                return Color.RED;
+                return ColorConstants.RED;
             case 1:
-                return Color.BLUE;
+                return ColorConstants.BLUE;
             case 2:
-                return Color.GREEN;
+                return ColorConstants.GREEN;
         }
-        return Color.RED;
+        return ColorConstants.RED;
     }
 
     public String getFontKey() {
@@ -167,7 +169,7 @@ public class TitleScreen extends MenuEntity {
         MenuAttributes attributes = new MenuAttributes();
         attributes.setColor(Color.BLACK);
         attributes.setBackgroundColor(Color.WHITE);
-        attributes.setAlpha(0f);
+        attributes.setAlpha(0.7f);
         addMenuItem(label, false, false, attributes, listener);
     }
 
@@ -193,13 +195,13 @@ public class TitleScreen extends MenuEntity {
                     position.setPosition(new Pair(currentPosX, currentPosY));
                     switch (pos) {
                         case '1':
-                            position.setColor(Color.RED);
+                            position.setColor(ColorConstants.RED);
                             break;
                         case '2':
-                            position.setColor(Color.BLUE);
+                            position.setColor(ColorConstants.GREEN);
                             break;
                         case '3':
-                            position.setColor(Color.GREEN);
+                            position.setColor(ColorConstants.BLUE);
                             break;
                     }
                     finalPositions.add(position);

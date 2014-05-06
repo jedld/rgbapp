@@ -3,6 +3,7 @@ package com.rgb.matrix;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.dayosoft.tiletron.app.MainActivity;
 import com.dayosoft.tiletron.app.SoundWrapper;
 import com.facebook.RequestBatch;
 
@@ -10,6 +11,8 @@ import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.IFont;
+import org.andengine.opengl.texture.region.TextureRegion;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.Constants;
 
 import java.util.HashMap;
@@ -21,23 +24,25 @@ public class Utils {
 
     static Utils instance;
     private final Context context;
-    private final HashMap<String, Sprite> spriteAssets;
+    private final HashMap<String, TextureRegion> spriteAssets;
     private final HashMap<String, SoundWrapper> soundAssets;
     private final HashMap<String, Font> fontAssets;
+    private final VertexBufferObjectManager vertexBufferObjectManager;
 
 
-    protected Utils(Context context, HashMap<String, Sprite> spriteAssets, HashMap<String,
-            SoundWrapper> soundAssets, HashMap<String, Font> fontAssets) {
+    protected Utils(Context context, HashMap<String, TextureRegion> spriteAssets, HashMap<String,
+            SoundWrapper> soundAssets, HashMap<String, Font> fontAssets, VertexBufferObjectManager manager) {
         this.context = context;
         this.spriteAssets = spriteAssets;
         this.soundAssets = soundAssets;
         this.fontAssets = fontAssets;
+        this.vertexBufferObjectManager = manager;
     }
 
-    public static Utils getInstance(Context context, HashMap<String, Sprite> spriteAssets, HashMap<String,
-            SoundWrapper> soundAssets, HashMap<String, Font> fontAssets) {
+    public static Utils getInstance(Context context, HashMap<String, TextureRegion> spriteAssets, HashMap<String,
+            SoundWrapper> soundAssets, HashMap<String, Font> fontAssets, VertexBufferObjectManager manager) {
         if (instance == null) {
-            instance = new Utils(context, spriteAssets, soundAssets, fontAssets);
+            instance = new Utils(context, spriteAssets, soundAssets, fontAssets, manager);
         }
         return instance;
     }
@@ -47,7 +52,9 @@ public class Utils {
     }
 
     public Sprite getSprite(String name) {
-        return spriteAssets.get(name);
+        Sprite mSprite = new Sprite(0, 0,
+                spriteAssets.get(name), vertexBufferObjectManager);
+        return mSprite;
     }
 
     public SoundWrapper getSound(String name) {

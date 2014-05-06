@@ -1,5 +1,6 @@
 package com.rgb.matrix.interfaces;
 
+import com.rgb.matrix.GameOver;
 import com.rgb.matrix.menu.MenuItem;
 
 import org.andengine.entity.util.ScreenCapture;
@@ -16,7 +17,7 @@ public interface GridEventListener {
 
     boolean getSoundState();
 
-    public void onScreenCaptureHighScore(ScreenCapture screenCapture);
+    public void onScreenCaptureHighScore(GameOver gameOverText, ScreenCapture screenCapture);
 
     void onExitGrid(MenuItem item);
 }

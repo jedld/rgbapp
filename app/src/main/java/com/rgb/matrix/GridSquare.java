@@ -183,7 +183,7 @@ public class GridSquare extends Entity {
         multiplierText = new Text(0, 0, mfont.get("multiplier"), "X2", vertexBuffer);
         multiplierText.setX(MainGrid.getRectangleTileSizeInPixels() / 2 - multiplierText.getWidth() / 2);
         multiplierText.setY(MainGrid.getRectangleTileSizeInPixels() / 2 - multiplierText.getHeight() / 2);
-        multiplierText.setColor(Color.RED);
+        multiplierText.setColor(ColorConstants.RED);
         multiplierText.setVisible(false);
 
 
@@ -300,7 +300,7 @@ public class GridSquare extends Entity {
         float toScale = 1.5f;
 
         if (multiplierLevel > 1) {
-            valueText.setColor(Color.RED);
+            valueText.setColor(ColorConstants.RED);
             toScale = 1.7f;
         } else {
             valueText.setColor(Color.BLACK);
@@ -415,20 +415,20 @@ public class GridSquare extends Entity {
             switch (tileType) {
                 case GameMatrix.BLUE_BLOCK:
                 case GameMatrix.BLUE_REPEATER_BLOCK:
-                    rectangle.setColor(Color.BLUE);
+                    rectangle.setColor(ColorConstants.BLUE);
                     break;
                 case GameMatrix.RED_BLOCK:
                 case GameMatrix.RED_REPEATER_BLOCK:
-                    rectangle.setColor(Color.RED);
+                    rectangle.setColor(ColorConstants.RED);
                     break;
                 case GameMatrix.GREEN_REPEATER_BLOCK:
                 case GameMatrix.GREEN_BLOCK:
-                    rectangle.setColor(Color.GREEN);
+                    rectangle.setColor(ColorConstants.GREEN);
                     break;
                 case GameMatrix.MULTIPLIERX2:
                     rectangle.setColor(Color.WHITE);
                     multiplierText.setVisible(true);
-                    multiplierText.setColor(Color.RED);
+                    multiplierText.setColor(ColorConstants.RED);
                     multiplierText.setText("X2");
                     multiplierBorder.setVisible(true);
                     break;
@@ -557,13 +557,13 @@ public class GridSquare extends Entity {
 
     private Color toColor(Integer block) {
         if (block == GameMatrix.RED_BLOCK) {
-            return Color.RED;
+            return ColorConstants.RED;
         }
         if (block == GameMatrix.BLUE_BLOCK) {
-            return Color.BLUE;
+            return ColorConstants.BLUE;
         }
         if (block == GameMatrix.GREEN_BLOCK) {
-            return Color.GREEN;
+            return ColorConstants.GREEN;
         }
         if (block == GameMatrix.BUSTED) {
             return Color.BLACK;

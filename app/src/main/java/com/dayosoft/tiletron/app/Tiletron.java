@@ -13,6 +13,7 @@ public class Tiletron extends Application {
     Permission[] permissions = new Permission[] {
             Permission.USER_PHOTOS,
             Permission.EMAIL,
+            Permission.PUBLISH_STREAM,
             Permission.PUBLISH_ACTION
     };
     private SimpleFacebookConfiguration configuration;

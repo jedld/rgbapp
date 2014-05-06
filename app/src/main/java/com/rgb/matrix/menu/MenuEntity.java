@@ -17,21 +17,21 @@ import java.util.ArrayList;
 /**
  * Created by joseph on 5/5/14.
  */
-public class MenuEntity extends Entity {
+public abstract class MenuEntity extends Entity {
     private static final String TAG = MenuEntity.class.getName();
     protected final VertexBufferObjectManager vertexBufferObjectManager;
     protected ArrayList<MenuItem> items = new ArrayList<MenuItem>();
     private Entity backgroundRectangle;
-    protected float menuOffsetY;
+    private float menuOffsetY;
+    protected float menuStartOffsetY;
 
     public MenuEntity(float pX, float pY, VertexBufferObjectManager vertexBufferObjectManager) {
         super(pX, pY);
         this.vertexBufferObjectManager = vertexBufferObjectManager;
+        this.menuStartOffsetY = 0;
     }
 
-    public float getMenuWidth() {
-        return MainMenu.MENU_WIDTH;
-    }
+    public abstract float getMenuWidth();
 
     public String getFontKey() {
         return "menu";
@@ -60,8 +60,11 @@ public class MenuEntity extends Entity {
         menuItem.setLabel(label);
         menuItem.setListener(listener);
 
+        //get next menu item position
+        menuOffsetY += MainMenu.MENU_MARGINS + MainMenu.MENU_ITEM_HEIGHT;
+
         float boundRectangleWidth = getMenuWidth() - MainMenu.MENU_MARGINS * 2;
-        Rectangle rectangle = new Rectangle(MainMenu.MENU_MARGINS, items.size() * (MainMenu.MENU_MARGINS + MainMenu.MENU_ITEM_HEIGHT) + menuOffsetY, boundRectangleWidth,
+        Rectangle rectangle = new Rectangle(MainMenu.MENU_MARGINS, menuOffsetY + menuStartOffsetY, boundRectangleWidth,
                 MainMenu.MENU_ITEM_HEIGHT, vertexBufferObjectManager);
         rectangle.setColor(menuAttributes.getBackgroundColor());
         rectangle.setAlpha(menuAttributes.getAlpha());
@@ -91,6 +94,10 @@ public class MenuEntity extends Entity {
         items.add(menuItem);
     }
 
+    public void addGap(float gap) {
+        menuOffsetY += gap;
+    }
+
     public void handleOnTouch(TouchEvent pSceneTouchEvent) {
         for (MenuItem item : items) {
 
@@ -118,5 +125,10 @@ public class MenuEntity extends Entity {
 
     public void setBackgroundRectangle(Rectangle backgroundRectangle) {
         this.backgroundRectangle = backgroundRectangle;
+    }
+
+    public void clearItems() {
+        items.clear();
+        menuOffsetY = 0;
     }
 }
