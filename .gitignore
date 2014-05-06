@@ -1,3 +1,5 @@
+library-simple-facebook/build
+library-facebook-sdk/build
 build/
 *.iml
 .idea
