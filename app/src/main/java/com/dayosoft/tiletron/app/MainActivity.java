@@ -21,6 +21,7 @@ import com.rgb.matrix.GameMatrix;
 import com.rgb.matrix.GameOver;
 import com.rgb.matrix.MainGrid;
 import com.rgb.matrix.Utils;
+import com.rgb.matrix.endlessmode.EndlessMode;
 import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.interfaces.OnSequenceFinished;
 import com.rgb.matrix.intro.LogoTiles;
@@ -83,12 +84,8 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     private static final String TAG = MainActivity.class.getName();
     public static float canvasWidth = 480;
     public static float canvasHeight = 800;
-    private static final int BOARD_WIDTH = 8;
-    private static final int BOARD_HEIGHT = 10;
     private Camera mCamera;
     private Scene mScene;
-    private GameMatrix matrix;
-    private Sound mSound;
     int currentMusicTrack = 0;
     private List<Music> trackList = new ArrayList<Music>();
     HashMap<String, SoundWrapper> soundAssets = new HashMap<String, SoundWrapper>();
@@ -98,7 +95,6 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     private List<String> titleLines = new ArrayList<String>();
     private LogoTiles logo;
     private boolean playMusic;
-    private MainGrid grid;
     private MainMenu mainMenu;
     private boolean backedPressed = false;
     private SimpleFacebook mSimpleFacebook;
@@ -140,6 +136,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     private TextureRegion mSpriteTextureRegion;
     private TitleScreen titleScreen;
     private StoryMode storyMode;
+    private EndlessMode endlessMode;
 
 
     @Override
@@ -360,15 +357,15 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
 
     @Override
     public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback) throws Exception {
-        int offset_x = (int) ((canvasWidth / 2) - ((BOARD_WIDTH * MainGrid.getRectangleTileSizeInPixels()) / 2));
+
 
         mainMenu = new MainMenu(0, 0, fontHashMap, getVertexBufferObjectManager());
         mainMenu.setVisible(false);
 
-        matrix = new GameMatrix(this, this, mScene, mainMenu, fontHashMap, soundAssets, getVertexBufferObjectManager(), BOARD_WIDTH, BOARD_HEIGHT, offset_x, 10);
-        grid = matrix.getMainGrid();
+        endlessMode = new EndlessMode(this, mScene, canvasWidth, getVertexBufferObjectManager(),
+                mainMenu,fontHashMap, soundAssets);
 
-        storyMode = new StoryMode(this, mScene, offset_x, getVertexBufferObjectManager(),
+        storyMode = new StoryMode(this, mScene, canvasWidth, getVertexBufferObjectManager(),
                  mainMenu,fontHashMap, soundAssets);
 
         titleScreen = new TitleScreen(0, 0, canvasWidth, canvasHeight, titleLines, getVertexBufferObjectManager());
@@ -411,27 +408,11 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     }
 
     void startEndlessMode() {
-        mScene.detachChildren();
-        mScene.attachChild(matrix.getMainGrid());
-        mScene.attachChild(mainMenu);
-        matrix.drawWorld();
+        endlessMode.startEndlessMode();
         playMusic = true;
-
         if (Utils.getMusicState(this) && currentTrack() != null && !currentTrack().isPlaying()) {
             currentTrack().play();
         }
-
-        mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
-
-            @Override
-            public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
-                if (pSceneTouchEvent.isActionDown()) {
-                    matrix.onTouch(pSceneTouchEvent);
-                }
-
-                return false;
-            }
-        });
 
 
     }

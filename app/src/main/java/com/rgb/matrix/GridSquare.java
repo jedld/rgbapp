@@ -3,6 +3,7 @@ package com.rgb.matrix;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.rgb.matrix.interfaces.BoundedEntity;
 import com.rgb.matrix.interfaces.OnSequenceFinished;
 import com.rgb.matrix.modifiers.HeightModifier;
 
@@ -27,7 +28,7 @@ import java.util.HashMap;
 /**
  * Created by joseph on 4/21/14.
  */
-public class GridSquare extends Entity {
+public class GridSquare extends BoundedEntity {
 
     private static final int MAX_AGE = 4;
     public static final Color BUSTED_COLOR = new Color(36 / 255f, 0x36 / 255f, 0x36 / 255f);
@@ -149,25 +150,25 @@ public class GridSquare extends Entity {
 
         setupRepeaterEntities();
 
-        rectangle = new Rectangle(ObjectDimensions.szTitleBorderMargin, ObjectDimensions.szTitleBorderMargin, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2, vertexBuffer);
+        rectangle = new Rectangle(ObjectDimensions.szTitleBorderMargin, ObjectDimensions.szTitleBorderMargin, matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2, matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2, vertexBuffer);
 
         attachChild(rectangle);
 
-        gameOverRect = new Rectangle(ObjectDimensions.szTitleBorderMargin, ObjectDimensions.szTitleBorderMargin, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2, vertexBuffer);
+        gameOverRect = new Rectangle(ObjectDimensions.szTitleBorderMargin, ObjectDimensions.szTitleBorderMargin, matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2, matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2, vertexBuffer);
         gameOverRect.setColor(Color.BLACK);
         gameOverRect.setVisible(false);
 
-        gridBorder = drawRect(0, 0, MainGrid.getRectangleTileSizeInPixels(), MainGrid.getRectangleTileSizeInPixels(), GRID_BORDER_COLOR, 2);
+        gridBorder = drawRect(0, 0, matrix.getRectangleTileSizeInPixels(), matrix.getRectangleTileSizeInPixels(), GRID_BORDER_COLOR, 2);
         attachChild(gridBorder);
 
-        topConnector = new Rectangle(MainGrid.getRectangleTileSizeInPixels() / 2 - ObjectDimensions.szConnectorWidth / 2, -ObjectDimensions.szConnectorHeight / 2, ObjectDimensions.szConnectorWidth, ObjectDimensions.szConnectorHeight, vertexBuffer);
-        leftConnector = new Rectangle(-ObjectDimensions.szConnectorHeight / 2, MainGrid.getRectangleTileSizeInPixels() / 2 - ObjectDimensions.szConnectorWidth / 2, ObjectDimensions.szConnectorHeight, ObjectDimensions.szConnectorWidth, vertexBuffer);
-        rightConnector = new Rectangle(MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szConnectorHeight / 2, MainGrid.getRectangleTileSizeInPixels() / 2 - ObjectDimensions.szConnectorWidth / 2, ObjectDimensions.szConnectorHeight, ObjectDimensions.szConnectorWidth, vertexBuffer);
-        bottomConnector = new Rectangle(MainGrid.getRectangleTileSizeInPixels() / 2 - ObjectDimensions.szConnectorWidth / 2, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szConnectorHeight / 2, ObjectDimensions.szConnectorWidth, ObjectDimensions.szConnectorHeight, vertexBuffer);
+        topConnector = new Rectangle(matrix.getRectangleTileSizeInPixels() / 2 - ObjectDimensions.szConnectorWidth / 2, -ObjectDimensions.szConnectorHeight / 2, ObjectDimensions.szConnectorWidth, ObjectDimensions.szConnectorHeight, vertexBuffer);
+        leftConnector = new Rectangle(-ObjectDimensions.szConnectorHeight / 2, matrix.getRectangleTileSizeInPixels() / 2 - ObjectDimensions.szConnectorWidth / 2, ObjectDimensions.szConnectorHeight, ObjectDimensions.szConnectorWidth, vertexBuffer);
+        rightConnector = new Rectangle(matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szConnectorHeight / 2, matrix.getRectangleTileSizeInPixels() / 2 - ObjectDimensions.szConnectorWidth / 2, ObjectDimensions.szConnectorHeight, ObjectDimensions.szConnectorWidth, vertexBuffer);
+        bottomConnector = new Rectangle(matrix.getRectangleTileSizeInPixels() / 2 - ObjectDimensions.szConnectorWidth / 2, matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szConnectorHeight / 2, ObjectDimensions.szConnectorWidth, ObjectDimensions.szConnectorHeight, vertexBuffer);
 
 
-        float borderSize = MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szMultiplierBorderMargin * 2;
-        multiplierBorder = new HollowRectangle(MainGrid.getRectangleTileSizeInPixels() / 2 - borderSize / 2, MainGrid.getRectangleTileSizeInPixels() / 2 - borderSize / 2, MainGrid.getRectangleTileSizeInPixels() - 8, MainGrid.getRectangleTileSizeInPixels() - 8, Color.BLACK, 4, vertexBuffer);
+        float borderSize = matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szMultiplierBorderMargin * 2;
+        multiplierBorder = new HollowRectangle(matrix.getRectangleTileSizeInPixels() / 2 - borderSize / 2, matrix.getRectangleTileSizeInPixels() / 2 - borderSize / 2, matrix.getRectangleTileSizeInPixels() - 8, matrix.getRectangleTileSizeInPixels() - 8, Color.BLACK, 4, vertexBuffer);
         multiplierBorder.setVisible(false);
         attachChild(multiplierBorder);
 
@@ -176,13 +177,13 @@ public class GridSquare extends Entity {
         attachChild(rightConnector);
         attachChild(bottomConnector);
         int points = age + 1;
-        valueText = new Text(MainGrid.getRectangleTileSizeInPixels() - 35, MainGrid.getRectangleTileSizeInPixels() - 25, mfont.get("points"), "+00", vertexBuffer);
+        valueText = new Text(matrix.getRectangleTileSizeInPixels() - 35, matrix.getRectangleTileSizeInPixels() - 25, mfont.get("points"), "+00", vertexBuffer);
         valueText.setText("+" + points);
         valueText.setColor(Color.BLACK);
 
         multiplierText = new Text(0, 0, mfont.get("multiplier"), "X2", vertexBuffer);
-        multiplierText.setX(MainGrid.getRectangleTileSizeInPixels() / 2 - multiplierText.getWidth() / 2);
-        multiplierText.setY(MainGrid.getRectangleTileSizeInPixels() / 2 - multiplierText.getHeight() / 2);
+        multiplierText.setX(matrix.getRectangleTileSizeInPixels() / 2 - multiplierText.getWidth() / 2);
+        multiplierText.setY(matrix.getRectangleTileSizeInPixels() / 2 - multiplierText.getHeight() / 2);
         multiplierText.setColor(ColorConstants.RED);
         multiplierText.setVisible(false);
 
@@ -193,7 +194,7 @@ public class GridSquare extends Entity {
             valueText.setVisible(false);
         }
 
-        innerRectangle = new Rectangle(ObjectDimensions.szInnerRectThickness, ObjectDimensions.szInnerRectThickness, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szInnerRectThickness * 2, MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szInnerRectThickness * 2, vertexBuffer);
+        innerRectangle = new Rectangle(ObjectDimensions.szInnerRectThickness, ObjectDimensions.szInnerRectThickness, matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szInnerRectThickness * 2, matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szInnerRectThickness * 2, vertexBuffer);
         innerRectangle.setColor(Color.WHITE);
 
         attachChild(innerRectangle);
@@ -204,7 +205,7 @@ public class GridSquare extends Entity {
     }
 
     private void setupRepeaterEntities() {
-        float szRepeater = MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2;
+        float szRepeater = matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2;
         repeaterContainer = new Rectangle(ObjectDimensions.szTitleBorderMargin, ObjectDimensions.szTitleBorderMargin, szRepeater, szRepeater, vertexBuffer);
         repeaterContainer.setVisible(false);
         attachChild(repeaterContainer);
@@ -446,8 +447,8 @@ public class GridSquare extends Entity {
             }
 
             if (isRepeater()) {
-                rectangle.setX(MainGrid.getRectangleTileSizeInPixels() / 2 - MainGrid.getRepeaterSizeInPixels() / 2);
-                rectangle.setY(MainGrid.getRectangleTileSizeInPixels() / 2 - MainGrid.getRepeaterSizeInPixels() / 2);
+                rectangle.setX(matrix.getRectangleTileSizeInPixels() / 2 - MainGrid.getRepeaterSizeInPixels() / 2);
+                rectangle.setY(matrix.getRectangleTileSizeInPixels() / 2 - MainGrid.getRepeaterSizeInPixels() / 2);
                 rectangle.setHeight(MainGrid.getRepeaterSizeInPixels());
                 rectangle.setWidth(MainGrid.getRepeaterSizeInPixels());
                 repeaterContainer.setColor(rectangle.getColor());
@@ -456,8 +457,8 @@ public class GridSquare extends Entity {
             } else {
                 rectangle.setX(ObjectDimensions.szTitleBorderMargin);
                 rectangle.setY(ObjectDimensions.szTitleBorderMargin);
-                rectangle.setHeight(MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2);
-                rectangle.setWidth(MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2);
+                rectangle.setHeight(matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2);
+                rectangle.setWidth(matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2);
             }
 
             if (isColoredTile() || isRepeater()) {
@@ -507,8 +508,8 @@ public class GridSquare extends Entity {
         } else {
             rectangle.setX(0);
             rectangle.setY(0);
-            rectangle.setHeight(MainGrid.getRectangleTileSizeInPixels());
-            rectangle.setWidth(MainGrid.getRectangleTileSizeInPixels());
+            rectangle.setHeight(matrix.getRectangleTileSizeInPixels());
+            rectangle.setWidth(matrix.getRectangleTileSizeInPixels());
             gridBorder.setVisible(true);
             if (matrix.isValid(boardPositionX, boardPositionY)) {
                 rectangle.setColor(Color.WHITE);
@@ -524,7 +525,7 @@ public class GridSquare extends Entity {
         if (isColoredTile()) {
             innerRectangle.setVisible(true);
 
-            float rect_height = MainGrid.getRectangleTileSizeInPixels() - ObjectDimensions.szInnerRectThickness * 2;
+            float rect_height = matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szInnerRectThickness * 2;
             final float current_height = (rect_height * age) / MAX_AGE;
             if (getBoardPositionX() >= 0 && innerRectangle.getHeight() < current_height) {
                 innerRectangle.registerEntityModifier(new HeightModifier(1f, current_height - innerRectangle.getHeight(), new IEntityModifier.IEntityModifierListener() {
@@ -698,5 +699,15 @@ public class GridSquare extends Entity {
 
             }
         }));
+    }
+
+    @Override
+    public float getWidth() {
+        return matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2;
+    }
+
+    @Override
+    public float getHeight() {
+        return matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szTitleBorderMargin * 2;
     }
 }

@@ -1,6 +1,8 @@
 package com.rgb.matrix;
 
 
+import com.rgb.matrix.interfaces.BoundedEntity;
+
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.sprite.Sprite;
@@ -13,7 +15,7 @@ import org.andengine.util.Constants;
 import org.andengine.util.HorizontalAlign;
 import org.andengine.util.color.Color;
 
-public class RectangleButton extends Entity {
+public class RectangleButton extends BoundedEntity {
 
     public static final int SPRITE_RIGHT_MARGIN = 10;
     private static final float SPRITE_LEFT_MARGIN = 10;

@@ -6,7 +6,9 @@ import android.content.SharedPreferences;
 import com.dayosoft.tiletron.app.MainActivity;
 import com.dayosoft.tiletron.app.SoundWrapper;
 import com.facebook.RequestBatch;
+import com.rgb.matrix.interfaces.BoundedEntity;
 
+import org.andengine.entity.shape.RectangularShape;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
@@ -102,7 +104,7 @@ public class Utils {
         prefs.edit().putBoolean("sound", state).commit();
     }
 
-    public static boolean withinTouchBounds(RectangleButton button, TouchEvent pSceneTouchEvent) {
+    public static boolean withinTouchBounds(BoundedEntity button, TouchEvent pSceneTouchEvent) {
         float[] shareButtonCoords = button.getParent().convertLocalToSceneCoordinates(button.getX(), button.getY());
         if (shareButtonCoords[Constants.VERTEX_INDEX_X] < pSceneTouchEvent.getX() &&
                 shareButtonCoords[Constants.VERTEX_INDEX_Y] < pSceneTouchEvent.getY() &&

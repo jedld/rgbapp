@@ -229,7 +229,7 @@ public class GameMatrix implements IUpdateHandler {
         } else {
             final int finalMultiplierLevel = multiplierLevel;
             inProgress++;
-            currentTile.registerEntityModifier(new ScaleAtModifier(0.3f, 0f, 1f, MainGrid.getRectangleTileSizeInPixels() / 2, MainGrid.getRectangleTileSizeInPixels() / 2, new IEntityModifier.IEntityModifierListener() {
+            currentTile.registerEntityModifier(new ScaleAtModifier(0.3f, 0f, 1f, mainGrid.getRectangleTileSizeInPixels() / 2, mainGrid.getRectangleTileSizeInPixels() / 2, new IEntityModifier.IEntityModifierListener() {
                 @Override
                 public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 

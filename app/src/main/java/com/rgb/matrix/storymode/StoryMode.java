@@ -11,8 +11,10 @@ import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.menu.MainMenu;
 import com.rgb.matrix.menu.MenuItem;
 
+import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.util.ScreenCapture;
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.vbo.VertexBufferObject;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
@@ -44,14 +46,14 @@ public class StoryMode implements GridEventListener {
     private final int offset_x;
     private GameMatrix matrix;
 
-    public StoryMode(Context context, Scene mScene, int offset_x, VertexBufferObjectManager vertexBufferObjectManager,
+    public StoryMode(Context context, Scene mScene, float canvasWidth, VertexBufferObjectManager vertexBufferObjectManager,
                      MainMenu mainMenu, HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets) {
         this.context = context;
         this.mainMenu = mainMenu;
         this.fontDictionary = fontDictionary;
         this.soundAsssets = soundAssets;
         this.mScene = mScene;
-        this.offset_x = offset_x;
+        this.offset_x =0;
         this.vertexBufferObjectManager = vertexBufferObjectManager;
     }
 
@@ -60,6 +62,23 @@ public class StoryMode implements GridEventListener {
         matrix = new GameMatrix(context, this, mScene, mainMenu, fontDictionary, soundAsssets, vertexBufferObjectManager, level.getGridWidth(), level.getGridHeight(), offset_x, 10);
         MainGrid grid = matrix.getMainGrid();
         mScene.attachChild(grid);
+
+        //Reattach menu
+        mainMenu.detachSelf();
+        mainMenu.setVisible(false);
+        mScene.attachChild(mainMenu);
+
+        mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
+
+            @Override
+            public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
+                if (pSceneTouchEvent.isActionDown()) {
+                    matrix.onTouch(pSceneTouchEvent);
+                }
+                return false;
+            }
+        });
+
     }
 
     public Level loadLevel() {

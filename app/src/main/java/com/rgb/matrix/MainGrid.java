@@ -35,7 +35,9 @@ public class MainGrid extends Entity {
 
     public static final int QUEUE_SIZE = 7;
     public static  final int TILE_SIZE_IN_DIP = 54;
-    private static float rectangleTileSizeInPixels = 54;
+
+    public static final int ENDLESS_MODE_TILE_SIZE = 54;
+    private float rectangleTileSizeInPixels = ENDLESS_MODE_TILE_SIZE;
     private static final String TAG = MainGrid.class.getName();
     public static final Color COLOR_QUEUE_CURRENT_BORDER = new Color(0xbd / 255f, 0xbd / 255f, 0xbd / 255f);
 
@@ -60,12 +62,12 @@ public class MainGrid extends Entity {
     private ScreenCapture screenCapture;
     private boolean highScoreAchieved;
 
-    public static float getRectangleTileSizeInPixels() {
+    public float getRectangleTileSizeInPixels() {
         return rectangleTileSizeInPixels;
     }
 
-    public static void setRectangleTileSizeInPixels(float rectangleTileSizeInPixels) {
-        MainGrid.rectangleTileSizeInPixels = rectangleTileSizeInPixels;
+    public void setRectangleTileSizeInPixels(float rectangleTileSizeInPixels) {
+        this.rectangleTileSizeInPixels = rectangleTileSizeInPixels;
     }
 
     public static float getRepeaterSizeInPixels() {
@@ -436,11 +438,23 @@ public class MainGrid extends Entity {
         return queueRectangles[i];
     }
 
+    public GridSquare tileTouched(TouchEvent pSceneTouchEvent) {
+        for(int i = 0; i < gridWidth; i++) {
+            for(int i2 = 0; i2 < gridHeight; i2 ++) {
+                if (Utils.withinTouchBounds(world[i][i2], pSceneTouchEvent)) {
+                    return world[i][i2];
+                }
+            }
+        }
+        return null;
+    }
+
     public void onTouch(TouchEvent pSceneTouchEvent) {
         Log.d(TAG, "onTouch " + pSceneTouchEvent.getX() + " " + pSceneTouchEvent.getY());
         if (mainMenu.isVisible()) {
             mainMenu.handleOnTouch(pSceneTouchEvent);
         } else {
+            GridSquare target = null;
             if (rechargeMeter.isAreaTouched(pSceneTouchEvent)) {
                 useRechargeMeter();
             } else if (newGameButton.isAreaTouched(pSceneTouchEvent)) {
@@ -457,14 +471,9 @@ public class MainGrid extends Entity {
                         newGame();
                     }
                 });
-            } else if (getX() <= pSceneTouchEvent.getX() && getY() <= pSceneTouchEvent.getY() &&
-                    getX() + gridWidth * MainGrid.getRectangleTileSizeInPixels() >= pSceneTouchEvent.getX() && getX() + gridHeight * MainGrid.getRectangleTileSizeInPixels() >= pSceneTouchEvent.getY()) {
-
-                float normalized_x = pSceneTouchEvent.getX() - getX();
-                float normalized_y = pSceneTouchEvent.getY() - getY();
-
-                int grid_x = (int) normalized_x / (int) MainGrid.getRectangleTileSizeInPixels();
-                int grid_y = (int) normalized_y / (int) MainGrid.getRectangleTileSizeInPixels();
+            } else if ( (target = tileTouched(pSceneTouchEvent))!=null) {
+                int grid_x = target.getBoardPositionX();
+                int grid_y = target.getBoardPositionY();
 
                 if (isValid(grid_x, grid_y) && matrix.setAndGetinProgress()) {
                     NextObject object = matrix.blockQueue.remove(0);
