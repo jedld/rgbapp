@@ -460,132 +460,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
                         @Override
                         public void onScreenCaptured(String pFilePath) {
                             Log.d(TAG, "Screencap path" + pFilePath);
-                            AsyncTask<Void, Void, Void> compressImageTask = new AsyncTask<Void, Void, Void>() {
-
-                                public ProgressDialog dialog;
-
-                                @Override
-                                protected void onPreExecute() {
-                                    super.onPreExecute();
-                                }
-
-                                @Override
-                                protected Void doInBackground(Void... voids) {
-
-                                    try {
-                                        Bitmap bitmap = BitmapFactory.decodeFile(finalFilename);
-
-                                        File outFile = new File(outFilename);
-                                        outFile.createNewFile();
-                                        FileOutputStream out = new FileOutputStream(outFile);
-                                        bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-                                        out.flush();
-                                        out.close();
-                                        Log.d(TAG, "compress image on " + outFilename);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    return null;
-                                }
-
-                                private void postScreenshot() {
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                                    final Bitmap outBitmap = BitmapFactory.decodeFile(finalFilename);
-                                    View confirmation = getLayoutInflater().inflate(R.layout.confirmation_dialog, null);
-                                    TextView text = (TextView) confirmation.findViewById(R.id.message);
-                                    text.setText("Are you sure you want to share this screenshot to Facebook?");
-                                    ImageView image = (ImageView) confirmation.findViewById(R.id.imageView);
-                                    image.setImageDrawable(new BitmapDrawable(getResources(), outBitmap));
-
-                                    builder.setView(confirmation).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            dialogInterface.dismiss();
-
-                                            final ProgressDialog dialog = ProgressDialog.show(MainActivity.this, "Please Wait", "Uploading Screenshot.. please wait");
-                                            dialog.show();
-                                            Photo photo = new Photo.Builder()
-                                                    .setImage(outBitmap)
-                                                    .setName("Has played RGB and got a High Score of " + Utils.getHighScore(MainActivity.this))
-                                                    .build();
-                                            mSimpleFacebook.publish(photo, new OnPublishListener() {
-
-                                                @Override
-                                                public void onComplete(String id) {
-                                                    Score score = new Score.Builder()
-                                                            .setScore(Utils.getHighScore(MainActivity.this))
-                                                            .build();
-                                                    mSimpleFacebook.publish(score, new OnPublishListener() {
-                                                        @Override
-                                                        public void onComplete(String response) {
-                                                            dialog.dismiss();
-                                                            Toast.makeText(MainActivity.this,"upload complete!",Toast.LENGTH_LONG).show();
-                                                            gameOverText.hideShare();
-                                                        }
-
-                                                        @Override
-                                                        public void onFail(String reason) {
-                                                            super.onFail(reason);
-                                                            dialog.dismiss();
-                                                            Log.e(TAG,"Unable to upload reason - " + reason);
-                                                            Toast.makeText(MainActivity.this, "Unable to upload screenshot to facebook.", Toast.LENGTH_LONG).show();
-                                                        }
-
-                                                    });
-                                                }
-
-                                                @Override
-                                                public void onFail(String reason) {
-                                                    super.onFail(reason);
-                                                    dialog.dismiss();
-                                                    Log.e(TAG,"Unable to upload reason - " + reason);
-                                                    Toast.makeText(MainActivity.this, "Unable to upload screenshot to facebook.", Toast.LENGTH_LONG).show();
-                                                }
-                                            });
-
-                                        }
-                                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            dialogInterface.dismiss();
-                                        }
-                                    }).show();
-
-                                }
-
-                                @Override
-                                protected void onPostExecute(Void aVoid) {
-                                    super.onPostExecute(aVoid);
-                                    mSimpleFacebook.login(new OnLoginListener() {
-                                        @Override
-                                        public void onLogin() {
-                                            postScreenshot();
-                                        }
-
-                                        @Override
-                                        public void onNotAcceptingPermissions(Permission.Type type) {
-
-                                        }
-
-                                        @Override
-                                        public void onThinking() {
-
-                                        }
-
-                                        @Override
-                                        public void onException(Throwable throwable) {
-
-                                        }
-
-                                        @Override
-                                        public void onFail(String reason) {
-                                            Log.e(TAG,"Unable to upload reason - " + reason);
-                                            Toast.makeText(MainActivity.this, "Unable to login to facebook", Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-                                }
-
-                            };
+                            AsyncTask<Void, Void, Void> compressImageTask = new ScreenshotUploadTask(finalFilename, outFilename, gameOverText);
                             compressImageTask.execute();
                         }
 
@@ -636,4 +511,139 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         super.onSaveInstanceState(outState);
     }
 
+    private class ScreenshotUploadTask extends AsyncTask<Void, Void, Void> {
+
+        private final String finalFilename;
+        private final String outFilename;
+        private final GameOver gameOverText;
+        public ProgressDialog dialog;
+
+        public ScreenshotUploadTask(String finalFilename, String outFilename, GameOver gameOverText) {
+            this.finalFilename = finalFilename;
+            this.outFilename = outFilename;
+            this.gameOverText = gameOverText;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            try {
+                Bitmap bitmap = BitmapFactory.decodeFile(finalFilename);
+
+                File outFile = new File(outFilename);
+                outFile.createNewFile();
+                FileOutputStream out = new FileOutputStream(outFile);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+                out.flush();
+                out.close();
+                Log.d(TAG, "compress image on " + outFilename);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private void postScreenshot() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            final Bitmap outBitmap = BitmapFactory.decodeFile(finalFilename);
+            View confirmation = getLayoutInflater().inflate(R.layout.confirmation_dialog, null);
+            TextView text = (TextView) confirmation.findViewById(R.id.message);
+            text.setText("Are you sure you want to share this screenshot to Facebook?");
+            ImageView image = (ImageView) confirmation.findViewById(R.id.imageView);
+            image.setImageDrawable(new BitmapDrawable(getResources(), outBitmap));
+
+            builder.setView(confirmation).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+
+                    final ProgressDialog dialog = ProgressDialog.show(MainActivity.this, "Please Wait", "Uploading Screenshot.. please wait");
+                    dialog.show();
+                    Photo photo = new Photo.Builder()
+                            .setImage(outBitmap)
+                            .setName("Has played RGB and got a High Score of " + Utils.getHighScore(MainActivity.this))
+                            .build();
+                    mSimpleFacebook.publish(photo, new OnPublishListener() {
+
+                        @Override
+                        public void onComplete(String id) {
+                            Score score = new Score.Builder()
+                                    .setScore(Utils.getHighScore(MainActivity.this))
+                                    .build();
+                            mSimpleFacebook.publish(score, new OnPublishListener() {
+                                @Override
+                                public void onComplete(String response) {
+                                    dialog.dismiss();
+                                    Toast.makeText(MainActivity.this, "upload complete!", Toast.LENGTH_LONG).show();
+                                    gameOverText.hideShare();
+                                }
+
+                                @Override
+                                public void onFail(String reason) {
+                                    super.onFail(reason);
+                                    dialog.dismiss();
+                                    Log.e(TAG,"Unable to upload reason - " + reason);
+                                    Toast.makeText(MainActivity.this, "Unable to upload screenshot to facebook.", Toast.LENGTH_LONG).show();
+                                }
+
+                            });
+                        }
+
+                        @Override
+                        public void onFail(String reason) {
+                            super.onFail(reason);
+                            dialog.dismiss();
+                            Log.e(TAG,"Unable to upload reason - " + reason);
+                            Toast.makeText(MainActivity.this, "Unable to upload screenshot to facebook.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                }
+            }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            }).show();
+
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            mSimpleFacebook.login(new OnLoginListener() {
+                @Override
+                public void onLogin() {
+                    postScreenshot();
+                }
+
+                @Override
+                public void onNotAcceptingPermissions(Permission.Type type) {
+
+                }
+
+                @Override
+                public void onThinking() {
+
+                }
+
+                @Override
+                public void onException(Throwable throwable) {
+
+                }
+
+                @Override
+                public void onFail(String reason) {
+                    Log.e(TAG,"Unable to upload reason - " + reason);
+                    Toast.makeText(MainActivity.this, "Unable to login to facebook", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+    }
 }
