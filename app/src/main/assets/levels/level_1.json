@@ -10,14 +10,34 @@
     [
       0,
       0,
-      0
-    ],
-    [
       0,
       0,
       0
     ],
     [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
       0,
       0,
       0
@@ -26,8 +46,8 @@
   "queue": [
     2
   ],
-  "grid_width": 3,
-  "grid_height": 3,
+  "grid_width": 5,
+  "grid_height": 5,
   "sequence": [
     {
       "op": "disable_grid",
@@ -282,6 +302,144 @@
                     },
                     {
                       "op": "wait_for_touch"
+                    },
+                    {
+                      "op": "map",
+                      "details": {
+                        "map": [
+                          [
+                            1,
+                            1,
+                            0,
+                            0,
+                            3
+                          ],
+                          [
+                            1,
+                            1,
+                            0,
+                            3,
+                            3
+                          ],
+                          [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                          ],
+                          [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                          ],
+                          [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "op": "update_queue",
+                      "details": {
+                        "value": [
+                          2
+                        ]
+                      }
+                    },
+                    {
+                      "op": "save_state",
+                      "details": {
+                        "name": "reset_tile_placement_2"
+                      }
+                    },
+                    {
+                      "op": "show_text",
+                      "details": {
+                        "value": {
+                          "message": [
+                            "Try another one",
+                            "Place a tile so that it",
+                            "activates the 2 groups"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "op": "wait_for_valid_move",
+                      "details": {
+                        "events": [
+                          {
+                            "no_rgb": [
+                              {
+                                "op": "if",
+                                "details": {
+                                  "test": {
+                                    "queue_empty": true
+                                  },
+                                  "sequence": [
+                                    {
+                                      "op": "show_text",
+                                      "details": {
+                                        "value": {
+                                          "message": [
+                                            "Hmmm ...",
+                                            "Make sure you place the Tile so that it", "touches both colors"
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "op": "wait_for_touch"
+                                    },
+                                    {
+                                      "op": "restore_state",
+                                      "details": {
+                                        "name": "reset_tile_placement_2"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "trigger_rgb": [
+                              {
+                                "op": "show_text",
+                                "details": {
+                                  "value": {
+                                    "message": [
+                                      "Excellent!",
+                                      "TILES of the same color",
+                                      "grouped together will be triggered",
+                                      "as long as one of its squares get matched!"
+                                    ]
+                                  }
+                                }
+                              },
+                              {
+                                "op": "wait_for_touch"
+                              },
+                              {
+                                "op": "show_text",
+                                "details": {
+                                  "value": {
+                                    "message": [
+                                      "GOOD",
+                                      "You can now proceed to LEVEL 2"
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
                     }
                   ]
                 }

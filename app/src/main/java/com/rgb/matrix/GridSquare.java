@@ -546,6 +546,7 @@ public class GridSquare extends BoundedEntity {
 
         if (isColoredTile()) {
             innerRectangle.setVisible(true);
+            innerRectangle.setColor(Utils.getLighter(getTileType()));
 
             float rect_height = matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szInnerRectThickness * 2;
             final float current_height = (rect_height * age) / MAX_AGE;

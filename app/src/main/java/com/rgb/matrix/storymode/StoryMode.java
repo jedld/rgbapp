@@ -167,8 +167,10 @@ public class StoryMode implements GridEventListener {
 
         matrix = new GameMatrix(context, this, mScene, mainMenu, fontDictionary, soundAsssets,
                 vertexBufferObjectManager, level.getGridWidth(), level.getGridHeight(), offset_x, 10,
-                canvasWidth, canvasHeight, options);
+                canvasWidth, canvasHeight, ObjectDimensions.STORY_MODE_TILE_SIZE, options);
+
         MainGrid grid = matrix.getMainGrid();
+
         matrix.drawWorld();
 
         emptyBoundedEntity = new EmptyBoundedEntity(0,0, canvasWidth, canvasHeight);
@@ -263,6 +265,18 @@ public class StoryMode implements GridEventListener {
                         NextObject nextObject = new NextObject();
                         nextObject.setTileType(queueValue.getInt(i));
                         matrix.getBlockQueue().add(nextObject);
+                    }
+                    matrix.drawWorld();
+                } else if (op.opCode.equals("map")) {
+                    JSONArray boardArray = op.opDetails.getJSONArray("map");
+                    for(int i = 0; i < boardArray.length(); i++) {
+                       JSONArray rowArray = boardArray.getJSONArray(i);
+                       for(int i2 = 0; i2 < rowArray.length(); i2++) {
+                           int tileType = rowArray.getInt(i2);
+                           GridSquare square = matrix.getMainGrid().getSquareAt(i2, i);
+                           square.reset();
+                           square.setTileType(tileType);
+                       }
                     }
                     matrix.drawWorld();
                 } else if (op.opCode.equals("wait_for_valid_move")) {
@@ -468,7 +482,7 @@ public class StoryMode implements GridEventListener {
                     JSONArray row = rows.getJSONArray(i);
                     for (int i2 = 0; i2 < row.length(); i2++) {
                         int cell = row.getInt(i2);
-                        map[i][i2] = cell;
+                        map[i2][i] = cell;
                     }
                 }
                 level.setMap(map);

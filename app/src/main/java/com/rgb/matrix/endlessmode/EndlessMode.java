@@ -9,6 +9,7 @@ import com.rgb.matrix.GameMatrix;
 import com.rgb.matrix.GameOver;
 import com.rgb.matrix.MainGrid;
 import com.rgb.matrix.MatrixOptions;
+import com.rgb.matrix.ObjectDimensions;
 import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.menu.MainMenu;
 import com.rgb.matrix.menu.MenuItem;
@@ -48,7 +49,8 @@ public class EndlessMode {
         this.vertexBufferObjectManager = vertexBufferObjectManager;
         MatrixOptions options = new MatrixOptions();
         matrix = new GameMatrix(context, context, mScene, mainMenu, fontDictionary, soundAsssets,
-                vertexBufferObjectManager, BOARD_WIDTH, BOARD_HEIGHT, 0, 10, canvasWidth, canvasHeight, options);
+                vertexBufferObjectManager, BOARD_WIDTH, BOARD_HEIGHT, 0, 10, canvasWidth, canvasHeight,
+                ObjectDimensions.ENDLESS_MODE_TILE_SIZE, options);
         grid = matrix.getMainGrid();
     }
 

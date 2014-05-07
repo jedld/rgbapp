@@ -1,0 +1,15 @@
+{
+  "levels": {
+    "1": {
+      "file": "level_1.json",
+      "title": "Level 1",
+      "next": "2"
+    },
+    "2": {
+      "file": "level_2.json",
+      "title": "Level 2",
+      "next": "3"
+    }
+  },
+  "start": "1"
+}

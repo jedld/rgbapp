@@ -16,6 +16,7 @@ import org.andengine.opengl.font.IFont;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.Constants;
+import org.andengine.util.color.Color;
 
 import java.util.HashMap;
 
@@ -60,7 +61,7 @@ public class Utils {
     }
 
     public SoundWrapper getSound(String name) {
-        return  soundAssets.get(name);
+        return soundAssets.get(name);
     }
 
     public IFont getFont(String name) {
@@ -116,5 +117,14 @@ public class Utils {
         return false;
     }
 
-
+    public static Color getLighter(int tileType) {
+        if (tileType == GridSquare.RED_BLOCK) {
+            return ColorConstants.LIGHT_RED;
+        } else if (tileType == GridSquare.BLUE_BLOCK) {
+            return ColorConstants.LIGHT_BLUE;
+        } else if (tileType == GridSquare.GREEN_BLOCK) {
+            return ColorConstants.LIGHT_GREEN;
+        }
+        return ColorConstants.WHITE;
+    }
 }

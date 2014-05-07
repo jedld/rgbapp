@@ -34,10 +34,9 @@ import java.util.HashMap;
  */
 public class MainGrid extends BoundedEntity {
 
-    public static final int QUEUE_SIZE = 7;
+    public static final int QUEUE_SIZE = 6;
     public static final int TILE_SIZE_IN_DIP = 54;
 
-    public static final int ENDLESS_MODE_TILE_SIZE = 54;
     private final MatrixOptions options;
     private final float width;
 
@@ -50,7 +49,7 @@ public class MainGrid extends BoundedEntity {
     }
 
     private final float height;
-    private float rectangleTileSizeInPixels = ENDLESS_MODE_TILE_SIZE;
+    private float rectangleTileSizeInPixels = ObjectDimensions.ENDLESS_MODE_TILE_SIZE;
     private static final String TAG = MainGrid.class.getName();
     public static final Color COLOR_QUEUE_CURRENT_BORDER = new Color(0xbd / 255f, 0xbd / 255f, 0xbd / 255f);
 
@@ -111,13 +110,16 @@ public class MainGrid extends BoundedEntity {
     private int score = 0;
     private String scoreTextString;
 
-    public MainGrid(float x, float y, float width, float height, int gridWidth, int gridHeight, GameMatrix matrix,
+    public MainGrid(float x, float y, float width, float height, int gridWidth, int gridHeight,
+                    float rectangleTileSizeInPixels,
+                    GameMatrix matrix,
                     MainMenu mainMenu, HashMap<String, Font> fontDictionary,
                     HashMap<String, SoundWrapper> soundAssets,
                     VertexBufferObjectManager vertexBuffer,
                     GridEventListener gridEventListener, MatrixOptions options) {
         super(x, y);
         this.width = width;
+        this.rectangleTileSizeInPixels = rectangleTileSizeInPixels;
         this.height = height;
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;

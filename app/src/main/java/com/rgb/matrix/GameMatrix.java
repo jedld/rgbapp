@@ -111,7 +111,7 @@ public class GameMatrix implements IUpdateHandler {
     public GameMatrix(Context context, GridEventListener listener, Scene scene, MainMenu mainMenu,
                       HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets,
                       VertexBufferObjectManager vertexBuffer, int gridWidth, int gridHeight,
-                      int offset_x, int offset_y, float sceneWidth, float sceneHeight, MatrixOptions options) {
+                      int offset_x, int offset_y, float sceneWidth, float sceneHeight, float tileSize, MatrixOptions options) {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.context = context;
@@ -123,7 +123,7 @@ public class GameMatrix implements IUpdateHandler {
         sharedPrefs = context.getSharedPreferences("high_score", Context.MODE_PRIVATE);
         this.mainGrid = new MainGrid(offset_x, offset_y + ObjectDimensions.szMainGridPaddingTop,
                 sceneWidth, sceneHeight,
-                gridWidth, gridHeight, this, mainMenu, fontDictionary, soundAssets, vertexBuffer, listener,
+                gridWidth, gridHeight, tileSize, this, mainMenu, fontDictionary, soundAssets, vertexBuffer, listener,
                 options);
 
 

@@ -5,6 +5,8 @@ package com.rgb.matrix;
  */
 public class ObjectDimensions {
 
+    public static final int ENDLESS_MODE_TILE_SIZE = 54;
+    public static final float STORY_MODE_TILE_SIZE = 70;
     public static  int szRechargeMeterPaddingBottom = 5;
     public static  int szQueuePaddingBottom = 100;
     public static  int szGridPaddingBottom = 30;
