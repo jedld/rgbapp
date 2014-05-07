@@ -30,6 +30,19 @@ import java.util.HashMap;
  */
 public class GridSquare extends BoundedEntity {
 
+    public static final int RED_BLOCK = 1;
+    public static final int GREEN_BLOCK = 2;
+    public static final int BLUE_BLOCK = 3;
+
+    public static final int BUSTED = 4;
+    public static final int MULTIPLIERX2 = 5;
+    public static final int ERASER = 6;
+    public static final int RED_REPEATER_BLOCK = 7;
+    public static final int BLUE_REPEATER_BLOCK = 8;
+    public static final int GREEN_REPEATER_BLOCK = 9;
+    public static final int MULTIPLIERX4_COLORED = 10;
+    public static final int EMPTY = 0;
+
     private static final int MAX_AGE = 4;
     public static final Color BUSTED_COLOR = new Color(36 / 255f, 0x36 / 255f, 0x36 / 255f);
     public static final Color P_INVALID_TILE_COLOR = new Color(0xef / 255f, 0xf0 / 255f, 0xeb / 255f);
@@ -90,13 +103,22 @@ public class GridSquare extends BoundedEntity {
     }
 
     public boolean isEmpty() {
-        if (tileType == GameMatrix.EMPTY) return true;
+        if (tileType == EMPTY) return true;
         return false;
     }
 
 
+    public GridSquare clone() {
+        GridSquare gridSquare = new GridSquare(boardPositionX, boardPositionY, originalOffsetX, originalOffsetY, matrix, mfont, vertexBuffer);
+        gridSquare.setMultiplierColor(getMultiplierColor());
+        gridSquare.setTileType(getTileType());
+        gridSquare.setAge(age);
+        gridSquare.setBonus(getBonus());
+        return gridSquare;
+    }
+
     public boolean isBustedOrEmpty() {
-        if ((tileType == GameMatrix.EMPTY) || (tileType == GameMatrix.BUSTED)) return true;
+        if ((tileType == EMPTY) || (tileType == BUSTED)) return true;
         return false;
     }
 
@@ -109,7 +131,7 @@ public class GridSquare extends BoundedEntity {
         if (age < MAX_AGE) {
             age++;
         } else {
-            setTileType(GameMatrix.BUSTED);
+            setTileType(BUSTED);
             animateDie();
         }
         currentPointValue = getPointsString();
@@ -119,7 +141,7 @@ public class GridSquare extends BoundedEntity {
         super(offset_x, offset_y);
         this.originalOffsetX = offset_x;
         this.originalOffsetY = offset_y;
-        this.tileType = GameMatrix.EMPTY;
+        this.tileType = EMPTY;
         this.age = 0;
         this.mfont = mFont;
         this.bonus = 0;
@@ -188,7 +210,7 @@ public class GridSquare extends BoundedEntity {
         multiplierText.setVisible(false);
 
 
-        if (getTileType() != GameMatrix.EMPTY && getTileType() != GameMatrix.BUSTED) {
+        if (getTileType() != EMPTY && getTileType() != BUSTED) {
             valueText.setVisible(true);
         } else {
             valueText.setVisible(false);
@@ -250,13 +272,13 @@ public class GridSquare extends BoundedEntity {
 
     public boolean isColoredTile(int tileType) {
         switch (tileType) {
-            case GameMatrix.BLUE_BLOCK:
+            case BLUE_BLOCK:
                 return true;
-            case GameMatrix.RED_BLOCK:
+            case RED_BLOCK:
                 return true;
-            case GameMatrix.GREEN_BLOCK:
+            case GREEN_BLOCK:
                 return true;
-            case GameMatrix.MULTIPLIERX4_COLORED:
+            case MULTIPLIERX4_COLORED:
                 return true;
         }
         return false;
@@ -414,33 +436,33 @@ public class GridSquare extends BoundedEntity {
 
         if (!isEmpty()) {
             switch (tileType) {
-                case GameMatrix.BLUE_BLOCK:
-                case GameMatrix.BLUE_REPEATER_BLOCK:
+                case BLUE_BLOCK:
+                case BLUE_REPEATER_BLOCK:
                     rectangle.setColor(ColorConstants.BLUE);
                     break;
-                case GameMatrix.RED_BLOCK:
-                case GameMatrix.RED_REPEATER_BLOCK:
+                case RED_BLOCK:
+                case RED_REPEATER_BLOCK:
                     rectangle.setColor(ColorConstants.RED);
                     break;
-                case GameMatrix.GREEN_REPEATER_BLOCK:
-                case GameMatrix.GREEN_BLOCK:
+                case GREEN_REPEATER_BLOCK:
+                case GREEN_BLOCK:
                     rectangle.setColor(ColorConstants.GREEN);
                     break;
-                case GameMatrix.MULTIPLIERX2:
+                case MULTIPLIERX2:
                     rectangle.setColor(Color.WHITE);
                     multiplierText.setVisible(true);
                     multiplierText.setColor(ColorConstants.RED);
                     multiplierText.setText("X2");
                     multiplierBorder.setVisible(true);
                     break;
-                case GameMatrix.MULTIPLIERX4_COLORED:
+                case MULTIPLIERX4_COLORED:
                     rectangle.setColor(toColor(getMultiplierColor()));
                     multiplierText.setVisible(true);
                     multiplierText.setText("X4");
                     multiplierText.setColor(Color.WHITE);
                     rectangle.setAlpha(0.7f);
                     break;
-                case GameMatrix.BUSTED:
+                case BUSTED:
                     rectangle.setColor(BUSTED_COLOR);
                     rectangle.setAlpha(0.5f);
                     break;
@@ -484,7 +506,7 @@ public class GridSquare extends BoundedEntity {
 //                }
 
                 rectangle.setAlpha(0.7f);
-            } else if ((getTileType() == GameMatrix.MULTIPLIERX2) || (getTileType() == GameMatrix.MULTIPLIERX4_COLORED)) {
+            } else if ((getTileType() == MULTIPLIERX2) || (getTileType() == MULTIPLIERX4_COLORED)) {
                 if (multiplierConnector[0]) {
                     topConnector.setColor(getConnectorColor());
                     topConnector.setVisible(true);
@@ -557,16 +579,16 @@ public class GridSquare extends BoundedEntity {
     }
 
     private Color toColor(Integer block) {
-        if (block == GameMatrix.RED_BLOCK) {
+        if (block == RED_BLOCK) {
             return ColorConstants.RED;
         }
-        if (block == GameMatrix.BLUE_BLOCK) {
+        if (block == BLUE_BLOCK) {
             return ColorConstants.BLUE;
         }
-        if (block == GameMatrix.GREEN_BLOCK) {
+        if (block == GREEN_BLOCK) {
             return ColorConstants.GREEN;
         }
-        if (block == GameMatrix.BUSTED) {
+        if (block == BUSTED) {
             return Color.BLACK;
         }
         Log.d(TAG, "Unknown color " + block);
@@ -574,10 +596,10 @@ public class GridSquare extends BoundedEntity {
     }
 
     private Color getConnectorColor() {
-        if (getTileType() == GameMatrix.MULTIPLIERX2) {
+        if (getTileType() == MULTIPLIERX2) {
             return Color.BLACK;
         }
-        if (getTileType() == GameMatrix.MULTIPLIERX4_COLORED) {
+        if (getTileType() == MULTIPLIERX4_COLORED) {
             return toColor(getMultiplierColor());
         } else {
             return rectangle.getColor();
@@ -586,28 +608,28 @@ public class GridSquare extends BoundedEntity {
 
     public boolean isRepeater() {
         switch (tileType) {
-            case GameMatrix.RED_REPEATER_BLOCK:
+            case RED_REPEATER_BLOCK:
                 return true;
-            case GameMatrix.BLUE_REPEATER_BLOCK:
+            case BLUE_REPEATER_BLOCK:
                 return true;
-            case GameMatrix.GREEN_REPEATER_BLOCK:
+            case GREEN_REPEATER_BLOCK:
                 return true;
         }
         return false;
     }
 
     private boolean checkGridLocation(int boardX, int boardY) {
-        if (getTileType() == GameMatrix.MULTIPLIERX2) {
+        if (getTileType() == MULTIPLIERX2) {
             return isColoredTile(matrix.world[boardX][boardY].getTileType());
-        } else if (getTileType() == GameMatrix.MULTIPLIERX4_COLORED) {
+        } else if (getTileType() == MULTIPLIERX4_COLORED) {
             return (matrix.world[boardX][boardY].getTileType() == getMultiplierColor()) ||
                     (matrix.world[boardX][boardY].getTileType() == getMultiplierColor() + 6);
         } else {
             return (matrix.world[boardX][boardY].getTileType() == tileType) || (matrix.world[boardX][boardY].getTileType() + 6 == tileType) ||
                     (matrix.world[boardX][boardY].getTileType() == tileType + 6
                             ||
-                            (matrix.world[boardX][boardY].getTileType() == GameMatrix.MULTIPLIERX4_COLORED && matrix.world[boardX][boardY].getMultiplierColor() == tileType)
-                    || (matrix.world[boardX][boardY].getTileType() == GameMatrix.MULTIPLIERX4_COLORED && matrix.world[boardX][boardY].getMultiplierColor() + 6 == tileType)
+                            (matrix.world[boardX][boardY].getTileType() == MULTIPLIERX4_COLORED && matrix.world[boardX][boardY].getMultiplierColor() == tileType)
+                    || (matrix.world[boardX][boardY].getTileType() == MULTIPLIERX4_COLORED && matrix.world[boardX][boardY].getMultiplierColor() + 6 == tileType)
                     );
         }
     }
@@ -646,7 +668,7 @@ public class GridSquare extends BoundedEntity {
         age = 0;
         bonus = 0;
         bonusSource = new ArrayList<GridSquare>();
-        tileType = GameMatrix.EMPTY;
+        tileType = EMPTY;
     }
 
     public int getPoints() {

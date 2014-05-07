@@ -8,6 +8,7 @@ import com.dayosoft.tiletron.app.SoundWrapper;
 import com.rgb.matrix.GameMatrix;
 import com.rgb.matrix.GameOver;
 import com.rgb.matrix.MainGrid;
+import com.rgb.matrix.MatrixOptions;
 import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.menu.MainMenu;
 import com.rgb.matrix.menu.MenuItem;
@@ -34,21 +35,20 @@ public class EndlessMode {
     private final HashMap<String, SoundWrapper> soundAsssets;
     private final Scene mScene;
     private final VertexBufferObjectManager vertexBufferObjectManager;
-    private final int offset_x;
     private final MainGrid grid;
     private GameMatrix matrix;
 
-    public EndlessMode(MainActivity context, Scene mScene, float canvasWidth, VertexBufferObjectManager vertexBufferObjectManager,
+    public EndlessMode(MainActivity context, Scene mScene, float canvasWidth, float canvasHeight, VertexBufferObjectManager vertexBufferObjectManager,
                      MainMenu mainMenu, HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets) {
         this.context = context;
         this.mainMenu = mainMenu;
         this.fontDictionary = fontDictionary;
         this.soundAsssets = soundAssets;
         this.mScene = mScene;
-        this.offset_x  = (int) ((canvasWidth / 2) - ((BOARD_WIDTH * MainGrid.ENDLESS_MODE_TILE_SIZE) / 2));
         this.vertexBufferObjectManager = vertexBufferObjectManager;
-
-        matrix = new GameMatrix(context, context, mScene, mainMenu, fontDictionary, soundAsssets, vertexBufferObjectManager, BOARD_WIDTH, BOARD_HEIGHT, offset_x, 10);
+        MatrixOptions options = new MatrixOptions();
+        matrix = new GameMatrix(context, context, mScene, mainMenu, fontDictionary, soundAsssets,
+                vertexBufferObjectManager, BOARD_WIDTH, BOARD_HEIGHT, 0, 10, canvasWidth, canvasHeight, options);
         grid = matrix.getMainGrid();
     }
 

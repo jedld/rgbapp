@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.rgb.matrix.GameMatrix;
 import com.rgb.matrix.GameOver;
 import com.rgb.matrix.MainGrid;
+import com.rgb.matrix.NextObject;
 import com.rgb.matrix.Utils;
 import com.rgb.matrix.endlessmode.EndlessMode;
 import com.rgb.matrix.interfaces.GridEventListener;
@@ -78,6 +79,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
 public class MainActivity extends BaseGameActivity implements GridEventListener {
 
@@ -260,6 +262,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         fontHashMap.put("multiplier", mFontMultiplier);
         fontHashMap.put("menu", mFontMultiplier);
         fontHashMap.put("title", titleScreenFont);
+        fontHashMap.put("story_text", mFont);
         
         pOnCreateResourcesCallback.onCreateResourcesFinished();
     }
@@ -362,10 +365,10 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         mainMenu = new MainMenu(0, 0, fontHashMap, getVertexBufferObjectManager());
         mainMenu.setVisible(false);
 
-        endlessMode = new EndlessMode(this, mScene, canvasWidth, getVertexBufferObjectManager(),
+        endlessMode = new EndlessMode(this, mScene, canvasWidth, canvasHeight, getVertexBufferObjectManager(),
                 mainMenu,fontHashMap, soundAssets);
 
-        storyMode = new StoryMode(this, mScene, canvasWidth, getVertexBufferObjectManager(),
+        storyMode = new StoryMode(this, mScene, canvasWidth, canvasHeight, getVertexBufferObjectManager(),
                  mainMenu,fontHashMap, soundAssets);
 
         titleScreen = new TitleScreen(0, 0, canvasWidth, canvasHeight, titleLines, getVertexBufferObjectManager());
@@ -483,6 +486,16 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         mScene.detachChildren();
         mScene.setOnSceneTouchListener(null);
         showTitleScreen();
+    }
+
+    @Override
+    public void onSetupWorld(MainGrid mainGrid) {
+
+    }
+
+    @Override
+    public void populateQueue(Vector<NextObject> blockQueue) {
+
     }
 
     @Override

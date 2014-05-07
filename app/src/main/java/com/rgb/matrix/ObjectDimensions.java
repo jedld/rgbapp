@@ -7,7 +7,7 @@ public class ObjectDimensions {
 
     public static  int szRechargeMeterPaddingBottom = 5;
     public static  int szQueuePaddingBottom = 100;
-    public static  int szGridPaddingBottom = 10;
+    public static  int szGridPaddingBottom = 30;
     public static  int szTitleBorderMargin = 4;
     public static  int szMultiplierBorderMargin = 4;
     public static  int szMeterHeight = 15;
@@ -15,6 +15,8 @@ public class ObjectDimensions {
     public static  int szPushButtonMargin = 4;
     public static  int szPushButtonCenterMargin = 32;
     private static float szVertSpacing = 15;
+    public static long szRechargeMeterWidth = 380;
+    public static float szStoryTextMargins = 10;
 
     public static int getSzRechargeMeterPaddingBottom() {
         return szRechargeMeterPaddingBottom;

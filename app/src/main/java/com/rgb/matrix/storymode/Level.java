@@ -1,9 +1,50 @@
 package com.rgb.matrix.storymode;
 
+import java.util.ArrayList;
+
 /**
  * Created by joseph on 5/5/14.
  */
 public class Level {
+
+    int nextLevel;
+    int gridHeight, gridWidth;
+    String initialPositions;
+    String name;
+    private boolean rechargeMeter;
+    private boolean useQueue;
+
+    public ArrayList<Operation> getOperations() {
+        return operations;
+    }
+
+    public void setOperations(ArrayList<Operation> operations) {
+        this.operations = operations;
+    }
+
+    ArrayList<Operation> operations = new ArrayList<Operation>();
+
+    public int[] getQueue() {
+        return queue;
+    }
+
+    public void setQueue(int[] queue) {
+        this.queue = queue;
+    }
+
+    int queue[];
+    int id;
+
+    public int[][] getMap() {
+        return map;
+    }
+
+    public void setMap(int[][] map) {
+        this.map = map;
+    }
+
+    int map[][];
+
     public String getName() {
         return name;
     }
@@ -36,7 +77,6 @@ public class Level {
         this.gridHeight = gridHeight;
     }
 
-    String name;
 
     public int getId() {
         return id;
@@ -46,7 +86,6 @@ public class Level {
         this.id = id;
     }
 
-    int id;
 
     public int getNextLevel() {
         return nextLevel;
@@ -56,10 +95,20 @@ public class Level {
         this.nextLevel = nextLevel;
     }
 
-    int nextLevel;
-    int gridHeight, gridWidth;
-    String initialPositions;
 
+    public void setRechargeMeter(boolean rechargeMeter) {
+        this.rechargeMeter = rechargeMeter;
+    }
 
+    public boolean isRechargeMeter() {
+        return rechargeMeter;
+    }
 
+    public void setUseQueue(boolean useQueue) {
+        this.useQueue = useQueue;
+    }
+
+    public boolean isUseQueue() {
+        return useQueue;
+    }
 }

@@ -32,4 +32,12 @@ public class NextObject {
     public int getMultiplierColor() {
         return multiplierColor;
     }
+
+    public NextObject clone() {
+        NextObject nextObject = new NextObject();
+        nextObject.setTileType(getTileType());
+        nextObject.setAge(getAge());
+        nextObject.setMultiplierColor(getMultiplierColor());
+        return nextObject;
+    }
 }
