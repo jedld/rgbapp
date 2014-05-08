@@ -15,6 +15,7 @@ import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.IFont;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.Constants;
 import org.andengine.util.color.Color;
 
@@ -126,5 +127,15 @@ public class Utils {
             return ColorConstants.LIGHT_GREEN;
         }
         return ColorConstants.WHITE;
+    }
+
+    public static boolean isLocked(BaseGameActivity context, int id) {
+        SharedPreferences prefs = context.getSharedPreferences("progress", Context.MODE_PRIVATE);
+        return prefs.getBoolean("level_" + id, true);
+    }
+
+    public static void setLocked(Context context, int nextLevel, boolean b) {
+        SharedPreferences prefs = context.getSharedPreferences("progress", Context.MODE_PRIVATE);
+        prefs.edit().putBoolean("level_" + nextLevel, b).commit();
     }
 }

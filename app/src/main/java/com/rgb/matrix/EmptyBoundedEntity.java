@@ -7,8 +7,16 @@ import com.rgb.matrix.interfaces.BoundedEntity;
  */
 public class EmptyBoundedEntity extends BoundedEntity {
 
-    private final float width;
-    private final float height;
+    public void setWidth(float width) {
+        this.width = width;
+    }
+
+    public void setHeight(float height) {
+        this.height = height;
+    }
+
+    private float width;
+    private float height;
 
     public EmptyBoundedEntity(float pX, float pY, float width, float height) {
         super(pX, pY);
@@ -24,4 +32,6 @@ public class EmptyBoundedEntity extends BoundedEntity {
     public float getHeight() {
         return height;
     }
+
+
 }

@@ -1,33 +1,14 @@
 package com.rgb.matrix.storymode;
 
-import java.util.HashMap;
-
 /**
  * Created by joseph on 5/8/14.
  */
-public class Levels {
-    String firstLevel;
+public class LevelInfo {
     private String filePath;
     private String title;
     private String nextLevel;
-
-    public HashMap<String, LevelInfo> getLevels() {
-        return levels;
-    }
-
-    public void setLevels(HashMap<String, LevelInfo> levels) {
-        this.levels = levels;
-    }
-
-    public String getFirstLevel() {
-        return firstLevel;
-    }
-
-    public void setFirstLevel(String firstLevel) {
-        this.firstLevel = firstLevel;
-    }
-
-    HashMap<String, LevelInfo> levels;
+    private boolean locked;
+    private int id;
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
@@ -51,5 +32,21 @@ public class Levels {
 
     public String getNextLevel() {
         return nextLevel;
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
     }
 }

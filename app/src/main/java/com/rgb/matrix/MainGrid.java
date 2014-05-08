@@ -255,7 +255,8 @@ public class MainGrid extends BoundedEntity {
             @Override
             public void onMenuItemSelected(MenuItem item) {
                 mainMenu.setVisible(false);
-                newGame();
+                gridEventListener.onRestart(item);
+//                newGame();
             }
         });
 
@@ -547,7 +548,7 @@ public class MainGrid extends BoundedEntity {
         mainMenu.animateShow();
     }
 
-    private void newGame() {
+    public void newGame() {
         matrix.resetWorld();
         matrix.populateInitial();
     }

@@ -38,8 +38,8 @@ public class GridSquare extends BoundedEntity {
     public static final int MULTIPLIERX2 = 5;
     public static final int ERASER = 6;
     public static final int RED_REPEATER_BLOCK = 7;
-    public static final int BLUE_REPEATER_BLOCK = 8;
-    public static final int GREEN_REPEATER_BLOCK = 9;
+    public static final int GREEN_REPEATER_BLOCK = 8;
+    public static final int BLUE_REPEATER_BLOCK = 9;
     public static final int MULTIPLIERX4_COLORED = 10;
     public static final int EMPTY = 0;
 

@@ -74,4 +74,7 @@ public class EndlessMode {
         mScene.attachChild(mainMenu);
     }
 
+    public void restartGame() {
+        matrix.getMainGrid().newGame();
+    }
 }

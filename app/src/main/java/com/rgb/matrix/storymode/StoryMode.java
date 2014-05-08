@@ -3,6 +3,7 @@ package com.rgb.matrix.storymode;
 import android.content.Context;
 import android.util.Log;
 
+import com.dayosoft.tiletron.app.MainActivity;
 import com.dayosoft.tiletron.app.SoundWrapper;
 import com.rgb.matrix.ColorConstants;
 import com.rgb.matrix.EmptyBoundedEntity;
@@ -24,9 +25,13 @@ import com.rgb.matrix.menu.MenuItem;
 
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.AlphaModifier;
+import org.andengine.entity.modifier.EntityModifier;
 import org.andengine.entity.modifier.IEntityModifier;
+import org.andengine.entity.modifier.ScaleModifier;
+import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
+import org.andengine.entity.text.Text;
 import org.andengine.entity.util.ScreenCapture;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
@@ -117,8 +122,11 @@ public class StoryMode implements GridEventListener {
 
     public static final String FIRST_LEVEL = "level_1";
     private static final String TAG = StoryMode.class.getName();
+    private static final float TOUCH_INDICATOR_HEIGHT = 15;
+    private static final float TOUCH_INDICATOR_SQUARE = 5;
+    private static final float TOUCH_INDICATOR_SQUARE_MARGIN = 10;
 
-    private final BaseGameActivity context;
+    private final MainActivity context;
     private final MainMenu mainMenu;
     private final HashMap<String, Font> fontDictionary;
     private final HashMap<String, SoundWrapper> soundAsssets;
@@ -127,18 +135,22 @@ public class StoryMode implements GridEventListener {
     private final int offset_x;
     private final float canvasWidth;
     private final float canvasHeight;
+    private final LevelMenu levelMenu;
     Level currentLevel;
     private GameMatrix matrix;
 
     private LinkedList<CurrentBlock> stack = new LinkedList<CurrentBlock>();
     private int opIndex = 0;
     private boolean waitForTouchOperation = false;
+    HashMap<Integer, LevelInfo> levelHashMap = new HashMap<Integer, LevelInfo>();
     private ArrayList<RectangleButton> conversationText = new ArrayList<RectangleButton>();
     private EmptyBoundedEntity emptyBoundedEntity;
     private boolean waitForValidMove = false;
-    private HashMap<String, SavedGameState> savedStates = new HashMap<String,SavedGameState>();
+    private HashMap<String, SavedGameState> savedStates = new HashMap<String, SavedGameState>();
+    private EmptyBoundedEntity waitForTouchIndicator;
 
-    public StoryMode(BaseGameActivity context, Scene mScene, float canvasWidth, float canvasHeight, VertexBufferObjectManager vertexBufferObjectManager,
+    public StoryMode(MainActivity context, Scene mScene, float canvasWidth, float canvasHeight,
+                     VertexBufferObjectManager vertexBufferObjectManager,
                      MainMenu mainMenu, HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets) {
         this.context = context;
         this.mainMenu = mainMenu;
@@ -149,11 +161,47 @@ public class StoryMode implements GridEventListener {
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
         this.vertexBufferObjectManager = vertexBufferObjectManager;
+
+        this.levelMenu = new LevelMenu(0, 0, canvasWidth, canvasHeight, 3, 5, fontDictionary, loadLevels(), vertexBufferObjectManager);
+        levelMenu.setVisible(false);
     }
 
-    public void renderLevel(Level level, BaseGameActivity context) {
+    public void renderLevel(final Level level, final BaseGameActivity context) {
         this.currentLevel = level;
         mScene.detachChildren();
+        savedStates.clear();
+        final Text levelText = new Text(0, canvasHeight / 2, fontDictionary.get("title"), level.getName(), vertexBufferObjectManager);
+        levelText.setColor(Color.BLACK);
+        levelText.setX(canvasWidth / 2 - levelText.getWidth() / 2);
+        mScene.attachChild(levelText);
+        levelText.setAlpha(0f);
+
+        levelText.registerEntityModifier(new AlphaModifier(1f, 0f, 1f, new IEntityModifier.IEntityModifierListener() {
+            @Override
+            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+
+            @Override
+            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                levelText.registerEntityModifier(new AlphaModifier(1f, 1f, 0f, new IEntityModifier.IEntityModifierListener() {
+                    @Override
+                    public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+                    }
+
+                    @Override
+                    public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                        startLevel(level, context);
+                    }
+                }));
+            }
+        }));
+
+
+    }
+
+    private void startLevel(Level level, BaseGameActivity context) {
         MatrixOptions options = new MatrixOptions();
         options.setShouldPrepopulate(false);
 
@@ -173,9 +221,12 @@ public class StoryMode implements GridEventListener {
 
         matrix.drawWorld();
 
-        emptyBoundedEntity = new EmptyBoundedEntity(0,0, canvasWidth, canvasHeight);
+        emptyBoundedEntity = new EmptyBoundedEntity(0, 0, canvasWidth, canvasHeight);
         emptyBoundedEntity.attachChild(grid);
         mScene.attachChild(emptyBoundedEntity);
+
+
+        setupTouchIndicator();
 
         //Reattach menu
         mainMenu.detachSelf();
@@ -189,6 +240,7 @@ public class StoryMode implements GridEventListener {
                 if (pSceneTouchEvent.isActionDown()) {
                     if (waitForTouchOperation) {
                         waitForTouchOperation = false;
+                        waitForTouchIndicator.setVisible(false);
                         processOpSequence();
                     } else {
                         if (matrix.onTouch(pSceneTouchEvent)) {
@@ -210,6 +262,48 @@ public class StoryMode implements GridEventListener {
         processOpSequence();
     }
 
+    private void setupTouchIndicator() {
+        waitForTouchIndicator = new EmptyBoundedEntity(0,
+                canvasHeight - TOUCH_INDICATOR_HEIGHT, canvasWidth, TOUCH_INDICATOR_HEIGHT);
+        final ArrayList<Rectangle> indicatorSquares = new ArrayList<Rectangle>();
+        for (int i = 0; i < 4; i++) {
+            Rectangle square1 = new Rectangle(i * (TOUCH_INDICATOR_SQUARE + TOUCH_INDICATOR_SQUARE_MARGIN), 0, TOUCH_INDICATOR_SQUARE, TOUCH_INDICATOR_SQUARE, vertexBufferObjectManager);
+            square1.setColor(Color.BLACK);
+            square1.setTag(i);
+            indicatorSquares.add(square1);
+            waitForTouchIndicator.attachChild(square1);
+        }
+        waitForTouchIndicator.setWidth(4 * (TOUCH_INDICATOR_SQUARE + TOUCH_INDICATOR_SQUARE_MARGIN));
+        waitForTouchIndicator.setVisible(false);
+        emptyBoundedEntity.attachChild(waitForTouchIndicator);
+        waitForTouchIndicator.centerInParent(BoundedEntity.CENTER_HORIZONTAL);
+
+        IEntityModifier.IEntityModifierListener scaleListener = new IEntityModifier.IEntityModifierListener() {
+            @Override
+            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+            }
+
+            @Override
+            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                pItem.setScale(1f);
+                int nextSquare = pItem.getTag() + 1;
+                Rectangle nextS = null;
+                if (nextSquare < indicatorSquares.size()) {
+                    nextS = indicatorSquares.get(pItem.getTag() + 1);
+
+                } else {
+                    nextS = indicatorSquares.get(0);
+                }
+                nextS.registerEntityModifier(new ScaleModifier(1f, 1f, 1.2f, this));
+            }
+
+        };
+
+        indicatorSquares.get(0).registerEntityModifier(new ScaleModifier(1f, 1f, 1.2f, scaleListener));
+        waitForTouchIndicator.setVisible(false);
+    }
+
     private void processOpSequence() {
         try {
 
@@ -218,15 +312,13 @@ public class StoryMode implements GridEventListener {
             Operation op = null;
             CurrentBlock currentBlock = stack.getLast();
 
-            while ((op = currentBlock.getCurrentOperation())!=null) {
-                Log.d(TAG,"process op " + op.opCode);
+            while ((op = currentBlock.getCurrentOperation()) != null) {
+                Log.d(TAG, "process op " + op.opCode);
                 if (op.opCode.equals("hide_grid")) {
                     matrix.getMainGrid().setVisible(false);
-                } else
-                if (op.opCode.equals("show_grid")) {
+                } else if (op.opCode.equals("show_grid")) {
                     matrix.getMainGrid().setVisible(true);
-                } else
-                if (op.opCode.equals("disable_grid")) {
+                } else if (op.opCode.equals("disable_grid")) {
 
                     if (op.opDetails.getBoolean("value") == true) {
                         matrix.disableMoves();
@@ -235,33 +327,18 @@ public class StoryMode implements GridEventListener {
                     }
 
                 } else if (op.opCode.equals("show_text")) {
-                    JSONObject messageDetails = op.opDetails.getJSONObject("value");
-                    final Object message = messageDetails.get("message");
-                    int messageDelay = messageDetails.optInt("delay", 100);
-                    if (!conversationText.isEmpty()) {
-                        for (final RectangleButton conversation : conversationText) {
-                            context.runOnUpdateThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                /* Now it is save to remove the entity! */
-                                    conversation.detachSelf();
-                                }
-                            });
-                        }
-                        conversationText.clear();
-                        processText(message, 0, messageDelay, null);
-                    } else {
-                        processText(message, 0, messageDelay, null);
-                    }
+                    processOpShowText(op);
+                } else if (op.opCode.equals("babble")) {
+                    processOpShowText(op);
+                    processOpWaitForTouch(currentBlock);
+                    return;
                 } else if (op.opCode.equals("wait_for_touch")) {
-                    waitForTouchOperation = true;
-                    Log.d(TAG, "waiting for touch");
-                    currentBlock.increment();
+                    processOpWaitForTouch(currentBlock);
                     return;
                 } else if (op.opCode.equals("update_queue")) {
                     JSONArray queueValue = op.opDetails.getJSONArray("value");
                     matrix.getBlockQueue().clear();
-                    for(int i = 0; i < queueValue.length(); i++) {
+                    for (int i = 0; i < queueValue.length(); i++) {
                         NextObject nextObject = new NextObject();
                         nextObject.setTileType(queueValue.getInt(i));
                         matrix.getBlockQueue().add(nextObject);
@@ -269,14 +346,14 @@ public class StoryMode implements GridEventListener {
                     matrix.drawWorld();
                 } else if (op.opCode.equals("map")) {
                     JSONArray boardArray = op.opDetails.getJSONArray("map");
-                    for(int i = 0; i < boardArray.length(); i++) {
-                       JSONArray rowArray = boardArray.getJSONArray(i);
-                       for(int i2 = 0; i2 < rowArray.length(); i2++) {
-                           int tileType = rowArray.getInt(i2);
-                           GridSquare square = matrix.getMainGrid().getSquareAt(i2, i);
-                           square.reset();
-                           square.setTileType(tileType);
-                       }
+                    for (int i = 0; i < boardArray.length(); i++) {
+                        JSONArray rowArray = boardArray.getJSONArray(i);
+                        for (int i2 = 0; i2 < rowArray.length(); i2++) {
+                            int tileType = rowArray.getInt(i2);
+                            GridSquare square = matrix.getMainGrid().getSquareAt(i2, i);
+                            square.reset();
+                            square.setTileType(tileType);
+                        }
                     }
                     matrix.drawWorld();
                 } else if (op.opCode.equals("wait_for_valid_move")) {
@@ -285,7 +362,7 @@ public class StoryMode implements GridEventListener {
                     waitForTouchOperation = false;
                     currentBlock.increment();
                     //Register event handling
-                    if (op.opDetails!=null) {
+                    if (op.opDetails != null) {
                         JSONArray events = op.opDetails.optJSONArray("events");
                         if (events != null) {
                             for (int i = 0; i < events.length(); i++) {
@@ -312,6 +389,11 @@ public class StoryMode implements GridEventListener {
                         }
                     }
                     return;
+                } else if (op.opCode.equals("unlock_next")) {
+                    Utils.setLocked(context, currentLevel.getNextLevel(), false);
+                } else if (op.opCode.equals("exit")) {
+                    showLevelChooser(context);
+                    return;
                 } else if (op.opCode.equals("restore_state")) {
                     String stateName = op.opDetails.getString("name");
                     if (this.savedStates.containsKey(stateName)) {
@@ -324,13 +406,13 @@ public class StoryMode implements GridEventListener {
                         matrix.restoreWorldState(savedStates.get(stateName).getSavedGridBundle());
                         continue;
                     } else {
-                        Log.d(TAG,"unknown saved state " + stateName);
+                        Log.d(TAG, "unknown saved state " + stateName);
                     }
                 } else if (op.opCode.equals("save_state")) {
                     SavedGameState saveState = new SavedGameState();
                     saveState.setSavedGridBundle(matrix.saveWorldState());
                     LinkedList<CurrentBlock> savedStack = new LinkedList<CurrentBlock>();
-                    for(CurrentBlock b : stack) {
+                    for (CurrentBlock b : stack) {
                         savedStack.add(b.clone());
                     }
                     saveState.setStack(savedStack);
@@ -340,11 +422,18 @@ public class StoryMode implements GridEventListener {
                     JSONObject testFunctions = op.opDetails.getJSONObject("test");
                     Iterator itr = testFunctions.keys();
                     boolean passed = true;
-                    while(itr.hasNext()) {
-                        String key = (String)itr.next();
+                    while (itr.hasNext()) {
+                        String key = (String) itr.next();
                         if (key.equals("queue_empty")) {
                             boolean result = matrix.getBlockQueue().isEmpty();
                             if (result != testFunctions.getBoolean(key)) {
+                                passed = false;
+                            }
+                        }
+
+                        if (key.equals("all_color")) {
+                            int testColor = testFunctions.getInt(key);
+                            if (!matrix.testColor(testColor)) {
                                 passed = false;
                             }
                         }
@@ -354,6 +443,12 @@ public class StoryMode implements GridEventListener {
                         ArrayList<Operation> blockOperations = getOperations(op.opDetails);
                         currentBlock = spawnNewBlock(currentBlock, blockOperations);
                         continue;
+                    } else {
+                        if (op.opDetails.has("else")) {
+                            ArrayList<Operation> blockOperations = getOperations(op.opDetails.getJSONArray("else"));
+                            currentBlock = spawnNewBlock(currentBlock, blockOperations);
+                            continue;
+                        }
                     }
                 } else if (op.opCode.equals("repeat_block")) {
                     while (currentBlock.isTransient()) {
@@ -363,7 +458,7 @@ public class StoryMode implements GridEventListener {
                     currentBlock.opIndex = 0; //reset block
                     continue;
                 } else if (op.opCode.equals("block")) {
-                    Log.d(TAG,"inside block");
+                    Log.d(TAG, "inside block");
                     ArrayList<Operation> blockOperations = getOperations(op.opDetails);
                     currentBlock = spawnNewBlock(currentBlock, blockOperations);
                     continue;
@@ -373,6 +468,33 @@ public class StoryMode implements GridEventListener {
             stack.removeLast();
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void processOpWaitForTouch(CurrentBlock currentBlock) {
+        waitForTouchOperation = true;
+        Log.d(TAG, "waiting for touch");
+        currentBlock.increment();
+    }
+
+    private void processOpShowText(Operation op) throws JSONException {
+        JSONObject messageDetails = op.opDetails.getJSONObject("value");
+        final Object message = messageDetails.get("message");
+        int messageDelay = messageDetails.optInt("delay", 100);
+        if (!conversationText.isEmpty()) {
+            for (final RectangleButton conversation : conversationText) {
+                context.runOnUpdateThread(new Runnable() {
+                    @Override
+                    public void run() {
+                    /* Now it is save to remove the entity! */
+                        conversation.detachSelf();
+                    }
+                });
+            }
+            conversationText.clear();
+            processText(message, 0, messageDelay, null);
+        } else {
+            processText(message, 0, messageDelay, null);
         }
     }
 
@@ -399,7 +521,7 @@ public class StoryMode implements GridEventListener {
             emptyBoundedEntity.attachChild(textBox);
             textBox.centerInParent(BoundedEntity.CENTER_HORIZONTAL);
             textBox.setY(700);
-            for(RectangleButton previousConversation : conversationText) {
+            for (RectangleButton previousConversation : conversationText) {
                 previousConversation.setY(previousConversation.getY() - (textBox.getHeight() + ObjectDimensions.szStoryTextMargins));
             }
 
@@ -416,7 +538,7 @@ public class StoryMode implements GridEventListener {
                         t.schedule(new TimerTask() {
                             @Override
                             public void run() {
-                               listener.onComplete();
+                                listener.onComplete();
                             }
                         }, messageDelay);
 
@@ -448,12 +570,57 @@ public class StoryMode implements GridEventListener {
         return loadLevel(FIRST_LEVEL);
     }
 
+    public ArrayList<LevelInfo> loadLevels() {
+        ArrayList<LevelInfo> result = new ArrayList<LevelInfo>();
+        InputStream is = null;
+        try {
+            is = context.getAssets().open("levels/levels.json");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            StringBuilder levelsString = new StringBuilder();
+
+            while (reader.ready()) {
+                levelsString.append(reader.readLine());
+            }
+            reader.close();
+            is.close();
+
+            try {
+                JSONObject jsonObject = new JSONObject(levelsString.toString());
+                JSONArray levelObjects = jsonObject.getJSONArray("levels");
+                for (int i = 0; i < levelObjects.length(); i++) {
+                    JSONObject obj = levelObjects.getJSONObject(i);
+                    LevelInfo l = new LevelInfo();
+                    l.setId(obj.getInt("id"));
+                    if (l.getId() != 1) {
+                        if (Utils.isLocked(context, l.getId())) {
+                            l.setLocked(true);
+                        } else {
+                            l.setLocked(false);
+                        }
+                    }
+
+                    l.setFilePath(obj.getString("file"));
+                    l.setTitle(obj.getString("title"));
+                    l.setNextLevel(obj.getString("next"));
+                    Log.d(TAG, "Adding level.");
+                    levelHashMap.put(l.getId(), l);
+                    result.add(l);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public Level loadLevel(String levelName) {
         Level level = new Level();
 
         try {
-            InputStream is = context.getAssets().open("levels/" + levelName + ".json");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(context.getAssets().open("levels/" + levelName + ".json")));
+            InputStream is = context.getAssets().open("levels/" + levelName);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             StringBuilder levelString = new StringBuilder();
 
             while (reader.ready()) {
@@ -522,6 +689,13 @@ public class StoryMode implements GridEventListener {
         return operationArrayList;
     }
 
+    private ArrayList<Operation> getOperations(JSONArray jsonObject) throws JSONException {
+        ArrayList<Operation> operationArrayList = new ArrayList<Operation>();
+        getOperationsFromJsonArray(operationArrayList, jsonObject);
+        return operationArrayList;
+    }
+
+
     private void getOperationsFromJsonArray(ArrayList<Operation> operationArrayList, JSONArray operations) throws JSONException {
         for (int i = 0; i < operations.length(); i++) {
             Operation op = new Operation();
@@ -561,7 +735,7 @@ public class StoryMode implements GridEventListener {
 
     @Override
     public void onExitGrid(MenuItem item) {
-
+        showLevelChooser(context);
     }
 
     @Override
@@ -589,11 +763,48 @@ public class StoryMode implements GridEventListener {
         }
     }
 
+    @Override
+    public void onRestart(MenuItem item) {
+        stack.clear();
+        waitForTouchOperation = false;
+        waitForValidMove = false;
+        renderLevel(currentLevel, context);
+    }
+
     public int getOpIndex() {
         return stack.getLast().opIndex;
     }
 
     public void setOpIndex(int opIndex) {
         this.opIndex = opIndex;
+    }
+
+    public boolean isLevelMenuShown() {
+        return levelMenu.isVisible();
+    }
+
+    public void hideLevelMenu() {
+        levelMenu.setVisible(false);
+    }
+
+    public void showLevelChooser(final MainActivity mainActivity) {
+        mScene.detachChildren();
+        mScene.attachChild(levelMenu);
+        levelMenu.setVisible(true);
+        levelMenu.setLevelInfos(loadLevels());
+        levelMenu.updateSelf();
+        levelMenu.setListener(new OnLevelSelectedListener() {
+            @Override
+            public void onLevelSelected(int tag) {
+                Level level = loadLevel(levelHashMap.get(tag).getFilePath());
+                renderLevel(level, mainActivity);
+            }
+        });
+        mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
+            @Override
+            public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
+                return levelMenu.onTouch(pSceneTouchEvent);
+            }
+        });
     }
 }

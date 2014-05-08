@@ -70,6 +70,9 @@ public class GameMatrix implements IUpdateHandler {
             if (!triggerCollection.contains("trigger_rgb")) {
                 triggerCallback("no_rgb");
             }
+            if (blockQueue.size() == 0) {
+                triggerCallback("queue_empty");
+            }
         }
     }
 
@@ -238,6 +241,22 @@ public class GameMatrix implements IUpdateHandler {
                 c.onEventTriggered(key);
             }
         }
+    }
+
+    public boolean testColor(int testColor) {
+        for(int i = 0 ; i < gridWidth; i++) {
+            for (int i2 = 0; i2 < gridHeight; i2++) {
+                GridSquare square = mainGrid.getSquareAt(i,i2);
+                if (square.getTileType() == GridSquare.EMPTY ||
+                        square.getTileType() == GridSquare.BUSTED ||
+                        square.getTileType() == testColor) {
+                    continue;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     class ScoreIncrementer extends TimerHandler {

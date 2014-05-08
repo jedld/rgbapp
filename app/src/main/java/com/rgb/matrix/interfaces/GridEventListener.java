@@ -28,4 +28,6 @@ public interface GridEventListener {
     void onSetupWorld(MainGrid mainGrid);
 
     void populateQueue(Vector<NextObject> blockQueue);
+
+    void onRestart(MenuItem item);
 }

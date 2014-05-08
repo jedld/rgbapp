@@ -263,6 +263,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         fontHashMap.put("menu", mFontMultiplier);
         fontHashMap.put("title", titleScreenFont);
         fontHashMap.put("story_text", mFont);
+        fontHashMap.put("level_font", mFontMultiplier);
         
         pOnCreateResourcesCallback.onCreateResourcesFinished();
     }
@@ -391,8 +392,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     }
 
     private void startStoryMode() {
-        Level level = storyMode.loadLevel();
-        storyMode.renderLevel(level, this);
+        storyMode.showLevelChooser(this);
     }
 
     private void loadLogoText(List<String> lines, String filename) throws IOException {
@@ -499,8 +499,15 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
     }
 
     @Override
+    public void onRestart(MenuItem item) {
+        endlessMode.restartGame();
+    }
+
+    @Override
     public void onBackPressed() {
-        if (mainMenu.isVisible()) {
+        if (storyMode.isLevelMenuShown()) {
+            showTitleScreen();
+        } else if (mainMenu.isVisible()) {
             mainMenu.setVisible(false);
         } else {
             if (!backedPressed) {

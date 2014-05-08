@@ -59,23 +59,42 @@
       "op": "hide_grid"
     },
     {
-      "op": "show_text",
+      "op": "babble",
       "details": {
         "value": {
-          "message": "welcome."
+          "message": [
+            "Welcome.",
+            "subject X-5213"
+          ]
         }
       }
     },
     {
-      "op": "wait_for_touch"
-    },
-    {
-      "op": "show_text",
+      "op": "babble",
       "details": {
         "value": {
           "message": [
-            "My name is GLOSAD.",
-            "I am an advanced artificial intelligence.",
+            "My name is GLOSAD."
+          ]
+        }
+      }
+    },
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
+            "I am what you can call",
+            "An advanced artificial intelligence."
+          ]
+        }
+      }
+    },
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
             "My purpose is to teach you",
             "the basics of project 'RGB'."
           ]
@@ -83,21 +102,18 @@
       }
     },
     {
-      "op": "wait_for_touch"
-    },
-    {
-      "op": "show_text",
+      "op": "babble",
       "details": {
         "value": {
-          "message": "How are you doing subject X-5213?"
+          "message": [
+            "By the way",
+            "How are you doing today subject X-5213?"
+          ]
         }
       }
     },
     {
-      "op": "wait_for_touch"
-    },
-    {
-      "op": "show_text",
+      "op": "babble",
       "details": {
         "value": {
           "message": [
@@ -107,10 +123,7 @@
       }
     },
     {
-      "op": "wait_for_touch"
-    },
-    {
-      "op": "show_text",
+      "op": "babble",
       "details": {
         "value": {
           "message": "Don't worry that is an expected 'side-effect.'"
@@ -118,10 +131,7 @@
       }
     },
     {
-      "op": "wait_for_touch"
-    },
-    {
-      "op": "show_text",
+      "op": "babble",
       "details": {
         "value": {
           "message": [
@@ -130,9 +140,6 @@
           ]
         }
       }
-    },
-    {
-      "op": "wait_for_touch"
     },
     {
       "op": "show_text",
@@ -163,15 +170,12 @@
       }
     },
     {
-      "op": "show_text",
+      "op": "babble",
       "details": {
         "value": {
           "message": "Tapping on the GRID places TILES"
         }
       }
-    },
-    {
-      "op": "wait_for_touch"
     },
     {
       "op": "show_text",
@@ -185,7 +189,7 @@
       "op": "wait_for_valid_move"
     },
     {
-      "op": "show_text",
+      "op": "babble",
       "details": {
         "value": {
           "message": [
@@ -194,9 +198,6 @@
           ]
         }
       }
-    },
-    {
-      "op": "wait_for_touch"
     },
     {
       "op": "show_text",
@@ -263,7 +264,7 @@
                         },
                         "sequence": [
                           {
-                            "op": "show_text",
+                            "op": "babble",
                             "details": {
                               "value": {
                                 "message": [
@@ -272,9 +273,6 @@
                                 ]
                               }
                             }
-                          },
-                          {
-                            "op": "wait_for_touch"
                           },
                           {
                             "op": "restore_state",
@@ -288,7 +286,7 @@
                   ],
                   "trigger_rgb": [
                     {
-                      "op": "show_text",
+                      "op": "babble",
                       "details": {
                         "value": {
                           "message": [
@@ -299,9 +297,6 @@
                           ]
                         }
                       }
-                    },
-                    {
-                      "op": "wait_for_touch"
                     },
                     {
                       "op": "map",
@@ -385,18 +380,16 @@
                                   },
                                   "sequence": [
                                     {
-                                      "op": "show_text",
+                                      "op": "babble",
                                       "details": {
                                         "value": {
                                           "message": [
                                             "Hmmm ...",
-                                            "Make sure you place the Tile so that it", "touches both colors"
+                                            "Make sure you place the Tile so that it",
+                                            "touches both colors"
                                           ]
                                         }
                                       }
-                                    },
-                                    {
-                                      "op": "wait_for_touch"
                                     },
                                     {
                                       "op": "restore_state",
@@ -410,7 +403,7 @@
                             ],
                             "trigger_rgb": [
                               {
-                                "op": "show_text",
+                                "op": "babble",
                                 "details": {
                                   "value": {
                                     "message": [
@@ -423,18 +416,18 @@
                                 }
                               },
                               {
-                                "op": "wait_for_touch"
-                              },
-                              {
-                                "op": "show_text",
+                                "op": "babble",
                                 "details": {
                                   "value": {
-                                    "message": [
-                                      "GOOD",
-                                      "You can now proceed to LEVEL 2"
-                                    ]
+                                    "message": "You may now continue to level 2"
                                   }
                                 }
+                              },
+                              {
+                                "op": "unlock_next"
+                              },
+                              {
+                                "op": "exit"
                               }
                             ]
                           }

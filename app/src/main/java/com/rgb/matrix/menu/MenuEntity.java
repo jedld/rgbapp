@@ -99,6 +99,7 @@ public abstract class MenuEntity extends Entity {
     }
 
     public void handleOnTouch(TouchEvent pSceneTouchEvent) {
+        ArrayList<MenuItem> triggerEvents = new ArrayList<MenuItem>();
         for (MenuItem item : items) {
 
             float[] coordinates = getBackgroundRectangle().convertLocalToSceneCoordinates(item.getRectangle().getX(), item.getRectangle().getY());
@@ -112,10 +113,15 @@ public abstract class MenuEntity extends Entity {
                     && pSceneTouchEvent.getY() >= coordinates[Constants.VERTEX_INDEX_Y] &&
                     pSceneTouchEvent.getY() <= coordinates[Constants.VERTEX_INDEX_Y] + rectHeight) {
 
-                item.getListener().onMenuItemSelected(item);
-
+                triggerEvents.add(item);
             }
         }
+
+        for(MenuItem item : triggerEvents) {
+            item.getListener().onMenuItemSelected(item);
+        }
+
+        triggerEvents.clear();
 
     }
 
