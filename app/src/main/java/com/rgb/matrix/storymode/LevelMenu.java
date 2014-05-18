@@ -78,7 +78,7 @@ public class LevelMenu extends BoundedEntity {
                 float posX = i2 * (LEVEL_TILE_SIZE + LEVEL_TILE_MARGINS);
                 if (levelSelect < levelInfos.size()) {
                     Log.d(TAG, "loading level");
-                    LevelInfo info = levelInfos.get(levelSelect++);
+                    LevelInfo info = levelInfos.get(levelSelect);
                     RectangleButton rectButton = new RectangleButton(posX, posY, LEVEL_TILE_SIZE, LEVEL_TILE_SIZE,
                             vertexBufferObjectManager, mFont.get("level_font"), info.getTitle());
                     rectButton.setTextColor(Color.WHITE);
@@ -87,9 +87,10 @@ public class LevelMenu extends BoundedEntity {
                     } else {
                         rectButton.setColor(ColorConstants.BLUE);
                     }
-                    rectButton.setTag(info.getId());
+                    rectButton.setTag(levelSelect);
                     rectangles.add(rectButton);
                     grid.attachChild(rectButton);
+                    levelSelect++;
                 }
                 if (gridMaxHeight < posY + LEVEL_TILE_SIZE + LEVEL_TILE_MARGINS) {
                     gridMaxHeight = posY + LEVEL_TILE_SIZE + LEVEL_TILE_MARGINS;
@@ -139,8 +140,11 @@ public class LevelMenu extends BoundedEntity {
     public boolean onTouch(TouchEvent pSceneTouchEvent) {
         for(RectangleButton button : rectangles) {
             if (Utils.withinTouchBounds(button, pSceneTouchEvent)) {
-                listener.onLevelSelected(button.getTag());
-                return true;
+                LevelInfo info = levelInfos.get(button.getTag());
+                if (!info.isLocked()) {
+                    listener.onLevelSelected(info.getId());
+                    return true;
+                }
             }
         }
         return false;

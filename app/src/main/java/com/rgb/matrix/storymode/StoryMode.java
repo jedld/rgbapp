@@ -7,6 +7,7 @@ import com.dayosoft.tiletron.app.MainActivity;
 import com.dayosoft.tiletron.app.SoundWrapper;
 import com.rgb.matrix.ColorConstants;
 import com.rgb.matrix.EmptyBoundedEntity;
+import com.rgb.matrix.GameManager;
 import com.rgb.matrix.GameMatrix;
 import com.rgb.matrix.GameOver;
 import com.rgb.matrix.GridSquare;
@@ -118,7 +119,7 @@ class CurrentBlock {
     }
 }
 
-public class StoryMode implements GridEventListener {
+public class StoryMode extends GameManager implements GridEventListener{
 
     public static final String FIRST_LEVEL = "level_1";
     private static final String TAG = StoryMode.class.getName();
@@ -201,7 +202,31 @@ public class StoryMode implements GridEventListener {
 
     }
 
+    public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
+        if (pSceneTouchEvent.isActionDown()) {
+            if (levelMenu.isVisible()) {
+                levelMenu.onTouch(pSceneTouchEvent);
+            } else {
+
+                if (waitForTouchOperation) {
+                    waitForTouchOperation = false;
+                    waitForTouchIndicator.setVisible(false);
+                    processOpSequence();
+                } else {
+                    if (matrix.onTouch(pSceneTouchEvent)) {
+                        if (waitForValidMove) {
+                            waitForValidMove = false;
+                            processOpSequence();
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     private void startLevel(Level level, BaseGameActivity context) {
+        levelMenu.setVisible(false);
         MatrixOptions options = new MatrixOptions();
         options.setShouldPrepopulate(false);
 
@@ -232,29 +257,6 @@ public class StoryMode implements GridEventListener {
         mainMenu.detachSelf();
         mainMenu.setVisible(false);
         mScene.attachChild(mainMenu);
-
-        mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
-
-            @Override
-            public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
-                if (pSceneTouchEvent.isActionDown()) {
-                    if (waitForTouchOperation) {
-                        waitForTouchOperation = false;
-                        waitForTouchIndicator.setVisible(false);
-                        processOpSequence();
-                    } else {
-                        if (matrix.onTouch(pSceneTouchEvent)) {
-                            if (waitForValidMove) {
-                                waitForValidMove = false;
-                                processOpSequence();
-                            }
-                        }
-                    }
-                }
-                return false;
-            }
-        });
-
 
         CurrentBlock block = new CurrentBlock(null);
         block.setOperations(level.getOperations());
@@ -800,11 +802,30 @@ public class StoryMode implements GridEventListener {
                 renderLevel(level, mainActivity);
             }
         });
-        mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
-            @Override
-            public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
-                return levelMenu.onTouch(pSceneTouchEvent);
-            }
-        });
+    }
+
+    @Override
+    public void show(Scene scene) {
+        showLevelChooser(context);
+    }
+
+    @Override
+    public void hide() {
+
+    }
+
+    @Override
+    public void onResumeGame() {
+
+    }
+
+    @Override
+    public void onPauseGame() {
+
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        return false;
     }
 }

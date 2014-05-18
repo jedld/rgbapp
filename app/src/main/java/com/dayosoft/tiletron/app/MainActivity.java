@@ -13,10 +13,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.rgb.matrix.GameManager;
 import com.rgb.matrix.GameMatrix;
 import com.rgb.matrix.GameOver;
 import com.rgb.matrix.MainGrid;
@@ -32,6 +37,7 @@ import com.rgb.matrix.menu.OnMenuSelectedListener;
 import com.rgb.matrix.storymode.Level;
 import com.rgb.matrix.storymode.StoryMode;
 import com.rgb.matrix.title.TitleScreen;
+import com.rgb.matrix.title.TitleScreenManager;
 import com.sromku.simple.fb.Permission;
 import com.sromku.simple.fb.SimpleFacebook;
 import com.sromku.simple.fb.entities.Photo;
@@ -67,6 +73,9 @@ import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSourc
 import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder;
 import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder;
 import org.andengine.opengl.texture.region.TextureRegion;
+import org.andengine.opengl.util.GLState;
+import org.andengine.opengl.view.IRendererListener;
+import org.andengine.opengl.view.RenderSurfaceView;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.color.Color;
 import org.andengine.util.modifier.IModifier;
@@ -81,22 +90,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-public class MainActivity extends BaseGameActivity implements GridEventListener {
+public class MainActivity extends BaseGameActivity {
 
     private static final String TAG = MainActivity.class.getName();
     public static float canvasWidth = 480;
     public static float canvasHeight = 800;
     private Camera mCamera;
     private Scene mScene;
-    int currentMusicTrack = 0;
-    private List<Music> trackList = new ArrayList<Music>();
+
+
     HashMap<String, SoundWrapper> soundAssets = new HashMap<String, SoundWrapper>();
     HashMap<String, TextureRegion> spriteAssets = new HashMap<String, TextureRegion>();
+    private ArrayList<GameManager> foreground = new ArrayList<GameManager>();
     private HashMap<String, Font> fontHashMap;
     private ArrayList<String> logoLines = new ArrayList<String>();
     private List<String> titleLines = new ArrayList<String>();
     private LogoTiles logo;
-    private boolean playMusic;
+
     private MainMenu mainMenu;
     private boolean backedPressed = false;
     private SimpleFacebook mSimpleFacebook;
@@ -136,10 +146,35 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
      */
     };
     private TextureRegion mSpriteTextureRegion;
-    private TitleScreen titleScreen;
+    private TitleScreenManager titleScreen;
     private StoryMode storyMode;
     private EndlessMode endlessMode;
+    private AdView adView;
+    private ArrayList<Music> trackList = new ArrayList<Music>();
 
+    @Override
+    protected void onSetContentView() {
+        final FrameLayout frameLayout = new FrameLayout(this);
+        //Creating its layout params, making it fill the screen.
+        final FrameLayout.LayoutParams frameLayoutLayoutParams =
+                new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT);
+        this.mRenderSurfaceView = new RenderSurfaceView(this);
+        this.mRenderSurfaceView.setRenderer(this.mEngine, this);
+
+        //Adding the views to the frame layout.
+        frameLayout.addView(this.mRenderSurfaceView, BaseGameActivity.createSurfaceViewLayoutParams());
+
+        // Create an ad.
+        adView = new AdView(this);
+        adView.setAdSize(AdSize.BANNER);
+        adView.setAdUnitId("ca-app-pub-5223989576875261/3336354885");
+
+        frameLayout.addView(adView);
+
+        this.setContentView(frameLayout, frameLayoutLayoutParams);
+
+    }
 
     @Override
     protected void onCreate(Bundle pSavedInstanceState) {
@@ -183,15 +218,9 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
 
     private void loadMusic(String filename) {
         try {
-            MediaPlayer.OnCompletionListener listener = new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mediaPlayer) {
-                    nextTrack();
-                    currentTrack().play();
-                }
-            };
+
             Music music = MusicFactory.createMusicFromAsset(getMusicManager(), this, filename);
-            music.setOnCompletionListener(listener);
+
             trackList.add(music);
         } catch (IOException e) {
             e.printStackTrace();
@@ -236,7 +265,7 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         loadMusic("bg_1.mp3");
         loadMusic("bg_2.mp3");
 
-        playMusic = false;
+
 
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/roboto_bold.ttf");
 
@@ -268,14 +297,6 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         pOnCreateResourcesCallback.onCreateResourcesFinished();
     }
 
-    private Music currentTrack() {
-        return trackList.get(currentMusicTrack);
-    }
-
-    private void nextTrack() {
-        currentMusicTrack++;
-        if (currentMusicTrack >= trackList.size()) currentMusicTrack = 0;
-    }
 
     @Override
     public synchronized void onGameCreated() {
@@ -303,49 +324,63 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
                         public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
                             logo.setVisible(false);
                             showTitleScreen();
-//                            startEndlessMode();
                         }
                     }));
                 }
             });
         } else {
-//            startEndlessMode();
             showTitleScreen();
         }
     }
 
-    private void showTitleScreen() {
+    private GameManager getCurrentManager() {
+        return foreground.get(foreground.size() - 1);
+    }
+
+    private void setCurrentManager(GameManager manager) {
         mScene.detachChildren();
-        mScene.attachChild(titleScreen);
-        mScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
+        if (foreground.size() > 0) {
+            GameManager prev = foreground.get(foreground.size() - 1);
+            prev.hide();
+        }
+        foreground.add(manager);
+        manager.show(mScene);
+        mScene.setOnSceneTouchListener(manager);
+    }
 
+    private void showTitleScreen() {
+        runOnUiThread(new Runnable() {
             @Override
-            public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
-                if (pSceneTouchEvent.isActionDown()) {
-                    titleScreen.handleOnTouch(pSceneTouchEvent);
-                }
-
-                return false;
+            public void run() {
+                adView.setVisibility(View.VISIBLE);
             }
         });
+        setCurrentManager(titleScreen);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (adView != null) {
+            adView.pause();
+        }
+        super.onPause();
     }
 
     @Override
     public synchronized void onResumeGame() {
-        if (playMusic && Utils.getMusicState(this) && currentTrack() != null && !currentTrack().isPlaying()) {
-            currentTrack().play();
-        }
+        getCurrentManager().onResumeGame();
 
         super.onResumeGame();
-
+        if (adView != null) {
+            adView.resume();
+        }
 
     }
 
     @Override
     public synchronized void onPauseGame() {
-        if (currentTrack() != null && currentTrack().isPlaying()) {
-            currentTrack().pause();
-        }
+        getCurrentManager().onPauseGame();
         super.onPauseGame();
     }
 
@@ -368,31 +403,22 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
 
         endlessMode = new EndlessMode(this, mScene, canvasWidth, canvasHeight, getVertexBufferObjectManager(),
                 mainMenu,fontHashMap, soundAssets);
-
+        endlessMode.setMusic(trackList);
         storyMode = new StoryMode(this, mScene, canvasWidth, canvasHeight, getVertexBufferObjectManager(),
                  mainMenu,fontHashMap, soundAssets);
 
-        titleScreen = new TitleScreen(0, 0, canvasWidth, canvasHeight, titleLines, getVertexBufferObjectManager());
-        titleScreen.addMenuItem("Endless Mode", new OnMenuSelectedListener() {
-            @Override
-            public void onMenuItemSelected(MenuItem item) {
-                startEndlessMode();
-            }
-        });
-
-        titleScreen.addMenuItem("Story Mode", new OnMenuSelectedListener() {
-            @Override
-            public void onMenuItemSelected(MenuItem item) {
-                startStoryMode();
-            }
-        });
-
-
+        titleScreen = new TitleScreenManager(this, 0, 0, canvasWidth, canvasHeight, titleLines, getVertexBufferObjectManager());
         pOnPopulateSceneCallback.onPopulateSceneFinished();
     }
 
-    private void startStoryMode() {
-        storyMode.showLevelChooser(this);
+    public void startStoryMode() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adView.setVisibility(View.GONE);
+            }
+        });
+        setCurrentManager(storyMode);
     }
 
     private void loadLogoText(List<String> lines, String filename) throws IOException {
@@ -410,106 +436,21 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         mScene.attachChild(logo);
     }
 
-    void startEndlessMode() {
-        endlessMode.startEndlessMode();
-        playMusic = true;
-        if (Utils.getMusicState(this) && currentTrack() != null && !currentTrack().isPlaying()) {
-            currentTrack().play();
-        }
-
-
-    }
-
-    @Override
-    public void toggleMusic(boolean state) {
-        Utils.saveMusicState(this, state);
-        if (currentTrack() != null) {
-            if (!state && currentTrack().isPlaying()) {
-                currentTrack().pause();
-            } else {
-                currentTrack().play();
+    public void startEndlessMode() {
+        setCurrentManager(endlessMode);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adView.setVisibility(View.GONE);
             }
-        }
-    }
-
-    @Override
-    public void toggleSounds(boolean state) {
-        Utils.saveSoundState(this, state);
-    }
-
-    @Override
-    public boolean getMusicState() {
-        return Utils.getMusicState(this);
-    }
-
-    @Override
-    public boolean getSoundState() {
-        return Utils.getSoundState(this);
+        });
     }
 
 
-    @Override
-    public void onScreenCaptureHighScore(final GameOver gameOverText, ScreenCapture screenCapture) {
-        String filename = null;
-        try {
-
-            filename = getCacheDir().getCanonicalPath() + File.separator + "rgb_" + System.currentTimeMillis() + ".bmp";
-            final String outFilename = getCacheDir().getCanonicalPath() + File.separator +
-                    "rgb_" + System.currentTimeMillis() + ".png";
-            final String finalFilename = filename;
-            screenCapture.capture(mRenderSurfaceView.getWidth(), mRenderSurfaceView.getHeight(), filename,
-                    new ScreenCapture.IScreenCaptureCallback() {
-
-                        @Override
-                        public void onScreenCaptured(String pFilePath) {
-                            Log.d(TAG, "Screencap path" + pFilePath);
-                            AsyncTask<Void, Void, Void> compressImageTask = new ScreenshotUploadTask(finalFilename, outFilename, gameOverText);
-                            compressImageTask.execute();
-                        }
-
-                        @Override
-                        public void onScreenCaptureFailed(String pFilePath, Exception pException) {
-
-                        }
-                    }
-            );
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public void onExitGrid(MenuItem item) {
-        mScene.detachChildren();
-        mScene.setOnSceneTouchListener(null);
-        showTitleScreen();
-    }
-
-    @Override
-    public void onSetupWorld(MainGrid mainGrid) {
-
-    }
-
-    @Override
-    public void populateQueue(Vector<NextObject> blockQueue) {
-
-    }
-
-    @Override
-    public void onRestart(MenuItem item) {
-        endlessMode.restartGame();
-    }
 
     @Override
     public void onBackPressed() {
-        if (storyMode.isLevelMenuShown()) {
-            showTitleScreen();
-        } else if (mainMenu.isVisible()) {
-            mainMenu.setVisible(false);
-        } else {
+        if (getCurrentManager().onBackPressed()) {
             if (!backedPressed) {
                 Toast.makeText(this, "Press back again to exit", Toast.LENGTH_LONG).show();
                 backedPressed = true;
@@ -517,11 +458,35 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
                 super.onBackPressed();
                 finish();
             }
+        } else {
+            popCurrentManager();
+        }
+
+    }
+
+    private void popCurrentManager() {
+        mScene.detachChildren();
+        if (foreground.size() > 1) {
+            int currentIndex = foreground.size() - 1;
+            if (foreground.size() > 0) {
+                GameManager prev = foreground.get(currentIndex);
+                prev.hide();
+            }
+            foreground.remove(currentIndex);
+            getCurrentManager().show(mScene);
+            mScene.setOnSceneTouchListener(getCurrentManager());
+        } else {
+            finish();
         }
     }
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
+        // Destroy the AdView.
+        if (adView != null) {
+            adView.destroy();
+        }
         super.onDestroy();
         System.exit(0);
     }
@@ -531,139 +496,5 @@ public class MainActivity extends BaseGameActivity implements GridEventListener 
         super.onSaveInstanceState(outState);
     }
 
-    private class ScreenshotUploadTask extends AsyncTask<Void, Void, Void> {
 
-        private final String finalFilename;
-        private final String outFilename;
-        private final GameOver gameOverText;
-        public ProgressDialog dialog;
-
-        public ScreenshotUploadTask(String finalFilename, String outFilename, GameOver gameOverText) {
-            this.finalFilename = finalFilename;
-            this.outFilename = outFilename;
-            this.gameOverText = gameOverText;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            try {
-                Bitmap bitmap = BitmapFactory.decodeFile(finalFilename);
-
-                File outFile = new File(outFilename);
-                outFile.createNewFile();
-                FileOutputStream out = new FileOutputStream(outFile);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-                out.flush();
-                out.close();
-                Log.d(TAG, "compress image on " + outFilename);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        private void postScreenshot() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            final Bitmap outBitmap = BitmapFactory.decodeFile(finalFilename);
-            View confirmation = getLayoutInflater().inflate(R.layout.confirmation_dialog, null);
-            TextView text = (TextView) confirmation.findViewById(R.id.message);
-            text.setText("Are you sure you want to share this screenshot to Facebook?");
-            ImageView image = (ImageView) confirmation.findViewById(R.id.imageView);
-            image.setImageDrawable(new BitmapDrawable(getResources(), outBitmap));
-
-            builder.setView(confirmation).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-
-                    final ProgressDialog dialog = ProgressDialog.show(MainActivity.this, "Please Wait", "Uploading Screenshot.. please wait");
-                    dialog.show();
-                    Photo photo = new Photo.Builder()
-                            .setImage(outBitmap)
-                            .setName("Has played RGB and got a High Score of " + Utils.getHighScore(MainActivity.this))
-                            .build();
-                    mSimpleFacebook.publish(photo, new OnPublishListener() {
-
-                        @Override
-                        public void onComplete(String id) {
-                            Score score = new Score.Builder()
-                                    .setScore(Utils.getHighScore(MainActivity.this))
-                                    .build();
-                            mSimpleFacebook.publish(score, new OnPublishListener() {
-                                @Override
-                                public void onComplete(String response) {
-                                    dialog.dismiss();
-                                    Toast.makeText(MainActivity.this, "upload complete!", Toast.LENGTH_LONG).show();
-                                    gameOverText.hideShare();
-                                }
-
-                                @Override
-                                public void onFail(String reason) {
-                                    super.onFail(reason);
-                                    dialog.dismiss();
-                                    Log.e(TAG,"Unable to upload reason - " + reason);
-                                    Toast.makeText(MainActivity.this, "Unable to upload screenshot to facebook.", Toast.LENGTH_LONG).show();
-                                }
-
-                            });
-                        }
-
-                        @Override
-                        public void onFail(String reason) {
-                            super.onFail(reason);
-                            dialog.dismiss();
-                            Log.e(TAG,"Unable to upload reason - " + reason);
-                            Toast.makeText(MainActivity.this, "Unable to upload screenshot to facebook.", Toast.LENGTH_LONG).show();
-                        }
-                    });
-
-                }
-            }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            }).show();
-
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            mSimpleFacebook.login(new OnLoginListener() {
-                @Override
-                public void onLogin() {
-                    postScreenshot();
-                }
-
-                @Override
-                public void onNotAcceptingPermissions(Permission.Type type) {
-
-                }
-
-                @Override
-                public void onThinking() {
-
-                }
-
-                @Override
-                public void onException(Throwable throwable) {
-
-                }
-
-                @Override
-                public void onFail(String reason) {
-                    Log.e(TAG,"Unable to upload reason - " + reason);
-                    Toast.makeText(MainActivity.this, "Unable to login to facebook", Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-
-    }
 }

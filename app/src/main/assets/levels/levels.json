@@ -12,11 +12,23 @@
       "title": "Level 2",
       "next": "3"
     },
+    {
+      "id" : 3,
+      "file": "level_3.json",
+      "title": "Level 3",
+      "next": "4"
+    },
+    {
+      "id" : 4,
+      "file": "level_4.json",
+      "title": "Level 4",
+      "next": "5"
+    },
         {
-          "id" : 3,
-          "file": "level_3.json",
-          "title": "Level 3",
-          "next": "4"
+          "id" : 5,
+          "file": "level_5.json",
+          "title": "Level 5",
+          "next": "6"
         }
   ],
   "start": "1"

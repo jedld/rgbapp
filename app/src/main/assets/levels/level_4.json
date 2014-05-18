@@ -1,0 +1,137 @@
+{
+  "id": 4,
+  "next_level": 5,
+  "title": "Level 4",
+  "options": {
+    "recharge_meter": false,
+    "queue": false
+  },
+  "map": [
+    [
+      2,
+      2,
+      7,
+      1,
+      1
+    ],
+    [
+      2,
+      0,
+      3,
+      0,
+      1
+    ],
+    [
+      8,
+      0,
+      0,
+      3,
+      9
+    ],
+    [
+      3,
+      0,
+      1,
+      0,
+      2
+    ],
+    [
+      3,
+      9,
+      1,
+      2,
+      0
+    ]
+  ],
+  "queue": [
+    2
+  ],
+  "grid_width": 5,
+  "grid_height": 5,
+  "sequence": [
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
+            "What are those strange TILES?"
+          ]
+        }
+      }
+    },
+    {
+      "op": "save_state",
+      "details": {
+        "name": "reset_tile_placement"
+      }
+    },
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
+            "Try to turn all TILES to GREEN"
+          ]
+        }
+      }
+    },
+    {
+      "op": "wait_for_valid_move",
+      "details": {
+        "events": [
+          {
+            "queue_empty": [
+              {
+                "op": "if",
+                "details": {
+                  "test": {
+                    "all_color": 2
+                  },
+                  "sequence": [
+                    {
+                      "op": "babble",
+                      "details": {
+                        "value": {
+                          "message": [
+                            "Fancy Tiles!",
+                            "Let's study those tiles more!",
+                            "On to Level 5"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "op": "unlock_next"
+                    },
+                    {
+                      "op": "exit"
+                    }
+                  ],
+                  "else": [
+                    {
+                      "op": "babble",
+                      "details": {
+                        "value": {
+                          "message": [
+                            "Make sure you place the tiles",
+                            "At the right place."
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "op": "restore_state",
+                      "details": {
+                        "name": "reset_tile_placement"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
