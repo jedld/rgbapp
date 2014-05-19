@@ -1,6 +1,7 @@
 package com.rgb.matrix.menu;
 
-import org.andengine.util.color.Color;
+
+import org.andengine.util.adt.color.Color;
 
 /**
  * Created by joseph on 5/5/14.

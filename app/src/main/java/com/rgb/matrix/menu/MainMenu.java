@@ -13,7 +13,7 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.Constants;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 import org.andengine.util.modifier.IModifier;
 
 import java.util.HashMap;
@@ -136,7 +136,7 @@ public class MainMenu extends MenuEntity {
 
     public void handleOnTouch(TouchEvent pSceneTouchEvent) {
         Log.d(TAG, "handle onTouch " + pSceneTouchEvent.getX() + "," + pSceneTouchEvent.getY());
-        float[] backButtonCoordinates = backButton.getParent().convertLocalToSceneCoordinates(backButton.getX(), backButton.getY());
+        float[] backButtonCoordinates = backButton.getParent().convertLocalCoordinatesToSceneCoordinates(backButton.getX(), backButton.getY());
 
         if (pSceneTouchEvent.getX() >= backButtonCoordinates[Constants.VERTEX_INDEX_X] &&
                 pSceneTouchEvent.getX() <= backButtonCoordinates[Constants.VERTEX_INDEX_X] + backButton.getWidth()

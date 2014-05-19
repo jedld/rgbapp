@@ -13,8 +13,8 @@ import org.andengine.opengl.font.IFont;
 import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.Constants;
-import org.andengine.util.HorizontalAlign;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
+
 
 public class RectangleButton extends BoundedEntity {
 
@@ -73,7 +73,7 @@ public class RectangleButton extends BoundedEntity {
     }
 
     public boolean isAreaTouched(TouchEvent pSceneTouchEvent) {
-        float[] coordinates = convertLocalToSceneCoordinates(rectangle.getX(), rectangle.getY());
+        float[] coordinates = convertLocalCoordinatesToSceneCoordinates(rectangle.getX(), rectangle.getY());
         if (  coordinates[Constants.VERTEX_INDEX_X] <= pSceneTouchEvent.getX() &&  (coordinates[Constants.VERTEX_INDEX_X] + rectangle.getWidth()) >= pSceneTouchEvent.getX() &&
                 coordinates[Constants.VERTEX_INDEX_Y] <= pSceneTouchEvent.getY() && (pSceneTouchEvent.getY() <= coordinates[Constants.VERTEX_INDEX_Y] + rectangle.getHeight()) ) {
             return true;

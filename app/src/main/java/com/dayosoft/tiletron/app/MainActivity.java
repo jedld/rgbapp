@@ -77,7 +77,7 @@ import org.andengine.opengl.util.GLState;
 import org.andengine.opengl.view.IRendererListener;
 import org.andengine.opengl.view.RenderSurfaceView;
 import org.andengine.ui.activity.BaseGameActivity;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 import org.andengine.util.modifier.IModifier;
 
 import java.io.BufferedReader;
@@ -227,10 +227,15 @@ public class MainActivity extends BaseGameActivity {
     }
 
     @Override
-    public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback) throws Exception {
+    public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback) {
 
-        loadLogoText(logoLines, "logo.txt");
-        loadLogoText(titleLines, "title.txt");
+        try {
+            loadLogoText(logoLines, "logo.txt");
+            loadLogoText(titleLines, "title.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         SoundFactory.setAssetBasePath("sfx/");
         MusicFactory.setAssetBasePath("sfx/");
@@ -393,7 +398,7 @@ public class MainActivity extends BaseGameActivity {
 
 
     @Override
-    public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) throws Exception {
+    public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) {
         mScene = new Scene();
 
         mScene.setBackground(new Background(Color.WHITE));
@@ -402,7 +407,7 @@ public class MainActivity extends BaseGameActivity {
     }
 
     @Override
-    public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback) throws Exception {
+    public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback)  {
         endlessMode = new EndlessMode(this, mScene, canvasWidth, canvasHeight, getVertexBufferObjectManager(),
                 fontHashMap, soundAssets);
         endlessMode.setMusic(trackList);

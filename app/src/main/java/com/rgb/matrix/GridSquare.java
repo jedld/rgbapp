@@ -19,7 +19,7 @@ import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.text.Text;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 import org.andengine.util.modifier.IModifier;
 
 import java.util.ArrayList;
@@ -44,8 +44,6 @@ public class GridSquare extends BoundedEntity {
     public static final int EMPTY = 0;
 
     private static final int MAX_AGE = 4;
-    public static final Color BUSTED_COLOR = new Color(36 / 255f, 0x36 / 255f, 0x36 / 255f);
-    public static final Color P_INVALID_TILE_COLOR = new Color(0xef / 255f, 0xf0 / 255f, 0xeb / 255f);
     private static final String TAG = GridSquare.class.getName();
     private static final Color EMPTY_COLOR = Color.WHITE;
     public static final Color GRID_BORDER_COLOR = new Color(0xe6 / 255f, 0xe6 / 255f, 0xef / 255f);
@@ -300,7 +298,7 @@ public class GridSquare extends BoundedEntity {
     }
 
     public void animateDie() {
-        rectangle.registerEntityModifier(new ColorModifier(1f, rectangle.getColor(), BUSTED_COLOR, new IEntityModifier.IEntityModifierListener() {
+        rectangle.registerEntityModifier(new ColorModifier(1f, rectangle.getColor(), ColorConstants.BUSTED_COLOR, new IEntityModifier.IEntityModifierListener() {
             @Override
             public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 
@@ -463,7 +461,7 @@ public class GridSquare extends BoundedEntity {
                     rectangle.setAlpha(0.7f);
                     break;
                 case BUSTED:
-                    rectangle.setColor(BUSTED_COLOR);
+                    rectangle.setColor(ColorConstants.BUSTED_COLOR);
                     rectangle.setAlpha(0.5f);
                     break;
             }
@@ -536,7 +534,7 @@ public class GridSquare extends BoundedEntity {
             if (matrix.isValid(boardPositionX, boardPositionY)) {
                 rectangle.setColor(Color.WHITE);
             } else {
-                rectangle.setColor(P_INVALID_TILE_COLOR);
+                rectangle.setColor(ColorConstants.P_INVALID_TILE_COLOR);
             }
         }
 

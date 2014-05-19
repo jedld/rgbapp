@@ -16,7 +16,7 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.Constants;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 import org.andengine.util.modifier.IModifier;
 import org.apache.commons.lang3.StringUtils;
 
@@ -98,7 +98,7 @@ public class RechargeMeter extends Entity implements Resizable {
         attachChild(valueText);
     }
 
-    public int getHeight() {
+    public float getHeight() {
         return ObjectDimensions.szMeterHeight + ObjectDimensions.szPushButtonSize;
     }
 
@@ -190,7 +190,7 @@ public class RechargeMeter extends Entity implements Resizable {
 
     public boolean isAreaTouched(TouchEvent pSceneTouchEvent) {
         Log.d(TAG,"meter X " + pushButton.getX() + " Y " + pushButton.getY());
-        float[] coordinates = convertLocalToSceneCoordinates(pushButton.getX(), pushButton.getY());
+        float[] coordinates = convertLocalCoordinatesToSceneCoordinates(pushButton.getX(), pushButton.getY());
 
         Log.d(TAG,"meter X " + coordinates[Constants.VERTEX_INDEX_X] + " Y " + coordinates[Constants.VERTEX_INDEX_Y] );
         if ( coordinates[Constants.VERTEX_INDEX_X] <= pSceneTouchEvent.getX() &&  (coordinates[Constants.VERTEX_INDEX_X] + pushButton.getWidth()) >= pSceneTouchEvent.getX() &&

@@ -8,7 +8,6 @@ import com.dayosoft.tiletron.app.SoundWrapper;
 import com.facebook.RequestBatch;
 import com.rgb.matrix.interfaces.BoundedEntity;
 
-import org.andengine.entity.shape.RectangularShape;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
@@ -17,7 +16,7 @@ import org.andengine.opengl.texture.region.TextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.Constants;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 
 import java.util.HashMap;
 
@@ -107,7 +106,7 @@ public class Utils {
     }
 
     public static boolean withinTouchBounds(BoundedEntity button, TouchEvent pSceneTouchEvent) {
-        float[] shareButtonCoords = button.getParent().convertLocalToSceneCoordinates(button.getX(), button.getY());
+        float[] shareButtonCoords = button.getParent().convertLocalCoordinatesToSceneCoordinates(button.getX(), button.getY());
         if (shareButtonCoords[Constants.VERTEX_INDEX_X] < pSceneTouchEvent.getX() &&
                 shareButtonCoords[Constants.VERTEX_INDEX_Y] < pSceneTouchEvent.getY() &&
                 pSceneTouchEvent.getX() < shareButtonCoords[Constants.VERTEX_INDEX_X] + button.getWidth() &&

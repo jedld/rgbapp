@@ -3,7 +3,7 @@ package com.rgb.matrix;
 import org.andengine.entity.Entity;
 import org.andengine.entity.primitive.Line;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 
 /**
  * Created by joseph on 5/3/14.

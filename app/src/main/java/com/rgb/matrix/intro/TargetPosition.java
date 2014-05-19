@@ -2,7 +2,8 @@ package com.rgb.matrix.intro;
 
 import android.util.Pair;
 
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
+
 
 /**
  * Created by joseph on 5/5/14.

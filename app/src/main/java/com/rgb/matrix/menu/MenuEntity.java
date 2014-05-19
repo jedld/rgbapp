@@ -10,7 +10,7 @@ import org.andengine.entity.text.Text;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.Constants;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 
 import java.util.ArrayList;
 
@@ -61,11 +61,12 @@ public abstract class MenuEntity extends Entity {
         menuItem.setListener(listener);
 
         //get next menu item position
-        menuOffsetY += MainMenu.MENU_MARGINS + MainMenu.MENU_ITEM_HEIGHT;
+        menuOffsetY -= MainMenu.MENU_MARGINS + MainMenu.MENU_ITEM_HEIGHT;
 
         float boundRectangleWidth = getMenuWidth() - MainMenu.MENU_MARGINS * 2;
         Rectangle rectangle = new Rectangle(MainMenu.MENU_MARGINS, menuOffsetY + menuStartOffsetY, boundRectangleWidth,
                 MainMenu.MENU_ITEM_HEIGHT, vertexBufferObjectManager);
+        rectangle.setAnchorCenter(0, 0);
         rectangle.setColor(menuAttributes.getBackgroundColor());
         rectangle.setAlpha(menuAttributes.getAlpha());
         Text menuText = null;
@@ -78,10 +79,12 @@ public abstract class MenuEntity extends Entity {
             }
 
             menuText = new Text(0, 0, Utils.getInstance().getFont(getFontKey()), menuLabel, vertexBufferObjectManager);
+            menuText.setAnchorCenter(0, 0);
             menuItem.setText(menuText);
             menuItem.setState(defaultValue);
         } else {
             menuText = new Text(0, 0, Utils.getInstance().getFont(getFontKey()), label, vertexBufferObjectManager);
+            menuText.setAnchorCenter(0, 0);
             menuItem.setText(menuText);
         }
         menuText.setX(boundRectangleWidth / 2 - menuText.getWidth() / 2);
@@ -102,7 +105,7 @@ public abstract class MenuEntity extends Entity {
         ArrayList<MenuItem> triggerEvents = new ArrayList<MenuItem>();
         for (MenuItem item : items) {
 
-            float[] coordinates = getBackgroundRectangle().convertLocalToSceneCoordinates(item.getRectangle().getX(), item.getRectangle().getY());
+            float[] coordinates = getBackgroundRectangle().convertLocalCoordinatesToSceneCoordinates(item.getRectangle().getX(), item.getRectangle().getY());
             float rectWidth = item.getRectangle().getWidth();
             float rectHeight = item.getRectangle().getHeight();
 

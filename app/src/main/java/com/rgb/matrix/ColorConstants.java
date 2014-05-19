@@ -1,6 +1,7 @@
 package com.rgb.matrix;
 
-import org.andengine.util.color.Color;
+
+import org.andengine.util.adt.color.Color;
 
 /**
  * Created by joseph on 5/6/14.
@@ -14,4 +15,6 @@ public class ColorConstants {
     public static final Color LIGHT_RED = new Color(0xFC / 255f, 0xBB / 255f, 0xBF / 255f);
     public static final Color LIGHT_BLUE = new Color(0xC1 / 255f, 0xc6 / 255f, 0xf7 / 255f);
     public static final Color LIGHT_GREEN = new Color(0xB6 / 255f, 0xf2 / 255f, 0xAA / 255f);
+    public static final Color BUSTED_COLOR = new Color(36 / 255f, 0x36 / 255f, 0x36 / 255f);
+    public static final Color P_INVALID_TILE_COLOR = new Color(0xef / 255f, 0xf0 / 255f, 0xeb / 255f);
 }

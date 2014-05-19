@@ -20,7 +20,7 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
-import org.andengine.util.color.Color;
+import org.andengine.util.adt.color.Color;
 import org.andengine.util.modifier.IModifier;
 
 import java.util.ArrayList;
@@ -51,6 +51,7 @@ public class TitleScreen extends MenuEntity implements IOnSceneTouchListener {
         random = new Random(System.nanoTime());
 
         backgroundRectangle = new Rectangle(0, 0, width, height, vertexBufferObjectManager);
+        backgroundRectangle.setAnchorCenter(0, 0);
         backgroundRectangle.setColor(Color.WHITE);
 
         attachChild(backgroundRectangle);
@@ -59,11 +60,12 @@ public class TitleScreen extends MenuEntity implements IOnSceneTouchListener {
                 0, 0,
                 lines);
         parentLogoEntity = new Entity();
-        parentLogoEntity.setPosition(width / 2 - maxTextWidth / 2, TITLE_LOGO_MARGIN_TOP);
+        parentLogoEntity.setPosition(width / 2 - maxTextWidth / 2, height - TITLE_LOGO_MARGIN_TOP);
 
         for (int i = 0; i < positionsInfo.getFinalPositions().size(); i++) {
             TargetPosition position = positionsInfo.getFinalPositions().get(i);
             Rectangle rectangle = new Rectangle(position.getPosition().first, position.getPosition().second, TITLE_SCREEN_TILE_SIZE, TITLE_SCREEN_TILE_SIZE, vertexBufferObjectManager);
+            rectangle.setAnchorCenter(0, 0);
             rectangle.setColor(position.getColor());
             rectangle.setAlpha(0.7f);
             parentLogoEntity.attachChild(rectangle);
@@ -106,6 +108,7 @@ public class TitleScreen extends MenuEntity implements IOnSceneTouchListener {
                 final Rectangle backgroundTile = new Rectangle(i * TITLE_TILES_SIZE + backgroundTileMargin,
                         i2 * TITLE_TILES_SIZE + backgroundTileMargin, TITLE_TILES_SIZE - backgroundTileMargin * 2,
                         TITLE_TILES_SIZE - backgroundTileMargin * 2, vertexBufferObjectManager);
+                backgroundTile.setAnchorCenter(0, 0);
                 backgroundTile.setColor(getRandomColor());
                 backgroundTile.setAlpha(0.2f);
                 backgroundRectangleCollection.add(backgroundTile);
@@ -211,7 +214,7 @@ public class TitleScreen extends MenuEntity implements IOnSceneTouchListener {
                 }
                 currentPosX += tileSize + tilePadding;
             }
-            currentPosY += tileSize + vertTilePadding;
+            currentPosY -= tileSize + vertTilePadding;
             currentPosX = 0;
         }
 
