@@ -77,9 +77,9 @@ public class EndlessMode extends GameManager implements GridEventListener {
     private boolean playMusic;
 
     public EndlessMode(MainActivity context, Scene mScene, float canvasWidth, float canvasHeight, VertexBufferObjectManager vertexBufferObjectManager,
-                     MainMenu mainMenu, HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets) {
+                     HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets) {
         this.context = context;
-        this.mainMenu = mainMenu;
+        this.mainMenu = new MainMenu(0, 0, fontDictionary, vertexBufferObjectManager);
         this.fontDictionary = fontDictionary;
         this.soundAsssets = soundAssets;
         this.mScene = mScene;
@@ -197,8 +197,8 @@ public class EndlessMode extends GameManager implements GridEventListener {
 
     @Override
     public void onExitGrid(MenuItem item) {
-        mScene.detachChildren();
-        mScene.setOnSceneTouchListener(null);
+        hide();
+        context.popCurrentManager();
     }
 
     @Override

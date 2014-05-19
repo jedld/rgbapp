@@ -5,4 +5,6 @@ package com.rgb.matrix.interfaces;
  */
 public interface OnTextDisplayedListener {
     void onComplete();
+
+    void onSequenceComplete();
 }

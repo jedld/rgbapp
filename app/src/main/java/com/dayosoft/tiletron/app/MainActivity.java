@@ -107,7 +107,6 @@ public class MainActivity extends BaseGameActivity {
     private List<String> titleLines = new ArrayList<String>();
     private LogoTiles logo;
 
-    private MainMenu mainMenu;
     private boolean backedPressed = false;
     private SimpleFacebook mSimpleFacebook;
 
@@ -240,8 +239,8 @@ public class MainActivity extends BaseGameActivity {
         BuildableBitmapTextureAtlas mBitmapTextureAtlas = new BuildableBitmapTextureAtlas(mEngine.getTextureManager(), 256, 256,
                 TextureOptions.BILINEAR);
 
-        mSpriteTextureRegion = BitmapTextureAtlasTextureRegionFactory.
-                createFromAsset(mBitmapTextureAtlas, this, "fb_icon.png");
+        loadBitmapAsset(mBitmapTextureAtlas, "fb_icon");
+        loadBitmapAsset(mBitmapTextureAtlas, "single_tap");
 
         /* Build the bitmap texture atlas */
         try {
@@ -253,12 +252,11 @@ public class MainActivity extends BaseGameActivity {
         mBitmapTextureAtlas.load();
 
 
-        spriteAssets.put("fb_icon", mSpriteTextureRegion);
-
         loadSound("place_tile", "place_tile.mp3");
         loadSound("cascade", "cascade.mp3");
         loadSound("super", "super_ready.mp3");
         loadSound("menu", "menu.mp3");
+        loadSound("typing","keyboard.mp3");
 
 
         // Load our "music.mp3" file into a music object
@@ -295,6 +293,12 @@ public class MainActivity extends BaseGameActivity {
         fontHashMap.put("level_font", mFontMultiplier);
         
         pOnCreateResourcesCallback.onCreateResourcesFinished();
+    }
+
+    private void loadBitmapAsset(BuildableBitmapTextureAtlas mBitmapTextureAtlas, String name) {
+        mSpriteTextureRegion = BitmapTextureAtlasTextureRegionFactory.
+                createFromAsset(mBitmapTextureAtlas, this, name + ".png");
+        spriteAssets.put(name, mSpriteTextureRegion);
     }
 
 
@@ -334,7 +338,10 @@ public class MainActivity extends BaseGameActivity {
     }
 
     private GameManager getCurrentManager() {
-        return foreground.get(foreground.size() - 1);
+        if (foreground.size() > 0) {
+            return foreground.get(foreground.size() - 1);
+        }
+        return null;
     }
 
     private void setCurrentManager(GameManager manager) {
@@ -360,7 +367,6 @@ public class MainActivity extends BaseGameActivity {
 
     @Override
     protected void onPause() {
-        super.onPause();
         if (adView != null) {
             adView.pause();
         }
@@ -369,13 +375,14 @@ public class MainActivity extends BaseGameActivity {
 
     @Override
     public synchronized void onResumeGame() {
-        getCurrentManager().onResumeGame();
+        if (getCurrentManager()!=null) {
+            getCurrentManager().onResumeGame();
+        }
 
         super.onResumeGame();
         if (adView != null) {
             adView.resume();
         }
-
     }
 
     @Override
@@ -396,16 +403,11 @@ public class MainActivity extends BaseGameActivity {
 
     @Override
     public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback) throws Exception {
-
-
-        mainMenu = new MainMenu(0, 0, fontHashMap, getVertexBufferObjectManager());
-        mainMenu.setVisible(false);
-
         endlessMode = new EndlessMode(this, mScene, canvasWidth, canvasHeight, getVertexBufferObjectManager(),
-                mainMenu,fontHashMap, soundAssets);
+                fontHashMap, soundAssets);
         endlessMode.setMusic(trackList);
         storyMode = new StoryMode(this, mScene, canvasWidth, canvasHeight, getVertexBufferObjectManager(),
-                 mainMenu,fontHashMap, soundAssets);
+                fontHashMap, soundAssets);
 
         titleScreen = new TitleScreenManager(this, 0, 0, canvasWidth, canvasHeight, titleLines, getVertexBufferObjectManager());
         pOnPopulateSceneCallback.onPopulateSceneFinished();
@@ -464,7 +466,7 @@ public class MainActivity extends BaseGameActivity {
 
     }
 
-    private void popCurrentManager() {
+    public void popCurrentManager() {
         mScene.detachChildren();
         if (foreground.size() > 1) {
             int currentIndex = foreground.size() - 1;

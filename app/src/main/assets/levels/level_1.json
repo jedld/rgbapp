@@ -64,7 +64,7 @@
         "value": {
           "message": [
             "Welcome.",
-            "subject X-5213"
+            "subject 2"
           ]
         }
       }
@@ -107,7 +107,7 @@
         "value": {
           "message": [
             "By the way",
-            "How are you doing today subject X-5213?"
+            "How are you doing today subject 2?"
           ]
         }
       }
@@ -126,7 +126,7 @@
       "op": "babble",
       "details": {
         "value": {
-          "message": "Don't worry that is an expected 'side-effect.'"
+          "message": ["Don't worry that is an expected", "'side-effect.'"]
         }
       }
     },
@@ -137,6 +137,28 @@
           "message": [
             "Let us just say that you are part of an",
             "\"experiment\""
+          ]
+        }
+      }
+    },
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
+            "No Matter.",
+            "Your circumstances",
+            "Are irrelevant."
+          ]
+        }
+      }
+    },
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
+            "Let's get started."
           ]
         }
       }

@@ -24,6 +24,8 @@ import com.rgb.matrix.interfaces.OnTextDisplayedListener;
 import com.rgb.matrix.menu.MainMenu;
 import com.rgb.matrix.menu.MenuItem;
 
+import org.andengine.audio.sound.Sound;
+import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.AlphaModifier;
 import org.andengine.entity.modifier.EntityModifier;
@@ -32,6 +34,7 @@ import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.util.ScreenCapture;
 import org.andengine.input.touch.TouchEvent;
@@ -126,6 +129,9 @@ public class StoryMode extends GameManager implements GridEventListener{
     private static final float TOUCH_INDICATOR_HEIGHT = 15;
     private static final float TOUCH_INDICATOR_SQUARE = 5;
     private static final float TOUCH_INDICATOR_SQUARE_MARGIN = 10;
+    private static final float MARGIN_WAIT_FOR_TOUCH = 10;
+    private static final float WAIT_FOR_TOUCH_WIDTH = 54;
+    private static final float WAIT_FOR_TOUCH_HEIGHT = 54;
 
     private final MainActivity context;
     private final MainMenu mainMenu;
@@ -148,13 +154,14 @@ public class StoryMode extends GameManager implements GridEventListener{
     private EmptyBoundedEntity emptyBoundedEntity;
     private boolean waitForValidMove = false;
     private HashMap<String, SavedGameState> savedStates = new HashMap<String, SavedGameState>();
-    private EmptyBoundedEntity waitForTouchIndicator;
+    private Entity waitFoTapContainer;
 
     public StoryMode(MainActivity context, Scene mScene, float canvasWidth, float canvasHeight,
                      VertexBufferObjectManager vertexBufferObjectManager,
-                     MainMenu mainMenu, HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets) {
+                     HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets) {
         this.context = context;
-        this.mainMenu = mainMenu;
+        this.mainMenu = new MainMenu(0, 0, fontDictionary, vertexBufferObjectManager);
+        mainMenu.setVisible(false);
         this.fontDictionary = fontDictionary;
         this.soundAsssets = soundAssets;
         this.mScene = mScene;
@@ -165,6 +172,7 @@ public class StoryMode extends GameManager implements GridEventListener{
 
         this.levelMenu = new LevelMenu(0, 0, canvasWidth, canvasHeight, 3, 5, fontDictionary, loadLevels(), vertexBufferObjectManager);
         levelMenu.setVisible(false);
+        setupTouchIndicator();
     }
 
     public void renderLevel(final Level level, final BaseGameActivity context) {
@@ -210,7 +218,7 @@ public class StoryMode extends GameManager implements GridEventListener{
 
                 if (waitForTouchOperation) {
                     waitForTouchOperation = false;
-                    waitForTouchIndicator.setVisible(false);
+                    waitFoTapContainer.setVisible(false);
                     processOpSequence();
                 } else {
                     if (matrix.onTouch(pSceneTouchEvent)) {
@@ -265,45 +273,23 @@ public class StoryMode extends GameManager implements GridEventListener{
     }
 
     private void setupTouchIndicator() {
-        waitForTouchIndicator = new EmptyBoundedEntity(0,
-                canvasHeight - TOUCH_INDICATOR_HEIGHT, canvasWidth, TOUCH_INDICATOR_HEIGHT);
-        final ArrayList<Rectangle> indicatorSquares = new ArrayList<Rectangle>();
-        for (int i = 0; i < 4; i++) {
-            Rectangle square1 = new Rectangle(i * (TOUCH_INDICATOR_SQUARE + TOUCH_INDICATOR_SQUARE_MARGIN), 0, TOUCH_INDICATOR_SQUARE, TOUCH_INDICATOR_SQUARE, vertexBufferObjectManager);
-            square1.setColor(Color.BLACK);
-            square1.setTag(i);
-            indicatorSquares.add(square1);
-            waitForTouchIndicator.attachChild(square1);
-        }
-        waitForTouchIndicator.setWidth(4 * (TOUCH_INDICATOR_SQUARE + TOUCH_INDICATOR_SQUARE_MARGIN));
-        waitForTouchIndicator.setVisible(false);
-        emptyBoundedEntity.attachChild(waitForTouchIndicator);
-        waitForTouchIndicator.centerInParent(BoundedEntity.CENTER_HORIZONTAL);
 
-        IEntityModifier.IEntityModifierListener scaleListener = new IEntityModifier.IEntityModifierListener() {
-            @Override
-            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+        Sprite waitForTouchSprite = Utils.getInstance().getSprite("single_tap");
+        waitForTouchSprite.setWidth(WAIT_FOR_TOUCH_WIDTH);
+        waitForTouchSprite.setHeight(WAIT_FOR_TOUCH_HEIGHT);
+        waitForTouchSprite.setX(MARGIN_WAIT_FOR_TOUCH);
+        waitForTouchSprite.setY(MARGIN_WAIT_FOR_TOUCH);
 
-            }
+        final Rectangle rectangle = new Rectangle(0, 0, waitForTouchSprite.getWidth() + MARGIN_WAIT_FOR_TOUCH, waitForTouchSprite.getHeight() + MARGIN_WAIT_FOR_TOUCH, vertexBufferObjectManager);
+        rectangle.setColor(Color.BLACK);
+        rectangle.setAlpha(0.8f);
 
-            @Override
-            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-                pItem.setScale(1f);
-                int nextSquare = pItem.getTag() + 1;
-                Rectangle nextS = null;
-                if (nextSquare < indicatorSquares.size()) {
-                    nextS = indicatorSquares.get(pItem.getTag() + 1);
 
-                } else {
-                    nextS = indicatorSquares.get(0);
-                }
-                nextS.registerEntityModifier(new ScaleModifier(1f, 1f, 1.2f, this));
-            }
-
-        };
-
-        indicatorSquares.get(0).registerEntityModifier(new ScaleModifier(1f, 1f, 1.2f, scaleListener));
-        waitForTouchIndicator.setVisible(false);
+        waitFoTapContainer = new Entity(canvasWidth - waitForTouchSprite.getWidth() - MARGIN_WAIT_FOR_TOUCH, canvasHeight - waitForTouchSprite.getHeight() - MARGIN_WAIT_FOR_TOUCH);
+        waitFoTapContainer.attachChild(rectangle);
+        waitFoTapContainer.attachChild(waitForTouchSprite);
+        waitFoTapContainer.setVisible(false);
+        mScene.attachChild(waitFoTapContainer);
     }
 
     private void processOpSequence() {
@@ -329,10 +315,38 @@ public class StoryMode extends GameManager implements GridEventListener{
                     }
 
                 } else if (op.opCode.equals("show_text")) {
-                    processOpShowText(op);
+                    final SoundWrapper typeSound = Utils.getInstance().getSound("typing");
+
+                    typeSound.play();
+                    processOpShowText(op, new OnTextDisplayedListener() {
+                        @Override
+                        public void onComplete() {
+
+                        }
+
+                        @Override
+                        public void onSequenceComplete() {
+                            typeSound.stop();
+                        }
+                    });
                 } else if (op.opCode.equals("babble")) {
-                    processOpShowText(op);
-                    processOpWaitForTouch(currentBlock);
+                    final CurrentBlock finalCurrentBlock1 = currentBlock;
+                    final SoundWrapper typeSound = Utils.getInstance().getSound("typing");
+                    typeSound.play();
+                    processOpShowText(op, new OnTextDisplayedListener() {
+                        @Override
+                        public void onComplete() {
+
+                        }
+
+                        @Override
+                        public void onSequenceComplete() {
+                            processOpWaitForTouch(finalCurrentBlock1);
+                            typeSound.stop();
+                            waitFoTapContainer.setVisible(true);
+                        }
+                    });
+
                     return;
                 } else if (op.opCode.equals("wait_for_touch")) {
                     processOpWaitForTouch(currentBlock);
@@ -479,10 +493,11 @@ public class StoryMode extends GameManager implements GridEventListener{
         currentBlock.increment();
     }
 
-    private void processOpShowText(Operation op) throws JSONException {
+    private void processOpShowText(Operation op, OnTextDisplayedListener listener) throws JSONException {
         JSONObject messageDetails = op.opDetails.getJSONObject("value");
         final Object message = messageDetails.get("message");
         int messageDelay = messageDetails.optInt("delay", 100);
+        waitFoTapContainer.setVisible(false);
         if (!conversationText.isEmpty()) {
             for (final RectangleButton conversation : conversationText) {
                 context.runOnUpdateThread(new Runnable() {
@@ -494,9 +509,15 @@ public class StoryMode extends GameManager implements GridEventListener{
                 });
             }
             conversationText.clear();
-            processText(message, 0, messageDelay, null);
+            processText(message, 0, messageDelay, listener);
         } else {
-            processText(message, 0, messageDelay, null);
+            processText(message, 0, messageDelay, listener);
+        }
+
+        if (message instanceof String) {
+            if (listener!=null) {
+                listener.onSequenceComplete();
+            }
         }
     }
 
@@ -522,7 +543,7 @@ public class StoryMode extends GameManager implements GridEventListener{
             textBox.setAlpha(0f);
             emptyBoundedEntity.attachChild(textBox);
             textBox.centerInParent(BoundedEntity.CENTER_HORIZONTAL);
-            textBox.setY(700);
+            textBox.setY(680);
             for (RectangleButton previousConversation : conversationText) {
                 previousConversation.setY(previousConversation.getY() - (textBox.getHeight() + ObjectDimensions.szStoryTextMargins));
             }
@@ -556,7 +577,18 @@ public class StoryMode extends GameManager implements GridEventListener{
                     processText(message, position, messageDelay, new OnTextDisplayedListener() {
                         @Override
                         public void onComplete() {
-                            processText(messageGroup, position + 1, messageDelay, null);
+                            processText(messageGroup, position + 1, messageDelay, listener);
+                            if (listener!=null) {
+                                if (position + 1 >= messageGroup.length()) {
+                                    listener.onSequenceComplete();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onSequenceComplete() {
+                            Log.d(TAG,"Squence complete.");
+                            listener.onSequenceComplete();
                         }
                     });
                 }
