@@ -126,8 +126,8 @@ public class MainActivity extends BaseGameActivity {
                 new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT);
         this.mRenderSurfaceView = new RenderSurfaceView(this);
+//        this.mRenderSurfaceView.setBackgroundColor(getResources().getColor(android.R.color.black));
         this.mRenderSurfaceView.setRenderer(this.mEngine, this);
-
         //Adding the views to the frame layout.
         frameLayout.addView(this.mRenderSurfaceView, BaseGameActivity.createSurfaceViewLayoutParams());
 
@@ -137,6 +137,7 @@ public class MainActivity extends BaseGameActivity {
         adView.setAdUnitId("ca-app-pub-5223989576875261/3336354885");
 
         frameLayout.addView(adView);
+        frameLayout.setBackgroundColor(getResources().getColor(android.R.color.white));
 
         this.setContentView(frameLayout, frameLayoutLayoutParams);
 
@@ -162,9 +163,11 @@ public class MainActivity extends BaseGameActivity {
     @Override
     public EngineOptions onCreateEngineOptions() {
         mCamera = new Camera(0, 0, canvasWidth, canvasHeight);
+
         EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(canvasWidth, canvasHeight), mCamera);
         engineOptions.getAudioOptions().setNeedsSound(true);
         engineOptions.getAudioOptions().setNeedsMusic(true);
+
         return engineOptions;
     }
 
