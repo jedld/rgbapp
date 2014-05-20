@@ -1,53 +1,28 @@
 package com.dayosoft.tiletron.app;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.MediaPlayer;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.rgb.matrix.GameManager;
-import com.rgb.matrix.GameMatrix;
-import com.rgb.matrix.GameOver;
-import com.rgb.matrix.MainGrid;
-import com.rgb.matrix.NextObject;
 import com.rgb.matrix.Utils;
 import com.rgb.matrix.endlessmode.EndlessMode;
-import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.interfaces.OnSequenceFinished;
 import com.rgb.matrix.intro.LogoTiles;
-import com.rgb.matrix.menu.MainMenu;
-import com.rgb.matrix.menu.MenuItem;
-import com.rgb.matrix.menu.OnMenuSelectedListener;
-import com.rgb.matrix.storymode.Level;
 import com.rgb.matrix.storymode.StoryMode;
-import com.rgb.matrix.title.TitleScreen;
 import com.rgb.matrix.title.TitleScreenManager;
 import com.sromku.simple.fb.Permission;
 import com.sromku.simple.fb.SimpleFacebook;
-import com.sromku.simple.fb.entities.Photo;
-import com.sromku.simple.fb.entities.Score;
 import com.sromku.simple.fb.listeners.OnLoginListener;
-import com.sromku.simple.fb.listeners.OnPublishListener;
 
 import org.andengine.audio.music.Music;
 import org.andengine.audio.music.MusicFactory;
-import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.FixedStepEngine;
@@ -58,11 +33,8 @@ import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.ColorModifier;
 import org.andengine.entity.modifier.IEntityModifier;
-import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
-import org.andengine.entity.util.ScreenCapture;
-import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
@@ -73,22 +45,17 @@ import org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSourc
 import org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder;
 import org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder;
 import org.andengine.opengl.texture.region.TextureRegion;
-import org.andengine.opengl.util.GLState;
-import org.andengine.opengl.view.IRendererListener;
 import org.andengine.opengl.view.RenderSurfaceView;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.color.Color;
 import org.andengine.util.modifier.IModifier;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
 
 public class MainActivity extends BaseGameActivity {
 
@@ -241,6 +208,7 @@ public class MainActivity extends BaseGameActivity {
 
         loadBitmapAsset(mBitmapTextureAtlas, "fb_icon");
         loadBitmapAsset(mBitmapTextureAtlas, "single_tap");
+        loadBitmapAsset(mBitmapTextureAtlas, "ic_action_fast_forward");
 
         /* Build the bitmap texture atlas */
         try {
@@ -291,6 +259,7 @@ public class MainActivity extends BaseGameActivity {
         fontHashMap.put("title", titleScreenFont);
         fontHashMap.put("story_text", mFont);
         fontHashMap.put("level_font", mFontMultiplier);
+        fontHashMap.put("touch_indicator", mFont);
         
         pOnCreateResourcesCallback.onCreateResourcesFinished();
     }

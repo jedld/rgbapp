@@ -2,6 +2,7 @@
   "id": 3,
   "next_level": 4,
   "title": "Level 3",
+  "sub_title": "Bullseye",
   "options": {
     "recharge_meter": false,
     "queue": false
@@ -71,7 +72,7 @@
       }
     },
     {
-      "op": "babble",
+      "op": "show_text",
       "details": {
         "value": {
           "message": [

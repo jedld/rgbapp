@@ -219,6 +219,12 @@ public class MainGrid extends BoundedEntity {
         scoreText = new Text(0, offsetY, mFont, "Score: 0000 High: " + highScore, vertexBuffer);
         scoreText.setText("Score: 0000 High: " + highScore);
         scoreText.setColor(Color.BLACK);
+
+        if (options.isScoreVisible()) {
+            scoreText.setVisible(true);
+        } else {
+            scoreText.setVisible(false);
+        }
         attachChild(scoreText);
 
 
@@ -248,60 +254,6 @@ public class MainGrid extends BoundedEntity {
         gameOverText.setY((height / 2) - (gameOverText.getHeight() / 2));
         gameOverText.setVisible(false);
         attachChild(gameOverText);
-        mainMenu.clearItems();
-
-        mainMenu.addMenuItem("Restart", new OnMenuSelectedListener() {
-
-            @Override
-            public void onMenuItemSelected(MenuItem item) {
-                mainMenu.setVisible(false);
-                gridEventListener.onRestart(item);
-//                newGame();
-            }
-        });
-
-        mainMenu.addMenuItem("Exit to Title Screen", new OnMenuSelectedListener() {
-            @Override
-            public void onMenuItemSelected(MenuItem item) {
-                gridEventListener.onExitGrid(item);
-            }
-        });
-
-        boolean defaultMusicState = true, defaultSoundState = true;
-
-        if (gridEventListener != null) {
-            defaultMusicState = gridEventListener.getMusicState();
-            defaultSoundState = gridEventListener.getSoundState();
-        }
-
-        mainMenu.addMenuItem("Music", true, defaultMusicState, new OnMenuSelectedListener() {
-
-            @Override
-            public void onMenuItemSelected(MenuItem item) {
-                if (gridEventListener != null) {
-                    item.setState(!item.getState());
-                    gridEventListener.toggleMusic(item.getState());
-                }
-            }
-        });
-
-        mainMenu.addMenuItem("Sounds", true, defaultSoundState, new OnMenuSelectedListener() {
-
-            @Override
-            public void onMenuItemSelected(MenuItem item) {
-                if (gridEventListener != null) {
-                    item.setState(!item.getState());
-                    gridEventListener.toggleSounds(item.getState());
-                }
-            }
-        });
-
-        mainMenu.setOnBackListener(new OnBackListener() {
-            @Override
-            public void onBackPressed(MainMenu mainMenu) {
-                mainMenu.animateHide();
-            }
-        });
     }
 
     public void shareOnFacebook() {

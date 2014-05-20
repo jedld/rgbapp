@@ -5,6 +5,7 @@ package com.rgb.matrix;
  */
 public class MatrixOptions {
     boolean shouldPrepopulate;
+    private boolean scoreVisible;
 
     public boolean isShouldShowRechargeMeter() {
         return shouldShowRechargeMeter;
@@ -20,6 +21,7 @@ public class MatrixOptions {
         this.shouldPrepopulate = true;
         this.shouldUseRandomQueue = true;
         this.shouldShowRechargeMeter = true;
+        this.scoreVisible = true;
     }
 
     public boolean isShouldUseRandomQueue() {
@@ -39,4 +41,12 @@ public class MatrixOptions {
     }
 
     boolean shouldUseRandomQueue;
+
+    public boolean isScoreVisible() {
+        return scoreVisible;
+    }
+
+    public void setScoreVisible(boolean scoreVisible) {
+        this.scoreVisible = scoreVisible;
+    }
 }

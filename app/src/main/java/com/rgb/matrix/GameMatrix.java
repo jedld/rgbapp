@@ -50,6 +50,7 @@ public class GameMatrix implements IUpdateHandler {
     HashMap<String, ArrayList<GridEventCallback>> gridEventCallbacks = new HashMap<String, ArrayList<GridEventCallback>>();
 
     HashSet<String> triggerCollection = new HashSet<String>();
+    private boolean scoreVisible;
 
     public synchronized boolean setAndGetinProgress() {
         if (inProgress > 0) return false;
@@ -257,6 +258,14 @@ public class GameMatrix implements IUpdateHandler {
             }
         }
         return true;
+    }
+
+    public boolean isScoreVisible() {
+        return scoreVisible;
+    }
+
+    public void setScoreVisible(boolean scoreVisible) {
+        this.scoreVisible = scoreVisible;
     }
 
     class ScoreIncrementer extends TimerHandler {

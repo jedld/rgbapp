@@ -30,6 +30,8 @@ import com.rgb.matrix.Utils;
 import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.menu.MainMenu;
 import com.rgb.matrix.menu.MenuItem;
+import com.rgb.matrix.menu.OnBackListener;
+import com.rgb.matrix.menu.OnMenuSelectedListener;
 import com.sromku.simple.fb.Permission;
 import com.sromku.simple.fb.SimpleFacebook;
 import com.sromku.simple.fb.entities.Photo;
@@ -77,7 +79,7 @@ public class EndlessMode extends GameManager implements GridEventListener {
     private boolean playMusic;
 
     public EndlessMode(MainActivity context, Scene mScene, float canvasWidth, float canvasHeight, VertexBufferObjectManager vertexBufferObjectManager,
-                     HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets) {
+                       HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets) {
         this.context = context;
         this.mainMenu = new MainMenu(0, 0, fontDictionary, vertexBufferObjectManager);
         this.fontDictionary = fontDictionary;
@@ -92,6 +94,54 @@ public class EndlessMode extends GameManager implements GridEventListener {
         matrix = new GameMatrix(context, this, mScene, mainMenu, fontDictionary, soundAsssets,
                 vertexBufferObjectManager, BOARD_WIDTH, BOARD_HEIGHT, 0, 10, canvasWidth, canvasHeight,
                 ObjectDimensions.ENDLESS_MODE_TILE_SIZE, options);
+
+        mainMenu.clearItems();
+        mainMenu.addMenuItem("Restart", new OnMenuSelectedListener() {
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                mainMenu.setVisible(false);
+                onRestart(item);
+//                newGame();
+            }
+        });
+
+        mainMenu.addMenuItem("Exit to Title Screen", new OnMenuSelectedListener() {
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                onExitGrid(item);
+            }
+        });
+
+        boolean defaultMusicState = true, defaultSoundState = true;
+
+        defaultMusicState = getMusicState();
+        defaultSoundState = getSoundState();
+
+        mainMenu.addMenuItem("Music", true, defaultMusicState, new OnMenuSelectedListener() {
+
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                item.setState(!item.getState());
+                toggleMusic(item.getState());
+            }
+        });
+
+        mainMenu.addMenuItem("Sounds", true, defaultSoundState, new OnMenuSelectedListener() {
+
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                item.setState(!item.getState());
+                toggleSounds(item.getState());
+            }
+        });
+
+        mainMenu.setOnBackListener(new OnBackListener() {
+            @Override
+            public void onBackPressed(MainMenu mainMenu) {
+                mainMenu.animateHide();
+            }
+        });
+
         grid = matrix.getMainGrid();
     }
 
@@ -121,7 +171,7 @@ public class EndlessMode extends GameManager implements GridEventListener {
     }
 
     public void setMusic(ArrayList<Music> musicTracks) {
-        for(Music music : musicTracks) {
+        for (Music music : musicTracks) {
             MediaPlayer.OnCompletionListener listener = new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
@@ -140,7 +190,7 @@ public class EndlessMode extends GameManager implements GridEventListener {
         if (currentTrack() != null) {
             if (!state && currentTrack().isPlaying()) {
                 currentTrack().pause();
-            } else {
+            } else if (state && !currentTrack().isPlaying()) {
                 currentTrack().play();
             }
         }
@@ -171,7 +221,7 @@ public class EndlessMode extends GameManager implements GridEventListener {
             final String outFilename = context.getCacheDir().getCanonicalPath() + File.separator +
                     "rgb_" + System.currentTimeMillis() + ".png";
             final String finalFilename = filename;
-            screenCapture.capture((int)canvasWidth, (int)canvasHeight, filename,
+            screenCapture.capture((int) canvasWidth, (int) canvasHeight, filename,
                     new ScreenCapture.IScreenCaptureCallback() {
 
                         @Override
@@ -330,7 +380,7 @@ public class EndlessMode extends GameManager implements GridEventListener {
                                 public void onFail(String reason) {
                                     super.onFail(reason);
                                     dialog.dismiss();
-                                    Log.e(TAG,"Unable to upload reason - " + reason);
+                                    Log.e(TAG, "Unable to upload reason - " + reason);
                                     Toast.makeText(context, "Unable to upload screenshot to facebook.", Toast.LENGTH_LONG).show();
                                 }
 
@@ -341,7 +391,7 @@ public class EndlessMode extends GameManager implements GridEventListener {
                         public void onFail(String reason) {
                             super.onFail(reason);
                             dialog.dismiss();
-                            Log.e(TAG,"Unable to upload reason - " + reason);
+                            Log.e(TAG, "Unable to upload reason - " + reason);
                             Toast.makeText(context, "Unable to upload screenshot to facebook.", Toast.LENGTH_LONG).show();
                         }
                     });
@@ -382,7 +432,7 @@ public class EndlessMode extends GameManager implements GridEventListener {
 
                 @Override
                 public void onFail(String reason) {
-                    Log.e(TAG,"Unable to upload reason - " + reason);
+                    Log.e(TAG, "Unable to upload reason - " + reason);
                     Toast.makeText(context, "Unable to login to facebook", Toast.LENGTH_LONG).show();
                 }
             });

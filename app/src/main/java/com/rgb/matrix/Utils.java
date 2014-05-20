@@ -8,6 +8,7 @@ import com.dayosoft.tiletron.app.SoundWrapper;
 import com.facebook.RequestBatch;
 import com.rgb.matrix.interfaces.BoundedEntity;
 
+import org.andengine.entity.Entity;
 import org.andengine.entity.shape.RectangularShape;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
@@ -106,15 +107,35 @@ public class Utils {
         prefs.edit().putBoolean("sound", state).commit();
     }
 
-    public static boolean withinTouchBounds(BoundedEntity button, TouchEvent pSceneTouchEvent) {
-        float[] shareButtonCoords = button.getParent().convertLocalToSceneCoordinates(button.getX(), button.getY());
-        if (shareButtonCoords[Constants.VERTEX_INDEX_X] < pSceneTouchEvent.getX() &&
-                shareButtonCoords[Constants.VERTEX_INDEX_Y] < pSceneTouchEvent.getY() &&
-                pSceneTouchEvent.getX() < shareButtonCoords[Constants.VERTEX_INDEX_X] + button.getWidth() &&
-                pSceneTouchEvent.getY() < shareButtonCoords[Constants.VERTEX_INDEX_Y] + button.getHeight()
-                ) {
-            return true;
+    public static float getWidth(Entity shape) {
+        if (shape instanceof BoundedEntity) {
+            return((BoundedEntity) shape).getWidth();
+        } else
+            if (shape instanceof RectangularShape) {
+                return ((RectangularShape)shape).getWidth();
+            }
+        return 0;
+    }
+
+    public static float getHeight(Entity shape) {
+        if (shape instanceof BoundedEntity) {
+            return((BoundedEntity) shape).getHeight();
+        } else
+        if (shape instanceof RectangularShape) {
+            return ((RectangularShape)shape).getHeight();
         }
+        return 0;
+    }
+
+    public static boolean withinTouchBounds(Entity button, TouchEvent pSceneTouchEvent) {
+        float[] shareButtonCoords = button.getParent().convertLocalToSceneCoordinates(button.getX(), button.getY());
+            if (shareButtonCoords[Constants.VERTEX_INDEX_X] < pSceneTouchEvent.getX() &&
+                    shareButtonCoords[Constants.VERTEX_INDEX_Y] < pSceneTouchEvent.getY() &&
+                    pSceneTouchEvent.getX() < shareButtonCoords[Constants.VERTEX_INDEX_X] + getWidth(button) &&
+                    pSceneTouchEvent.getY() < shareButtonCoords[Constants.VERTEX_INDEX_Y] + getHeight(button)
+                    ) {
+                return true;
+            }
         return false;
     }
 

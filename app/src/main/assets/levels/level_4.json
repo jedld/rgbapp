@@ -2,6 +2,7 @@
   "id": 4,
   "next_level": 5,
   "title": "Level 4",
+  "sub_title": "The Domino Effect",
   "options": {
     "recharge_meter": false,
     "queue": false

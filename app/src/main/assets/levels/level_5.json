@@ -2,6 +2,7 @@
   "id": 5,
   "next_level": 6,
   "title": "Level 5",
+  "sub_title": "Delayed Reaction",
   "options": {
     "recharge_meter": false,
     "queue": false

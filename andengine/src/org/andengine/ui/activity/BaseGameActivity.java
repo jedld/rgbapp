@@ -277,7 +277,9 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
 
 		super.onDestroy();
 
-		this.mEngine.onDestroy();
+        if (this.mEngine!=null) {
+            this.mEngine.onDestroy();
+        }
 
 		try {
 			this.onDestroyResources();

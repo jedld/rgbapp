@@ -13,6 +13,8 @@ public class Level {
     String name;
     private boolean rechargeMeter;
     private boolean useQueue;
+    private CharSequence subName;
+    private boolean scoreVisible;
 
     public ArrayList<Operation> getOperations() {
         return operations;
@@ -110,5 +112,21 @@ public class Level {
 
     public boolean isUseQueue() {
         return useQueue;
+    }
+
+    public CharSequence getSubName() {
+        return subName;
+    }
+
+    public void setSubName(CharSequence subName) {
+        this.subName = subName;
+    }
+
+    public boolean isScoreVisible() {
+        return scoreVisible;
+    }
+
+    public void setScoreVisible(boolean scoreVisible) {
+        this.scoreVisible = scoreVisible;
     }
 }

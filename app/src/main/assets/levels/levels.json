@@ -1,41 +1,46 @@
 {
-  "levels": [
-     {
-      "id" : 1,
-      "file": "level_1.json",
-      "title": "Level 1",
-      "next": 2
-    },
+  "episodes": [
     {
-      "id" : 2,
-      "file": "level_2.json",
-      "title": "Level 2",
-      "next": "3"
-    },
-    {
-      "id" : 3,
-      "file": "level_3.json",
-      "title": "Level 3",
-      "next": "4"
-    },
-    {
-      "id" : 4,
-      "file": "level_4.json",
-      "title": "Level 4",
-      "next": "5"
-    },
-    {
-      "id" : 5,
-      "file": "level_5.json",
-      "title": "Level 5",
-      "next": "6"
-    },
-    {
-      "id" : 6,
-      "file": "level_6.json",
-      "title": "Level 6",
-      "next": "7"
+      "name": "The Blue Room",
+      "levels": [
+        {
+          "id": 1,
+          "file": "level_1.json",
+          "title": "Level 1",
+          "next": 2
+        },
+        {
+          "id": 2,
+          "file": "level_2.json",
+          "title": "Level 2",
+          "next": "3"
+        },
+        {
+          "id": 3,
+          "file": "level_3.json",
+          "title": "Level 3",
+          "next": "4"
+        },
+        {
+          "id": 4,
+          "file": "level_4.json",
+          "title": "Level 4",
+          "next": "5"
+        },
+        {
+          "id": 5,
+          "file": "level_5.json",
+          "title": "Level 5",
+          "next": "6"
+        },
+        {
+          "id": 6,
+          "file": "level_6.json",
+          "title": "Level 6",
+          "next": "7"
+        }
+      ],
+      "start": "1"
     }
-  ],
-  "start": "1"
+  ]
 }
