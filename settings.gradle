@@ -1,5 +1,5 @@
 include ':app'
-include ':library-andengine'
+include ':andengine'
 include ':library-facebook-sdk'
 include ':library-simple-facebook'
 include ':google-play-services_lib'
