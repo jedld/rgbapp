@@ -41,7 +41,7 @@ public class RectangleButton extends BoundedEntity {
         this.height = height;
         this.width = width;
         buttonText = new Text(0, 0, pFont, pText, pVertexBufferObjectManager);
-        rectangle = new Rectangle(0, 0, width, height, pVertexBufferObjectManager);
+        rectangle = new LayoutRectangle(0, 0, width, height, pVertexBufferObjectManager);
         rectangle.setColor(Color.BLACK);
         reposition();
         this.attachChild(rectangle);

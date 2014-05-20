@@ -191,8 +191,8 @@ public class MainGrid extends BoundedEntity {
 
             GridSquare gridSquare = null;
             if (i == 0) {
-                Rectangle container = new Rectangle(rect_x, rect_y, getRectangleTileSizeInPixels() + 2, getRectangleTileSizeInPixels() + 2, vertexBuffer);
-                Rectangle border = new Rectangle(1, 1, getRectangleTileSizeInPixels(), getRectangleTileSizeInPixels(), vertexBuffer);
+                Rectangle container = new LayoutRectangle(rect_x, rect_y, getRectangleTileSizeInPixels() + 2, getRectangleTileSizeInPixels() + 2, vertexBuffer);
+                Rectangle border = new LayoutRectangle(1, 1, getRectangleTileSizeInPixels(), getRectangleTileSizeInPixels(), vertexBuffer);
                 border.setColor(Color.WHITE);
                 container.attachChild(border);
                 container.setColor(Color.BLACK);
@@ -228,7 +228,7 @@ public class MainGrid extends BoundedEntity {
         chainBonusRepeaterText.setColor(Color.RED);
         chainBonusRepeaterText.setVisible(false);
 
-        chainBonusRepeaterBackground = new Rectangle(chainBonusRepeaterText.getX(),
+        chainBonusRepeaterBackground = new LayoutRectangle(chainBonusRepeaterText.getX(),
                 chainBonusRepeaterText.getY(), chainBonusRepeaterText.getWidth(),
                 chainBonusRepeaterText.getHeight(), vertexBuffer);
         chainBonusRepeaterBackground.setColor(Color.WHITE);
