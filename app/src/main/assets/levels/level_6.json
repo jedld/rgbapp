@@ -1,14 +1,15 @@
 {
-  "id": 5,
-  "next_level": 6,
-  "title": "Level 5",
+  "id": 6,
+  "next_level": 7,
+  "title": "Level 6",
+  "sub_title": "Decay",
   "options": {
     "recharge_meter": false,
     "queue": false
   },
   "map": [
     [
-      1,
+      {t: 1, age: 4},
       1,
       9,
       2,
@@ -54,17 +55,22 @@
       "details": {
         "value": {
           "message": [
-            "Alright.",
-            "Turn All Tiles to BLUE"
+            "Nothing lasts forever.",
+            "Every time a tile changes its color, it gets used up."
           ]
         }
       }
     },
-    {
-      "op": "save_state",
-      "details": {
-        "name": "reset_tile_placement"
-      }
+   {
+     "op": "babble",
+     "details": {
+       "value": {
+         "message": [
+           "Once they do get used up, they turn grey and use up space.",
+           "Let's take a closer look at this phenomenon..."
+         ]
+       }
+     }
     },
     {
       "op": "wait_for_valid_move",

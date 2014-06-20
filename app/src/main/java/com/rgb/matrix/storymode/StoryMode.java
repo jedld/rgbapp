@@ -149,6 +149,7 @@ public class StoryMode extends GameManager implements GridEventListener{
     private final LevelMenu levelMenu;
     Level currentLevel;
     private GameMatrix matrix;
+    static StoryMode instance;
 
     private LinkedList<CurrentBlock> stack = new LinkedList<CurrentBlock>();
     private int opIndex = 0;
@@ -175,7 +176,7 @@ public class StoryMode extends GameManager implements GridEventListener{
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
         this.vertexBufferObjectManager = vertexBufferObjectManager;
-
+        this.instance = this;
         this.levelMenu = new LevelMenu(0, 0, canvasWidth, canvasHeight, 3, 5, fontDictionary, loadLevels(0), vertexBufferObjectManager);
         levelMenu.setVisible(false);
 
@@ -205,6 +206,10 @@ public class StoryMode extends GameManager implements GridEventListener{
 
         setupTouchIndicator();
         setupYourMoveIndicator();
+    }
+
+    public static StoryMode getInstance() {
+        return instance;
     }
 
     public void renderLevel(final Level level, final BaseGameActivity context) {
@@ -267,6 +272,15 @@ public class StoryMode extends GameManager implements GridEventListener{
             }
         }
         return false;
+    }
+
+    public void testLevel(String levelStr) {
+        try {
+            Level level = parseLevel(levelStr);
+            renderLevel(level, context);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void startLevel(Level level, BaseGameActivity context) {
@@ -747,7 +761,7 @@ public class StoryMode extends GameManager implements GridEventListener{
     }
 
     public Level loadLevel(String levelName) {
-        Level level = new Level();
+
 
         try {
             InputStream is = context.getAssets().open("levels/" + levelName);
@@ -760,45 +774,7 @@ public class StoryMode extends GameManager implements GridEventListener{
             reader.close();
             is.close();
 
-            JSONObject jsonObject = new JSONObject(levelString.toString());
-            level.setName(jsonObject.getString("title"));
-            level.setSubName(jsonObject.optString("sub_title",""));
-            level.setId(jsonObject.getInt("id"));
-            level.setNextLevel(jsonObject.getInt("next_level"));
-            level.setGridWidth(jsonObject.getInt("grid_width"));
-            level.setGridHeight(jsonObject.getInt("grid_height"));
-
-            if (jsonObject.has("options")) {
-                JSONObject options = jsonObject.getJSONObject("options");
-                level.setRechargeMeter(options.optBoolean("recharge_meter", true));
-                level.setUseQueue(options.optBoolean("queue", true));
-                level.setScoreVisible(options.optBoolean("scores", false));
-            }
-
-            if (jsonObject.has("map")) {
-                int map[][] = new int[level.getGridWidth()][level.getGridHeight()];
-                JSONArray rows = jsonObject.getJSONArray("map");
-                for (int i = 0; i < rows.length(); i++) {
-                    JSONArray row = rows.getJSONArray(i);
-                    for (int i2 = 0; i2 < row.length(); i2++) {
-                        int cell = row.getInt(i2);
-                        map[i2][i] = cell;
-                    }
-                }
-                level.setMap(map);
-            }
-
-            if (jsonObject.has("queue")) {
-                JSONArray queueMap = jsonObject.getJSONArray("queue");
-                int queue[] = new int[queueMap.length()];
-                for (int i = 0; i < queue.length; i++) {
-                    queue[i] = queueMap.getInt(i);
-                }
-                level.setQueue(queue);
-            }
-
-            ArrayList<Operation> operationArrayList = getOperations(jsonObject);
-            level.setOperations(operationArrayList);
+            Level level = parseLevel(levelString.toString());
 
             return level;
         } catch (IOException e) {
@@ -809,6 +785,62 @@ public class StoryMode extends GameManager implements GridEventListener{
         }
 
         return null;
+    }
+
+    private Level parseLevel(String levelString) throws JSONException {
+        Level level = new Level();
+        JSONObject jsonObject = new JSONObject(levelString);
+        level.setName(jsonObject.getString("title"));
+        level.setSubName(jsonObject.optString("sub_title",""));
+        level.setId(jsonObject.getInt("id"));
+        level.setNextLevel(jsonObject.getInt("next_level"));
+        level.setGridWidth(jsonObject.getInt("grid_width"));
+        level.setGridHeight(jsonObject.getInt("grid_height"));
+
+        if (jsonObject.has("options")) {
+            JSONObject options = jsonObject.getJSONObject("options");
+            level.setRechargeMeter(options.optBoolean("recharge_meter", true));
+            level.setUseQueue(options.optBoolean("queue", true));
+            level.setScoreVisible(options.optBoolean("scores", false));
+        }
+
+        if (jsonObject.has("map")) {
+            NextObject map[][] = new NextObject[level.getGridWidth()][level.getGridHeight()];
+            JSONArray rows = jsonObject.getJSONArray("map");
+            for (int i = 0; i < rows.length(); i++) {
+                JSONArray row = rows.getJSONArray(i);
+                for (int i2 = 0; i2 < row.length(); i2++) {
+                    Object currentCell = row.get(i2);
+                    NextObject object = new NextObject();
+                    if (currentCell instanceof JSONObject) {
+                        JSONObject currentCellJSONObject = (JSONObject) currentCell;
+
+                        object.setTileType(currentCellJSONObject.getInt("t"));
+                        if (currentCellJSONObject.has("age")) {
+                            object.setAge(currentCellJSONObject.getInt("age"));
+                        }
+                    } else {
+                        int cell = row.getInt(i2);
+                        object.setTileType(cell);
+                        map[i2][i] = object;
+                    }
+                }
+            }
+            level.setMap(map);
+        }
+
+        if (jsonObject.has("queue")) {
+            JSONArray queueMap = jsonObject.getJSONArray("queue");
+            int queue[] = new int[queueMap.length()];
+            for (int i = 0; i < queue.length; i++) {
+                queue[i] = queueMap.getInt(i);
+            }
+            level.setQueue(queue);
+        }
+
+        ArrayList<Operation> operationArrayList = getOperations(jsonObject);
+        level.setOperations(operationArrayList);
+        return level;
     }
 
     private ArrayList<Operation> getOperations(JSONObject jsonObject) throws JSONException {
@@ -873,13 +905,14 @@ public class StoryMode extends GameManager implements GridEventListener{
 
     @Override
     public void onSetupWorld(MainGrid mainGrid) {
-        int map[][] = currentLevel.getMap();
+        NextObject map[][] = currentLevel.getMap();
         if (map != null) {
             for (int i = 0; i < currentLevel.getGridWidth(); i++) {
                 for (int i2 = 0; i2 < currentLevel.getGridHeight(); i2++) {
                     GridSquare gridSquare = mainGrid.getSquareAt(i, i2);
                     gridSquare.reset();
-                    gridSquare.setTileType(map[i][i2]);
+                    gridSquare.setTileType(map[i][i2].getTileType());
+                    gridSquare.setAge(map[i][i2].getAge());
                     gridSquare.updateSelf();
                 }
             }

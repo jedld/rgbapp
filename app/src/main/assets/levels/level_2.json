@@ -2,6 +2,7 @@
   "id": 2,
   "next_level": 3,
   "title": "Level 2",
+  "sub_title": "Blue",
   "options": {
     "recharge_meter": false,
     "queue": false

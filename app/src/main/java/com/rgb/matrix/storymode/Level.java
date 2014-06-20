@@ -1,5 +1,7 @@
 package com.rgb.matrix.storymode;
 
+import com.rgb.matrix.NextObject;
+
 import java.util.ArrayList;
 
 /**
@@ -37,15 +39,15 @@ public class Level {
     int queue[];
     int id;
 
-    public int[][] getMap() {
+    public NextObject[][] getMap() {
         return map;
     }
 
-    public void setMap(int[][] map) {
+    public void setMap(NextObject[][] map) {
         this.map = map;
     }
 
-    int map[][];
+    NextObject map[][];
 
     public String getName() {
         return name;

@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.droiuby.application.bootstrap.DroiubyBootstrap;
+import com.droiuby.interfaces.DroiubyHelperInterface;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.rgb.matrix.GameManager;
@@ -139,8 +141,16 @@ public class MainActivity extends BaseGameActivity {
         frameLayout.addView(adView);
         frameLayout.setBackgroundColor(getResources().getColor(android.R.color.white));
 
+        Bundle params = this.getIntent().getExtras();
+
+        String bundleName = params.getString("bundle");
+        String pageUrl = params.getString("pageUrl");
+
         this.setContentView(frameLayout, frameLayoutLayoutParams);
 
+        DroiubyHelperInterface helper = DroiubyBootstrap.getHelperInstance();
+        helper.runController(this, bundleName, pageUrl);
+        helper.setExecutionBundle(this, bundleName);
     }
 
     @Override
