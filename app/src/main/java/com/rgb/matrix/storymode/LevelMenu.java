@@ -76,6 +76,7 @@ public class LevelMenu extends BoundedEntity {
         EmptyBoundedEntity grid = new EmptyBoundedEntity(0,0,0,0);
         final Text levelText = new Text(0, 10, mFont.get("title"), episodeName, vertexBufferObjectManager);
         levelText.setX(sceneWidth / 2 -  levelText.getWidth()/2);
+        levelText.setColor(Color.BLACK);
         attachChild(levelText);
         for(int i = 0 ; i < rows; i++) {
             for(int i2 =0; i2 < columns; i2++) {
