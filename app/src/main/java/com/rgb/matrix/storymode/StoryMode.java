@@ -2,6 +2,7 @@ package com.rgb.matrix.storymode;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.dayosoft.tiletron.app.MainActivity;
 import com.dayosoft.tiletron.app.SoundWrapper;
@@ -283,48 +284,59 @@ public class StoryMode extends GameManager implements GridEventListener{
         }
     }
 
-    private void startLevel(Level level, BaseGameActivity context) {
-        levelMenu.setVisible(false);
-        MatrixOptions options = new MatrixOptions();
-        options.setShouldPrepopulate(false);
+    private void startLevel(Level level, final BaseGameActivity context) {
+        try {
+            levelMenu.setVisible(false);
+            MatrixOptions options = new MatrixOptions();
+            options.setShouldPrepopulate(false);
 
-        if (!level.isRechargeMeter()) {
-            options.setShouldShowRechargeMeter(false);
+            if (!level.isRechargeMeter()) {
+                options.setShouldShowRechargeMeter(false);
+            }
+
+            if (!level.isUseQueue()) {
+                options.setShouldUseRandomQueue(false);
+            }
+            if (!level.isScoreVisible()) {
+                options.setScoreVisible(false);
+            }
+
+            matrix = new GameMatrix(context, this, mScene, mainMenu, fontDictionary, soundAsssets,
+                    vertexBufferObjectManager, level.getGridWidth(), level.getGridHeight(), offset_x, 10,
+                    canvasWidth, canvasHeight, ObjectDimensions.STORY_MODE_TILE_SIZE, options);
+
+
+            MainGrid grid = matrix.getMainGrid();
+
+            matrix.drawWorld();
+
+            emptyBoundedEntity = new EmptyBoundedEntity(0, 0, canvasWidth, canvasHeight);
+            emptyBoundedEntity.attachChild(grid);
+            mScene.attachChild(emptyBoundedEntity);
+
+
+            setupTouchIndicator();
+            setupYourMoveIndicator();
+
+            //Reattach menu
+            mainMenu.detachSelf();
+            mainMenu.setVisible(false);
+            mScene.attachChild(mainMenu);
+
+            CurrentBlock block = new CurrentBlock(null);
+            block.setOperations(level.getOperations());
+            stack.add(block);
+            processOpSequence();
+        } catch (final Exception e) {
+            context.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context,"Error while loading level " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+
+            e.printStackTrace();
         }
-
-        if (!level.isUseQueue()) {
-            options.setShouldUseRandomQueue(false);
-        }
-        if (!level.isScoreVisible()) {
-            options.setScoreVisible(false);
-        }
-
-        matrix = new GameMatrix(context, this, mScene, mainMenu, fontDictionary, soundAsssets,
-                vertexBufferObjectManager, level.getGridWidth(), level.getGridHeight(), offset_x, 10,
-                canvasWidth, canvasHeight, ObjectDimensions.STORY_MODE_TILE_SIZE, options);
-
-
-        MainGrid grid = matrix.getMainGrid();
-
-        matrix.drawWorld();
-
-        emptyBoundedEntity = new EmptyBoundedEntity(0, 0, canvasWidth, canvasHeight);
-        emptyBoundedEntity.attachChild(grid);
-        mScene.attachChild(emptyBoundedEntity);
-
-
-        setupTouchIndicator();
-        setupYourMoveIndicator();
-
-        //Reattach menu
-        mainMenu.detachSelf();
-        mainMenu.setVisible(false);
-        mScene.attachChild(mainMenu);
-
-        CurrentBlock block = new CurrentBlock(null);
-        block.setOperations(level.getOperations());
-        stack.add(block);
-        processOpSequence();
     }
 
 
@@ -562,6 +574,15 @@ public class StoryMode extends GameManager implements GridEventListener{
                                 passed = false;
                             }
                         }
+
+                        if (key.equals("min_color")) {
+                            JSONObject getOptions = testFunctions.getJSONObject(key);
+                            int color = getOptions.getInt("color");
+                            int min = getOptions.getInt("min");
+                            if (!matrix.testColor(color, min)) {
+                                passed = false;
+                            }
+                        }
                     }
                     if (passed) {
                         Log.d(TAG, "if operation passed");
@@ -713,7 +734,9 @@ public class StoryMode extends GameManager implements GridEventListener{
         return loadLevel(FIRST_LEVEL);
     }
 
-    public ArrayList<LevelInfo> loadLevels(int episodeIndex) {
+    public Episode loadLevels(int episodeIndex) {
+        Episode episode = new Episode();
+
         ArrayList<LevelInfo> result = new ArrayList<LevelInfo>();
         InputStream is = null;
         try {
@@ -731,9 +754,12 @@ public class StoryMode extends GameManager implements GridEventListener{
                 JSONObject episodesObject = new JSONObject(levelsString.toString());
                 JSONArray episodes = episodesObject.getJSONArray("episodes");
                 JSONObject jsonObject = episodes.getJSONObject(episodeIndex);
+                String episodeName = jsonObject.getString("name");
+                episode.setName(episodeName);
                 JSONArray levelObjects = jsonObject.getJSONArray("levels");
                 for (int i = 0; i < levelObjects.length(); i++) {
                     JSONObject obj = levelObjects.getJSONObject(i);
+
                     LevelInfo l = new LevelInfo();
                     l.setId(obj.getInt("id"));
                     if (l.getId() != 1) {
@@ -743,21 +769,23 @@ public class StoryMode extends GameManager implements GridEventListener{
                             l.setLocked(false);
                         }
                     }
-
-                    l.setFilePath(obj.getString("file"));
                     l.setTitle(obj.getString("title"));
-                    l.setNextLevel(obj.getString("next"));
+                    if (!obj.has("coming_soon")) {
+                        l.setFilePath(obj.getString("file"));
+                        l.setNextLevel(obj.getString("next"));
+                    }
                     Log.d(TAG, "Adding level.");
                     levelHashMap.put(l.getId(), l);
                     result.add(l);
                 }
+                episode.setLevels(result);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return result;
+        return episode;
     }
 
     public Level loadLevel(String levelName) {
@@ -813,12 +841,14 @@ public class StoryMode extends GameManager implements GridEventListener{
                     Object currentCell = row.get(i2);
                     NextObject object = new NextObject();
                     if (currentCell instanceof JSONObject) {
+
                         JSONObject currentCellJSONObject = (JSONObject) currentCell;
 
                         object.setTileType(currentCellJSONObject.getInt("t"));
                         if (currentCellJSONObject.has("age")) {
                             object.setAge(currentCellJSONObject.getInt("age"));
                         }
+                        map[i2][i] = object;
                     } else {
                         int cell = row.getInt(i2);
                         object.setTileType(cell);
@@ -957,7 +987,8 @@ public class StoryMode extends GameManager implements GridEventListener{
         mScene.detachChildren();
         mScene.attachChild(levelMenu);
         levelMenu.setVisible(true);
-        levelMenu.setLevelInfos(loadLevels(0));
+        levelMenu.setEpisodeName(loadLevels(0).getName());
+        levelMenu.setLevelInfos(loadLevels(0).getLevels());
         levelMenu.updateSelf();
         levelMenu.setListener(new OnLevelSelectedListener() {
             @Override

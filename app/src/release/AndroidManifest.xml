@@ -14,16 +14,12 @@
         android:name=".Tiletron"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.dayosoft.tiletron.app.StartupActivity"
+            android:name="com.dayosoft.tiletron.app.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name="com.dayosoft.tiletron.app.MainActivity"
-            android:label="@string/app_name" >
         </activity>
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id"/>
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />

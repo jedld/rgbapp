@@ -9,6 +9,7 @@ import com.rgb.matrix.Utils;
 import com.rgb.matrix.interfaces.BoundedEntity;
 
 import org.andengine.entity.primitive.Rectangle;
+import org.andengine.entity.text.Text;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
@@ -29,6 +30,7 @@ public class LevelMenu extends BoundedEntity {
     private final float sceneHeight;
     private final int columns;
     private final int rows;
+    private final String episodeName;
 
 
     public ArrayList<LevelInfo> getLevelInfos() {
@@ -55,13 +57,14 @@ public class LevelMenu extends BoundedEntity {
     OnLevelSelectedListener listener;
 
     public LevelMenu(float pX, float pY, float sceneWidth, float sceneHeight, int columns,
-                     int rows,  HashMap<String, Font> mFont, ArrayList<LevelInfo> levelInfos, VertexBufferObjectManager vertexBufferObjectManager) {
+                     int rows,  HashMap<String, Font> mFont, Episode episode, VertexBufferObjectManager vertexBufferObjectManager) {
         super(pX, pY);
         this.sceneWidth = sceneWidth;
         this.sceneHeight = sceneHeight;
         this.columns = columns;
         this.rows = rows;
-        this.levelInfos = levelInfos;
+        this.levelInfos = episode.getLevels();
+        this.episodeName = episode.getName();
         this.mFont = mFont;
         this.vertexBufferObjectManager = vertexBufferObjectManager;
 
@@ -71,7 +74,9 @@ public class LevelMenu extends BoundedEntity {
         float gridMaxHeight = 0;
 
         EmptyBoundedEntity grid = new EmptyBoundedEntity(0,0,0,0);
-
+        final Text levelText = new Text(0, 10, mFont.get("title"), episodeName, vertexBufferObjectManager);
+        levelText.setX(sceneWidth / 2 -  levelText.getWidth()/2);
+        attachChild(levelText);
         for(int i = 0 ; i < rows; i++) {
             for(int i2 =0; i2 < columns; i2++) {
                 float posY = i * (LEVEL_TILE_SIZE + LEVEL_TILE_MARGINS);
@@ -148,5 +153,9 @@ public class LevelMenu extends BoundedEntity {
             }
         }
         return false;
+    }
+
+    public void setEpisodeName(String name) {
+
     }
 }

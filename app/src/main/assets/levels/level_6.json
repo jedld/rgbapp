@@ -9,18 +9,30 @@
   },
   "map": [
     [
-      {t: 1, age: 4},
-      1,
-      9,
-      2,
-      2
+      0,
+      0,
+      0,
+      0,
+      0
     ],
     [
-      4,
-      4,
+      {
+        "t": 1,
+        "age": 3
+      },
+      {
+        "t": 1,
+        "age": 3
+      },
       0,
-      4,
-      4
+      {
+        "t": 2,
+        "age": 3
+      },
+      {
+        "t": 2,
+        "age": 3
+      }
     ],
     [
       0,
@@ -30,11 +42,23 @@
       0
     ],
     [
+      {
+        "t": 1,
+        "age": 4
+      },
+      {
+        "t": 1,
+        "age": 4
+      },
       0,
-      0,
-      1,
-      0,
-      0
+      {
+        "t": 1,
+        "age": 4
+      },
+      {
+        "t": 1,
+        "age": 4
+      }
     ],
     [
       0,
@@ -45,7 +69,9 @@
     ]
   ],
   "queue": [
-    3,2
+    3,
+    1,
+    2
   ],
   "grid_width": 5,
   "grid_height": 5,
@@ -56,21 +82,39 @@
         "value": {
           "message": [
             "Nothing lasts forever.",
-            "Every time a tile changes its color, it gets used up."
+            "Every time a tile changes its color",
+            "it gets used up."
           ]
         }
       }
     },
-   {
-     "op": "babble",
-     "details": {
-       "value": {
-         "message": [
-           "Once they do get used up, they turn grey and use up space.",
-           "Let's take a closer look at this phenomenon..."
-         ]
-       }
-     }
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
+            "Once they do get used up",
+            "they turn grey and use up space.",
+            "Let's take a closer look"
+          ]
+        }
+      }
+    },
+    {
+      "op": "save_state",
+      "details": {
+        "name": "reset_tile_placement"
+      }
+    },
+    {
+      "op": "show_text",
+      "details": {
+        "value": {
+          "message": [
+            "See if you can turn at least 8 tiles to grey"
+          ]
+        }
+      }
     },
     {
       "op": "wait_for_valid_move",
@@ -82,7 +126,10 @@
                 "op": "if",
                 "details": {
                   "test": {
-                    "all_color": 3
+                    "min_color": {
+                      "color": 4,
+                      "min": 8
+                    }
                   },
                   "sequence": [
                     {
@@ -90,8 +137,19 @@
                       "details": {
                         "value": {
                           "message": [
-                            "Getting the hang of it",
-                            "On to Level 6"
+                            "Dead Squares",
+                            "Can't change their color anymore"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "op": "babble",
+                      "details": {
+                        "value": {
+                          "message": [
+                            "And Yes.",
+                            "This is supposed to make your life harder :)"
                           ]
                         }
                       }

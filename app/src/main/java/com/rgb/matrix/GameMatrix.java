@@ -64,7 +64,7 @@ public class GameMatrix implements IUpdateHandler {
         inProgress--;
         if (inProgress == 0) {
             if (!triggerCollection.isEmpty()) {
-                for(String events : triggerCollection) {
+                for (String events : triggerCollection) {
                     triggerCallback(events);
                 }
             }
@@ -228,26 +228,26 @@ public class GameMatrix implements IUpdateHandler {
 
     public void registerEventCallback(String key, GridEventCallback gridEventCallback) {
         if (!gridEventCallbacks.containsKey(key)) {
-            gridEventCallbacks.put(key,new ArrayList<GridEventCallback>());
+            gridEventCallbacks.put(key, new ArrayList<GridEventCallback>());
         }
 
-        ArrayList<GridEventCallback>callbacks = gridEventCallbacks.get(key);
+        ArrayList<GridEventCallback> callbacks = gridEventCallbacks.get(key);
         callbacks.add(gridEventCallback);
     }
 
     public void triggerCallback(String key) {
         if (gridEventCallbacks.containsKey(key)) {
-            ArrayList<GridEventCallback>callbacks = gridEventCallbacks.get(key);
-            for(GridEventCallback c : callbacks) {
+            ArrayList<GridEventCallback> callbacks = gridEventCallbacks.get(key);
+            for (GridEventCallback c : callbacks) {
                 c.onEventTriggered(key);
             }
         }
     }
 
     public boolean testColor(int testColor) {
-        for(int i = 0 ; i < gridWidth; i++) {
+        for (int i = 0; i < gridWidth; i++) {
             for (int i2 = 0; i2 < gridHeight; i2++) {
-                GridSquare square = mainGrid.getSquareAt(i,i2);
+                GridSquare square = mainGrid.getSquareAt(i, i2);
                 if (square.getTileType() == GridSquare.EMPTY ||
                         square.getTileType() == GridSquare.BUSTED ||
                         square.getTileType() == testColor) {
@@ -260,6 +260,20 @@ public class GameMatrix implements IUpdateHandler {
         return true;
     }
 
+    public boolean testColor(int testColor, int min) {
+        int count = 0;
+        for (int i = 0; i < gridWidth; i++) {
+            for (int i2 = 0; i2 < gridHeight; i2++) {
+                GridSquare square = mainGrid.getSquareAt(i, i2);
+                if (square.getTileType() == testColor) {
+                    count++;
+                }
+            }
+        }
+        if (count >= min) return true;
+        return false;
+    }
+
     public boolean isScoreVisible() {
         return scoreVisible;
     }
@@ -267,6 +281,7 @@ public class GameMatrix implements IUpdateHandler {
     public void setScoreVisible(boolean scoreVisible) {
         this.scoreVisible = scoreVisible;
     }
+
 
     class ScoreIncrementer extends TimerHandler {
 
@@ -312,7 +327,7 @@ public class GameMatrix implements IUpdateHandler {
             }
         }
         blockQueue.clear();
-        for(NextObject nextObject : bundle.getQueue()) {
+        for (NextObject nextObject : bundle.getQueue()) {
             blockQueue.add(nextObject.clone());
         }
         drawWorld();
@@ -323,12 +338,12 @@ public class GameMatrix implements IUpdateHandler {
         GridSquare world[][] = new GridSquare[gridWidth][gridHeight];
         for (int i = 0; i < gridWidth; i++) {
             for (int i2 = 0; i2 < gridHeight; i2++) {
-                GridSquare clone = mainGrid.getSquareAt(i,i2).clone();
+                GridSquare clone = mainGrid.getSquareAt(i, i2).clone();
                 world[i][i2] = clone;
             }
         }
         Vector<NextObject> newQueue = new Vector<NextObject>();
-        for(NextObject next: getBlockQueue()) {
+        for (NextObject next : getBlockQueue()) {
             newQueue.add(next.clone());
         }
         savedState.setWorld(world);
@@ -444,7 +459,8 @@ public class GameMatrix implements IUpdateHandler {
                                 square.setTileType(currentTile.getTileType());
                                 if (!processRGBSequence(square.getBoardPositionX(), square.getBoardPositionY(), multiplierLevel, proxyNextObject)) {
                                     checkValidMoves = false;
-                                };
+                                }
+                                ;
                                 break;
                             }
                         }
@@ -497,7 +513,7 @@ public class GameMatrix implements IUpdateHandler {
             Log.d(TAG, "Updating " + p.first + " " + p.second);
             GridSquare gridSquare = mainGrid.getSquareAt((Integer) p.first, (Integer) p.second);
             if (gridSquare.isColoredTile()) {
-                mainGrid.addScore( (1 + gridSquare.getPoints() + gridSquare.getBonus()) * multiplierLevel);
+                mainGrid.addScore((1 + gridSquare.getPoints() + gridSquare.getBonus()) * multiplierLevel);
                 gridSquare.setTileType(object.getTileType());
 
                 int previous = gridSquare.getTotalPoints();
@@ -598,7 +614,7 @@ public class GameMatrix implements IUpdateHandler {
                 updateList.add(new Pair(target_x, target_y));
                 return;
             }
-            if ( (currentCell.getTileType() == GridSquare.MULTIPLIERX4_COLORED) && (parentObjectColor != currentCell.getMultiplierColor())) {
+            if ((currentCell.getTileType() == GridSquare.MULTIPLIERX4_COLORED) && (parentObjectColor != currentCell.getMultiplierColor())) {
                 return;
             } else if (currentCell.getTileType() != parentObjectColor) return;
         }
@@ -646,7 +662,7 @@ public class GameMatrix implements IUpdateHandler {
         mainGrid.updateSelf();
 
         //Draw queue
-        for (int i = 0; i < MainGrid.QUEUE_SIZE ; i++) {
+        for (int i = 0; i < MainGrid.QUEUE_SIZE; i++) {
             GridSquare rectangle = mainGrid.getQueueRect(i);
             if (i < blockQueue.size()) {
                 NextObject currentQueue = blockQueue.get(i);

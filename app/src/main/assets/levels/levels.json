@@ -38,6 +38,11 @@
           "file": "level_6.json",
           "title": "Level 6",
           "next": "7"
+        },
+        {
+          "id": 7,
+          "title": "Level 7 (Soon)",
+          "coming_soon" : true
         }
       ],
       "start": "1"

@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.9+'
+        classpath 'com.android.tools.build:gradle:0.11+'
     }
 }
 
@@ -21,10 +21,22 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+    signingConfigs {
+        release {
+            storeFile file("rgb-app-signingkey.jks")
+            storePassword "h3avenandearth"
+            keyAlias "rgbapp"
+            keyPassword "h3avenandearth"
+        }
+    }
+
+
     buildTypes {
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            signingConfig signingConfigs.release
         }
     }
 
@@ -48,6 +60,11 @@ android {
             resources.srcDirs = ['src/debug/java']
             res.srcDirs = ['src/debug/res']
         }
+
+        release {
+            manifest.srcFile 'AndroidManifest.xml'
+        }
+
     }
 }
 
