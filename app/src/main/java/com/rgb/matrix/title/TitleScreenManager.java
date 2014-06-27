@@ -20,17 +20,18 @@ public class TitleScreenManager extends GameManager {
 
     public TitleScreenManager(final MainActivity activity, float pX, float pY, float width, float height, List<String> lines, VertexBufferObjectManager vertexBufferObjectManager) {
         this.titleScreen = new TitleScreen( pX,  pY,  width,  height, lines, vertexBufferObjectManager);
-        titleScreen.addMenuItem("Endless Mode", new OnMenuSelectedListener() {
-            @Override
-            public void onMenuItemSelected(MenuItem item) {
-                activity.startEndlessMode();
-            }
-        });
 
         titleScreen.addMenuItem("Story Mode", new OnMenuSelectedListener() {
             @Override
             public void onMenuItemSelected(MenuItem item) {
                 activity.startStoryMode();
+            }
+        });
+
+        titleScreen.addMenuItem("Endless Mode", new OnMenuSelectedListener() {
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                activity.startEndlessMode();
             }
         });
 

@@ -6,6 +6,7 @@ import com.dayosoft.tiletron.app.SoundWrapper;
 import com.rgb.matrix.interfaces.BoundedEntity;
 import com.rgb.matrix.interfaces.GameOverDialogEventListener;
 import com.rgb.matrix.interfaces.GridEventListener;
+import com.rgb.matrix.interfaces.RechargeMeterEventsListener;
 import com.rgb.matrix.menu.MainMenu;
 import com.rgb.matrix.menu.MenuItem;
 import com.rgb.matrix.menu.OnBackListener;
@@ -32,7 +33,7 @@ import java.util.HashMap;
 /**
  * Created by joseph on 4/23/14.
  */
-public class MainGrid extends BoundedEntity {
+public class MainGrid extends BoundedEntity implements RechargeMeterEventsListener {
 
     public static final int QUEUE_SIZE = 6;
     public static final int TILE_SIZE_IN_DIP = 54;
@@ -176,7 +177,9 @@ public class MainGrid extends BoundedEntity {
         float offsetY = maxGridHeight + ObjectDimensions.szGridPaddingBottom;
 
         if (options.shouldShowRechargeMeter) {
-            this.rechargeMeter = new RechargeMeter(width / 2 - ObjectDimensions.szRechargeMeterWidth / 2, offsetY, ObjectDimensions.szRechargeMeterWidth, 150, fontDictionary, soundAssets, vertexBuffer);
+            this.rechargeMeter = new RechargeMeter(width / 2 - ObjectDimensions.szRechargeMeterWidth / 2,
+                    offsetY, ObjectDimensions.szRechargeMeterWidth, 150, fontDictionary, soundAssets,
+                    this, vertexBuffer);
             attachChild(rechargeMeter);
             rechargeMeter.addPoints(options.getRechargeMeterInitialValue());
             rechargeMeter.animate();
@@ -365,7 +368,7 @@ public class MainGrid extends BoundedEntity {
     }
 
     public synchronized void updateSelf() {
-//        showGameOver();
+//        onShowGameOver();
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
                 world[x][y].updateSelf();
@@ -411,8 +414,11 @@ public class MainGrid extends BoundedEntity {
         return true;
     }
 
-    public void showGameOver() {
-//        fadeOutAllRectangles();
+    public void onShowGameOver() {
+        gridEventListener.onGameOver();
+    }
+
+    public void showGameOverPopup() {
         gameOverText.show();
     }
 
@@ -516,4 +522,12 @@ public class MainGrid extends BoundedEntity {
         return rechargeMeter.isSuperActive();
     }
 
+    @Override
+    public void onLevelUp(int level) {
+        matrix.triggerCallback("level_up");
+    }
+
+    public int getLevel() {
+        return rechargeMeter.getLevel();
+    }
 }

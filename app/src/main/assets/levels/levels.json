@@ -48,6 +48,12 @@
         {
           "id": 8,
           "title": "Level 8",
+          "file": "level_8.json",
+          "next": "9"
+        },
+        {
+          "id": 9,
+          "title": "Level 9",
           "coming_soon": true
         }
       ],

@@ -30,4 +30,6 @@ public interface GridEventListener {
     void populateQueue(Vector<NextObject> blockQueue);
 
     void onRestart(MenuItem item);
+
+    void onGameOver();
 }

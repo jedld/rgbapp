@@ -3,6 +3,7 @@ package com.rgb.matrix;
 import android.util.Log;
 
 import com.dayosoft.tiletron.app.SoundWrapper;
+import com.rgb.matrix.interfaces.RechargeMeterEventsListener;
 import com.rgb.matrix.interfaces.Resizable;
 import com.rgb.matrix.modifiers.WidthModifier;
 
@@ -35,6 +36,7 @@ public class RechargeMeter extends Entity implements Resizable {
     private final Rectangle pushButton;
     private final Text valueText;
     private final HashMap<String, SoundWrapper> soundAssets;
+    private final RechargeMeterEventsListener listener;
     private int maxunits;
     private final Rectangle meterObject;
     private int currentState;
@@ -43,7 +45,11 @@ public class RechargeMeter extends Entity implements Resizable {
     private int level;
     private boolean animatePending;
 
-    public RechargeMeter(float pX, float pY, float width, int maxunits, HashMap<String, Font> mFont, HashMap<String, SoundWrapper> soundAssets, VertexBufferObjectManager vertexBufferObjectManager) {
+    public RechargeMeter(float pX, float pY, float width, 
+                         int maxunits, HashMap<String, Font> mFont,
+                         HashMap<String, SoundWrapper> soundAssets,
+                         RechargeMeterEventsListener listener,
+                         VertexBufferObjectManager vertexBufferObjectManager) {
         super(pX, pY);
 
         this.maxunits = maxunits;
@@ -53,6 +59,7 @@ public class RechargeMeter extends Entity implements Resizable {
         this.isSuperActivated = false;
         this.currentState = 0;
         this.vertexBufferObjectManager = vertexBufferObjectManager;
+        this.listener = listener;
         this.width = width;
         background = new Rectangle(0, 0, width , ObjectDimensions.szMeterHeight, vertexBufferObjectManager);
         background.setColor(Color.BLACK);
@@ -141,6 +148,7 @@ public class RechargeMeter extends Entity implements Resizable {
             currentState = 0;
             prevPoints = 0;
             level+=1;
+            listener.onLevelUp(level);
             updateLevelText();
             return true;
         }
@@ -202,5 +210,9 @@ public class RechargeMeter extends Entity implements Resizable {
 
     public boolean isSuperActive() {
         return isSuperActivated;
+    }
+
+    public int getLevel() {
+        return level;
     }
 }

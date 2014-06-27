@@ -1,14 +1,88 @@
 {
-  "id": 6,
-  "next_level": 7,
-  "title": "Level 6",
-  "sub_title": "Decay",
+  "id": 8,
+  "next_level": 9,
+  "title": "Level 8",
+  "sub_title": "Mining",
   "options": {
-    "recharge_meter": false,
-    "queue": false
+    "recharge_meter": true,
+    "queue": true,
+    "queue_allowed_tiles": [
+      {
+        "set": [
+          7,
+          8,
+          9
+        ],
+        "w": 0.2
+      },
+      {
+        "set": [
+          1,
+          2,
+          3
+        ],
+        "w": 0.8
+      }
+    ]
   },
   "map": [
     [
+      {
+        "t": 1,
+        "age": 4
+      },
+      {
+        "t": 1,
+        "age": 4
+      },
+      8,
+      {
+        "t": 3,
+        "age": 4
+      },
+      {
+        "t": 3,
+        "age": 4
+      },
+      {
+        "t": 3,
+        "age": 4
+      }
+    ],
+    [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
       0,
       0,
       0,
@@ -17,13 +91,14 @@
     ],
     [
       {
-        "t": 1,
+        "t": 2,
         "age": 3
       },
       {
-        "t": 1,
+        "t": 2,
         "age": 3
       },
+      0,
       0,
       {
         "t": 2,
@@ -33,58 +108,30 @@
         "t": 2,
         "age": 3
       }
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      {
-        "t": 1,
-        "age": 4
-      },
-      {
-        "t": 1,
-        "age": 4
-      },
-      0,
-      {
-        "t": 1,
-        "age": 4
-      },
-      {
-        "t": 1,
-        "age": 4
-      }
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      0
     ]
   ],
   "queue": [
+    8,
+    2,
     3,
-    1,
-    2
+    3
   ],
-  "grid_width": 5,
-  "grid_height": 5,
+  "grid_width": 6,
+  "grid_height": 7,
   "sequence": [
-
+    {
+      "op": "disable_grid",
+      "details": {
+        "value": true
+      }
+    },
     {
       "op": "babble",
       "details": {
         "value": {
           "message": [
-            "Nothing lasts forever.",
-            "Every time a tile changes its color",
-            "it gets used up."
+            "Those TILES above are",
+            "almost used up"
           ]
         }
       }
@@ -94,17 +141,21 @@
       "details": {
         "value": {
           "message": [
-            "Once they do get used up",
-            "they turn grey and use up space.",
-            "Let's take a closer look"
+            "but they produce",
+            "the most points."
           ]
         }
       }
     },
     {
-      "op": "save_state",
+      "op": "babble",
       "details": {
-        "name": "reset_tile_placement"
+        "value": {
+          "message": [
+            "Take advantage of this",
+            "when creating chains"
+          ]
+        }
       }
     },
     {
@@ -112,7 +163,7 @@
       "details": {
         "value": {
           "message": [
-            "See if you can turn at least 8 tiles to grey"
+            "Ok. Try to reach Level 3"
           ]
         }
       }
@@ -122,15 +173,12 @@
       "details": {
         "events": [
           {
-            "queue_empty": [
+            "level_up": [
               {
                 "op": "if",
                 "details": {
                   "test": {
-                    "min_color": {
-                      "color": 4,
-                      "min": 8
-                    }
+                    "current_level": 3
                   },
                   "sequence": [
                     {
@@ -138,8 +186,9 @@
                       "details": {
                         "value": {
                           "message": [
-                            "Dead Squares",
-                            "Can't change their color anymore"
+                            "impressive!",
+                            "You're almost as good as",
+                            "SUBJECT 1"
                           ]
                         }
                       }
@@ -149,33 +198,26 @@
                       "details": {
                         "value": {
                           "message": [
-                            "And Yes.",
-                            "This is supposed to make your life harder :)"
+                            "Oops",
+                            "Did I just say",
+                            "SUBJECT 1?"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "op": "babble",
+                      "details": {
+                        "value": {
+                          "message": [
+                            "Ignore Me.",
+                            "Pretend I did not say anything"
                           ]
                         }
                       }
                     },
                     {
                       "op": "unlock_next_exit"
-                    }
-                  ],
-                  "else": [
-                    {
-                      "op": "babble",
-                      "details": {
-                        "value": {
-                          "message": [
-                            "Make sure you place the tiles",
-                            "At the right place."
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "op": "restore_state",
-                      "details": {
-                        "name": "reset_tile_placement"
-                      }
                     }
                   ]
                 }

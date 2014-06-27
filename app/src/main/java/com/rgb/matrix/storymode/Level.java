@@ -3,6 +3,7 @@ package com.rgb.matrix.storymode;
 import com.rgb.matrix.NextObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created by joseph on 5/5/14.
@@ -18,6 +19,7 @@ public class Level {
     private CharSequence subName;
     private boolean scoreVisible;
     private int rechargeMeterInitial;
+    private ArrayList<TileSet> allowedQueueObjects;
 
     public ArrayList<Operation> getOperations() {
         return operations;
@@ -139,5 +141,13 @@ public class Level {
 
     public int getRechargeMeterInitial() {
         return rechargeMeterInitial;
+    }
+
+    public void setAllowedQueueObjects(ArrayList<TileSet> allowedQueueObjects) {
+        this.allowedQueueObjects = allowedQueueObjects;
+    }
+
+    public ArrayList<TileSet> getAllowedQueueObjects() {
+        return allowedQueueObjects;
     }
 }

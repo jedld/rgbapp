@@ -59,6 +59,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Timer;
@@ -303,6 +304,8 @@ public class StoryMode extends GameManager implements GridEventListener{
                 options.setScoreVisible(false);
             }
 
+
+            options.setAllowedObjects(level.getAllowedQueueObjects());
             options.setRechargeMeterInitialValue(level.getRechargeMeterInitial());
 
             matrix = new GameMatrix(context, this, mScene, mainMenu, fontDictionary, soundAsssets,
@@ -583,6 +586,13 @@ public class StoryMode extends GameManager implements GridEventListener{
                     boolean passed = true;
                     while (itr.hasNext()) {
                         String key = (String) itr.next();
+                        if (key.equals("current_level")) {
+                           int level = matrix.getCurrentLevel();
+                           if (level!=testFunctions.getInt(key)) {
+                               passed= false;
+                           }
+                        }
+
                         if (key.equals("queue_empty")) {
                             boolean result = matrix.getBlockQueue().isEmpty();
                             if (result != testFunctions.getBoolean(key)) {
@@ -855,6 +865,25 @@ public class StoryMode extends GameManager implements GridEventListener{
             level.setRechargeMeter(options.optBoolean("recharge_meter", true));
             level.setRechargeMeterInitial(options.optInt("recharge_meter_initial", 0));
             level.setUseQueue(options.optBoolean("queue", true));
+            JSONArray tileSets = options.optJSONArray("queue_allowed_tiles");
+
+            if (tileSets!=null) {
+                ArrayList<TileSet> objectSets = new ArrayList<TileSet>();
+                for (int i = 0; i < tileSets.length(); i++) {
+                    JSONObject set = tileSets.getJSONObject(i);
+                    ArrayList<Integer> allowedObjects = new ArrayList<Integer>();
+                    JSONArray setArray = set.getJSONArray("set");
+                    for (int i2 = 0; i2 < setArray.length(); i2++) {
+                        allowedObjects.add(setArray.getInt(i2));
+                    }
+                    TileSet tileSet = new TileSet();
+                    tileSet.setAllowedObjects(allowedObjects);
+                    tileSet.setWeight(set.getDouble("w"));
+                    objectSets.add(tileSet);
+                }
+                level.setAllowedQueueObjects(objectSets);
+            }
+
             level.setScoreVisible(options.optBoolean("scores", false));
         }
 
@@ -991,6 +1020,11 @@ public class StoryMode extends GameManager implements GridEventListener{
         waitForTouchOperation = false;
         waitForValidMove = false;
         renderLevel(currentLevel, context);
+    }
+
+    @Override
+    public void onGameOver() {
+        mainMenu.setVisible(true);
     }
 
     public int getOpIndex() {

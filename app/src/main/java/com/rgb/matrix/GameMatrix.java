@@ -10,6 +10,7 @@ import com.rgb.matrix.interfaces.GridEventCallback;
 import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.interfaces.OnSequenceFinished;
 import com.rgb.matrix.menu.MainMenu;
+import com.rgb.matrix.storymode.TileSet;
 
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.handler.timer.ITimerCallback;
@@ -285,6 +286,10 @@ public class GameMatrix implements IUpdateHandler {
         this.scoreVisible = scoreVisible;
     }
 
+    public int getCurrentLevel() {
+        return mainGrid.getLevel();
+    }
+
 
     class ScoreIncrementer extends TimerHandler {
 
@@ -493,10 +498,10 @@ public class GameMatrix implements IUpdateHandler {
             if (mainGrid.hasRechargeMeter()) {
                 mainGrid.useRechargeMeter();
                 if (!hasValidMoves()) {
-                    mainGrid.showGameOver();
+                    mainGrid.onShowGameOver();
                 }
             } else {
-                mainGrid.showGameOver();
+                mainGrid.onShowGameOver();
             }
         }
     }
@@ -632,32 +637,56 @@ public class GameMatrix implements IUpdateHandler {
 
 
     public NextObject getNextObject(boolean noMultiplier) {
-        int tileType = random.nextInt(3) + 1;
-        NextObject nextObject = new NextObject();
-        nextObject.setTileType(tileType);
-        int useMaxAge = random.nextInt(6);
 
-        if (useMaxAge == 1) {
-            nextObject.setAge(2);
+        if (options.getAllowedObjects()!=null) {
+            NextObject nextObject = new NextObject();
+
+            int container = random.nextInt(100);
+            int weight = 0;
+            for(TileSet set : options.getAllowedObjects()) {
+                weight+= (int)Math.round(set.getWeight() * 100f);
+                if (container < weight) {
+                    Log.d(TAG,"container " + container);
+                    Log.d(TAG,"weight " + weight);
+                    return getNextObjectFromSet(nextObject, set);
+                }
+            }
+            return getNextObjectFromSet(nextObject, options.getAllowedObjects().get(0));
         } else {
-            nextObject.setAge(0);
-        }
+            int tileType = random.nextInt(3) + 1;
+            NextObject nextObject = new NextObject();
+            nextObject.setTileType(tileType);
+            int useMaxAge = random.nextInt(6);
 
-        if (!noMultiplier) {
-            int multiplier = random2.nextInt(20);
-            if (multiplier == 1) {
-                nextObject.setTileType(GridSquare.MULTIPLIERX2);
-                nextObject.setAge(0);
-            } else if (multiplier == 4) {
-                nextObject.setTileType(GridSquare.MULTIPLIERX4_COLORED);
-                nextObject.setMultiplierColor(tileType);
-                nextObject.setAge(0);
-            } else if (multiplier == 2 || multiplier == 3) {
-                nextObject.setTileType(tileType + 6);
+            if (useMaxAge == 1) {
+                nextObject.setAge(2);
+            } else {
                 nextObject.setAge(0);
             }
-        }
 
+            if (!noMultiplier) {
+                int multiplier = random2.nextInt(20);
+                if (multiplier == 1) {
+                    nextObject.setTileType(GridSquare.MULTIPLIERX2);
+                    nextObject.setAge(0);
+                } else if (multiplier == 4) {
+                    nextObject.setTileType(GridSquare.MULTIPLIERX4_COLORED);
+                    nextObject.setMultiplierColor(tileType);
+                    nextObject.setAge(0);
+                } else if (multiplier == 2 || multiplier == 3) {
+                    nextObject.setTileType(tileType + 6);
+                    nextObject.setAge(0);
+                }
+            }
+
+            return nextObject;
+        }
+    }
+
+    private NextObject getNextObjectFromSet(NextObject nextObject, TileSet set) {
+        ArrayList<Integer> tiles = set.getAllowedObjects();
+        int pick = random.nextInt(tiles.size());
+        nextObject.setTileType(tiles.get(pick));
         return nextObject;
     }
 

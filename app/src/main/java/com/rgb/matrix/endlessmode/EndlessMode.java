@@ -1,9 +1,7 @@
 package com.rgb.matrix.endlessmode;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -40,7 +38,6 @@ import com.sromku.simple.fb.listeners.OnLoginListener;
 import com.sromku.simple.fb.listeners.OnPublishListener;
 
 import org.andengine.audio.music.Music;
-import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.util.ScreenCapture;
 import org.andengine.input.touch.TouchEvent;
@@ -264,6 +261,11 @@ public class EndlessMode extends GameManager implements GridEventListener {
     @Override
     public void onRestart(MenuItem item) {
         restartGame();
+    }
+
+    @Override
+    public void onGameOver() {
+         grid.showGameOverPopup();
     }
 
 

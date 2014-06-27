@@ -1,5 +1,11 @@
 package com.rgb.matrix;
 
+import com.rgb.matrix.storymode.TileSet;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashSet;
+
 /**
  * Created by joseph on 5/7/14.
  */
@@ -7,6 +13,7 @@ public class MatrixOptions {
     boolean shouldPrepopulate;
     private boolean scoreVisible;
     private int rechargeMeterInitialValue;
+    private ArrayList<TileSet> allowedObjects;
 
     public boolean isShouldShowRechargeMeter() {
         return shouldShowRechargeMeter;
@@ -57,5 +64,13 @@ public class MatrixOptions {
 
     public int getRechargeMeterInitialValue() {
         return rechargeMeterInitialValue;
+    }
+
+    public void setAllowedObjects(ArrayList<TileSet> allowedObjects) {
+        this.allowedObjects = allowedObjects;
+    }
+
+    public ArrayList<TileSet> getAllowedObjects() {
+        return allowedObjects;
     }
 }
