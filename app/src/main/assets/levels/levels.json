@@ -42,7 +42,13 @@
         {
           "id": 7,
           "title": "Level 7",
-          "coming_soon" : true
+          "file": "level_7.json",
+          "next": "8"
+        },
+        {
+          "id": 8,
+          "title": "Level 8",
+          "coming_soon": true
         }
       ],
       "start": "1"

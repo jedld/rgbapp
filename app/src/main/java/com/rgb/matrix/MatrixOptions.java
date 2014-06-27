@@ -6,6 +6,7 @@ package com.rgb.matrix;
 public class MatrixOptions {
     boolean shouldPrepopulate;
     private boolean scoreVisible;
+    private int rechargeMeterInitialValue;
 
     public boolean isShouldShowRechargeMeter() {
         return shouldShowRechargeMeter;
@@ -48,5 +49,13 @@ public class MatrixOptions {
 
     public void setScoreVisible(boolean scoreVisible) {
         this.scoreVisible = scoreVisible;
+    }
+
+    public void setRechargeMeterInitialValue(int rechargeMeterInitialValue) {
+        this.rechargeMeterInitialValue = rechargeMeterInitialValue;
+    }
+
+    public int getRechargeMeterInitialValue() {
+        return rechargeMeterInitialValue;
     }
 }

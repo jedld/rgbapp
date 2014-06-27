@@ -22,6 +22,7 @@ import com.rgb.matrix.Utils;
 import com.rgb.matrix.interfaces.BoundedEntity;
 import com.rgb.matrix.interfaces.GridEventCallback;
 import com.rgb.matrix.interfaces.GridEventListener;
+import com.rgb.matrix.interfaces.OnLevelMenuShownListener;
 import com.rgb.matrix.interfaces.OnTextDisplayedListener;
 import com.rgb.matrix.menu.MainMenu;
 import com.rgb.matrix.menu.MenuItem;
@@ -178,7 +179,7 @@ public class StoryMode extends GameManager implements GridEventListener{
         this.canvasHeight = canvasHeight;
         this.vertexBufferObjectManager = vertexBufferObjectManager;
         this.instance = this;
-        this.levelMenu = new LevelMenu(0, 0, canvasWidth, canvasHeight, 3, 5, fontDictionary, loadLevels(0), vertexBufferObjectManager);
+        this.levelMenu = new LevelMenu(context, 0, 0, canvasWidth, canvasHeight, 3, 5, fontDictionary, loadLevels(0), vertexBufferObjectManager);
         levelMenu.setVisible(false);
 
         mainMenu.setOnBackListener(new OnBackListener() {
@@ -200,7 +201,7 @@ public class StoryMode extends GameManager implements GridEventListener{
             @Override
             public void onMenuItemSelected(MenuItem item) {
                 mainMenu.setVisible(false);
-                showLevelChooser(context);
+                showLevelChooser(context, null);
             }
         });
 
@@ -215,6 +216,7 @@ public class StoryMode extends GameManager implements GridEventListener{
 
     public void renderLevel(final Level level, final BaseGameActivity context) {
         this.currentLevel = level;
+        levelMenu.setVisible(false);
         mScene.detachChildren();
         savedStates.clear();
         final Text levelText = new Text(0, canvasHeight / 2, fontDictionary.get("title"), level.getName(), vertexBufferObjectManager);
@@ -263,7 +265,7 @@ public class StoryMode extends GameManager implements GridEventListener{
                     waitFoTapContainer.hide();
                     processOpSequence();
                 } else {
-                    if (matrix.onTouch(pSceneTouchEvent)) {
+                    if (matrix!=null && matrix.onTouch(pSceneTouchEvent)) {
                         if (waitForValidMove) {
                             waitForValidMove = false;
                             processOpSequence();
@@ -300,6 +302,8 @@ public class StoryMode extends GameManager implements GridEventListener{
             if (!level.isScoreVisible()) {
                 options.setScoreVisible(false);
             }
+
+            options.setRechargeMeterInitialValue(level.getRechargeMeterInitial());
 
             matrix = new GameMatrix(context, this, mScene, mainMenu, fontDictionary, soundAsssets,
                     vertexBufferObjectManager, level.getGridWidth(), level.getGridHeight(), offset_x, 10,
@@ -386,7 +390,7 @@ public class StoryMode extends GameManager implements GridEventListener{
         backgroundRectangle.setColor(Color.BLACK);
         backgroundRectangle.setAlpha(0.3f);
 
-        Text waitForTapText = new Text(0,0, fontDictionary.get("touch_indicator"),"Tap to continue ...", vertexBufferObjectManager);
+        Text waitForTapText = new Text(0,0, fontDictionary.get("touch_indicator"),"Tap anywhere to continue ...", vertexBufferObjectManager);
         waitForTapText.setX(backgroundRectangle.getWidth()/2 - waitForTapText.getWidth()/2);
         waitForTapText.setY(backgroundRectangle.getHeight()/2 - waitForTapText.getHeight()/2);
         waitForTapText.setColor(Color.WHITE);
@@ -526,10 +530,28 @@ public class StoryMode extends GameManager implements GridEventListener{
                     Log.d(TAG, "Show your move");
                     yourMoveContainer.show();
                     return;
+                } else if (op.opCode.equals("unlock_next_exit")) {
+                    showLevelChooser(context, new OnLevelMenuShownListener() {
+                        @Override
+                        public void onComplete(LevelMenu levelMenu) {
+                            Log.d(TAG, "onComplete called for unlock and exit");
+                            levelMenu.animateLevelUnlock(currentLevel.getNextLevel(), new IEntityModifier.IEntityModifierListener() {
+                                @Override
+                                public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+                                }
+
+                                @Override
+                                public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                                    Utils.setLocked(context, currentLevel.getNextLevel(), false);
+                                }
+                            });
+                        }
+                    });
+                    return;
                 } else if (op.opCode.equals("unlock_next")) {
                     Utils.setLocked(context, currentLevel.getNextLevel(), false);
                 } else if (op.opCode.equals("exit")) {
-                    showLevelChooser(context);
+                    showLevelChooser(context, null);
                     return;
                 } else if (op.opCode.equals("restore_state")) {
                     String stateName = op.opDetails.getString("name");
@@ -773,6 +795,9 @@ public class StoryMode extends GameManager implements GridEventListener{
                     if (!obj.has("coming_soon")) {
                         l.setFilePath(obj.getString("file"));
                         l.setNextLevel(obj.getString("next"));
+                        l.setComingSoon(false);
+                    } else {
+                        l.setIsComingSoon(true);
                     }
                     Log.d(TAG, "Adding level.");
                     levelHashMap.put(l.getId(), l);
@@ -828,6 +853,7 @@ public class StoryMode extends GameManager implements GridEventListener{
         if (jsonObject.has("options")) {
             JSONObject options = jsonObject.getJSONObject("options");
             level.setRechargeMeter(options.optBoolean("recharge_meter", true));
+            level.setRechargeMeterInitial(options.optInt("recharge_meter_initial", 0));
             level.setUseQueue(options.optBoolean("queue", true));
             level.setScoreVisible(options.optBoolean("scores", false));
         }
@@ -930,7 +956,7 @@ public class StoryMode extends GameManager implements GridEventListener{
 
     @Override
     public void onExitGrid(MenuItem item) {
-        showLevelChooser(context);
+        showLevelChooser(context, null);
     }
 
     @Override
@@ -983,7 +1009,7 @@ public class StoryMode extends GameManager implements GridEventListener{
         levelMenu.setVisible(false);
     }
 
-    public void showLevelChooser(final MainActivity mainActivity) {
+    public void showLevelChooser(final MainActivity mainActivity, OnLevelMenuShownListener listener) {
         mScene.detachChildren();
         mScene.attachChild(levelMenu);
         levelMenu.setVisible(true);
@@ -997,11 +1023,14 @@ public class StoryMode extends GameManager implements GridEventListener{
                 renderLevel(level, mainActivity);
             }
         });
+        if (listener!=null) {
+            listener.onComplete(levelMenu);
+        }
     }
 
     @Override
     public void show(Scene scene) {
-        showLevelChooser(context);
+        showLevelChooser(context, null);
     }
 
     @Override

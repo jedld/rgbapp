@@ -9,6 +9,7 @@ public class LevelInfo {
     private String nextLevel;
     private boolean locked;
     private int id;
+    private boolean isComingSoon;
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
@@ -48,5 +49,17 @@ public class LevelInfo {
 
     public int getId() {
         return id;
+    }
+
+    public void setIsComingSoon(boolean isComingSoon) {
+        this.isComingSoon = isComingSoon;
+    }
+
+    public boolean isComingSoon() {
+        return isComingSoon;
+    }
+
+    public void setComingSoon(boolean isComingSoon) {
+        this.isComingSoon = isComingSoon;
     }
 }

@@ -59,10 +59,12 @@ android {
             java.srcDirs = ['src/debug/java']
             resources.srcDirs = ['src/debug/java']
             res.srcDirs = ['src/debug/res']
+            assets.srcDirs = ['src/debug/assets']
         }
 
         release {
-            manifest.srcFile 'AndroidManifest.xml'
+            manifest.srcFile 'src/release/AndroidManifest.xml'
+            assets.srcDirs = ['src/release/assets']
         }
 
     }

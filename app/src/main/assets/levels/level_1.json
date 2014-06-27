@@ -168,7 +168,9 @@
       "op": "show_text",
       "details": {
         "value": {
-          "message": "In front of you is the \"GRID\""
+          "message": ["In front of you is the \"GRID\"",
+          "And below that is the \"QUEUE\"",
+          "The QUEUE shows what kind","of tile comes next."]
         }
       }
     },
@@ -268,7 +270,7 @@
               "value": {
                 "message": [
                   "Place the two TILES",
-                  "adjacent to the one you placed just now."
+                  "beside the one you placed just now."
                 ]
               }
             }
@@ -292,7 +294,7 @@
                               "value": {
                                 "message": [
                                   "Hmmm ...",
-                                  "Make sure the tiles are adjacent to one another."
+                                  "Make sure the tiles are beside to one another."
                                 ]
                               }
                             }
@@ -447,10 +449,7 @@
                                 }
                               },
                               {
-                                "op": "unlock_next"
-                              },
-                              {
-                                "op": "exit"
+                                "op": "unlock_next_exit"
                               }
                             ]
                           }

@@ -1,6 +1,9 @@
 package com.rgb.matrix.storymode;
 
+import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.rgb.matrix.ColorConstants;
 import com.rgb.matrix.EmptyBoundedEntity;
@@ -8,6 +11,8 @@ import com.rgb.matrix.RectangleButton;
 import com.rgb.matrix.Utils;
 import com.rgb.matrix.interfaces.BoundedEntity;
 
+import org.andengine.entity.modifier.ColorModifier;
+import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.text.Text;
 import org.andengine.input.touch.TouchEvent;
@@ -31,6 +36,7 @@ public class LevelMenu extends BoundedEntity {
     private final int columns;
     private final int rows;
     private final String episodeName;
+    private final Activity context;
 
 
     public ArrayList<LevelInfo> getLevelInfos() {
@@ -56,9 +62,10 @@ public class LevelMenu extends BoundedEntity {
 
     OnLevelSelectedListener listener;
 
-    public LevelMenu(float pX, float pY, float sceneWidth, float sceneHeight, int columns,
+    public LevelMenu(Activity context, float pX, float pY, float sceneWidth, float sceneHeight, int columns,
                      int rows,  HashMap<String, Font> mFont, Episode episode, VertexBufferObjectManager vertexBufferObjectManager) {
         super(pX, pY);
+        this.context = context;
         this.sceneWidth = sceneWidth;
         this.sceneHeight = sceneHeight;
         this.columns = columns;
@@ -133,6 +140,16 @@ public class LevelMenu extends BoundedEntity {
         }
     }
 
+    public void animateLevelUnlock(int levelSelect,IEntityModifier.IEntityModifierListener listener) {
+        if ( levelSelect - 1 < rectangles.size()) {
+            RectangleButton rect = rectangles.get(levelSelect - 1);
+            LevelInfo info = levelInfos.get(levelSelect - 1);
+            info.setLocked(false);
+            Log.d(TAG,"animating level unlock");
+            rect.registerEntityModifier(new ColorModifier(1f, Color.BLACK, ColorConstants.BLUE, listener));
+        }
+    }
+
     @Override
     public float getWidth() {
         return sceneWidth;
@@ -147,6 +164,14 @@ public class LevelMenu extends BoundedEntity {
         for(RectangleButton button : rectangles) {
             if (Utils.withinTouchBounds(button, pSceneTouchEvent)) {
                 LevelInfo info = levelInfos.get(button.getTag());
+                if (info.isComingSoon()) {
+                    context.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, "Coming Soon!", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } else
                 if (!info.isLocked()) {
                     listener.onLevelSelected(info.getId());
                     return true;

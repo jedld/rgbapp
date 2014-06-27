@@ -174,6 +174,9 @@ public class GameMatrix implements IUpdateHandler {
         if (options.isShouldPrepopulate()) {
             populateInitial();
         }
+
+
+
         listener.onSetupWorld(mainGrid);
     }
 

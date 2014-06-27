@@ -1,0 +1,213 @@
+{
+  "id": 7,
+  "next_level": 8,
+  "title": "Level 7",
+  "sub_title": "Eraser",
+  "options": {
+    "recharge_meter": true,
+    "recharge_meter_initial": 140,
+    "queue": false
+  },
+  "map": [
+    [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    [
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    [
+      0,
+      0,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      3,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      1,
+      3
+    ]
+  ],
+  "queue": [
+    8,
+    2,
+    3,
+    3
+  ],
+  "grid_width": 5,
+  "grid_height": 6,
+  "sequence": [
+    {
+      "op": "disable_grid",
+      "details": {
+        "value": true
+      }
+    },
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
+            "Whoa",
+            "How do we deal with those",
+            "DEAD tiles?"
+          ]
+        }
+      }
+    },
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
+            "No worries",
+            "the TECHNICIAN has just installed",
+            "the ERASER"
+          ]
+        }
+      }
+    },
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
+            "You heard that right",
+            "it erases DEAD tiles!",
+            "You need to charge it up though."
+          ]
+        }
+      }
+    },
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
+            "There is some initial charge already",
+            "activate a just a few more tiles",
+            "to activate it."
+          ]
+        }
+      }
+    },
+    {
+      "op": "save_state",
+      "details": {
+        "name": "reset_tile_placement"
+      }
+    },
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
+            "Well then.",
+            "Let's get going",
+            "I'm waiting"
+          ]
+        }
+      }
+    },
+    {
+      "op": "babble",
+      "details": {
+        "value": {
+          "message": [
+            "Turn All Tiles to BLUE"
+          ]
+        }
+      }
+    },
+    {
+      "op": "wait_for_valid_move",
+      "details": {
+        "events": [
+          {
+            "queue_empty": [
+              {
+                "op": "if",
+                "details": {
+                  "test": {
+                    "all_color": 3
+                  },
+                  "sequence": [
+                    {
+                      "op": "babble",
+                      "details": {
+                        "value": {
+                          "message": [
+                            "Hmmm",
+                            "You say..",
+                            "What is all this obsession with BLUE?"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "op": "babble",
+                      "details": {
+                        "value": {
+                          "message": [
+                            "Don't worry",
+                            "We have other goals in mind now."
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "op": "unlock_next_exit"
+                    }
+                  ],
+                  "else": [
+                    {
+                      "op": "babble",
+                      "details": {
+                        "value": {
+                          "message": [
+                            "Make sure you place the tiles",
+                            "At the right place."
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "op": "restore_state",
+                      "details": {
+                        "name": "reset_tile_placement"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -39,6 +39,7 @@ public class MainGrid extends BoundedEntity {
 
     private final MatrixOptions options;
     private final float width;
+    private TileQueue queue;
 
     public float getHeight() {
         return height;
@@ -71,7 +72,6 @@ public class MainGrid extends BoundedEntity {
     }
 
     GridSquare world[][];
-    GridSquare queueRectangles[] = new GridSquare[QUEUE_SIZE];
     private Text scoreText;
     private RectangleButton newGameButton;
     private RechargeMeter rechargeMeter;
@@ -178,40 +178,17 @@ public class MainGrid extends BoundedEntity {
         if (options.shouldShowRechargeMeter) {
             this.rechargeMeter = new RechargeMeter(width / 2 - ObjectDimensions.szRechargeMeterWidth / 2, offsetY, ObjectDimensions.szRechargeMeterWidth, 150, fontDictionary, soundAssets, vertexBuffer);
             attachChild(rechargeMeter);
+            rechargeMeter.addPoints(options.getRechargeMeterInitialValue());
+            rechargeMeter.animate();
         }
 
         if (rechargeMeter != null) {
             offsetY += rechargeMeter.getHeight() + ObjectDimensions.szRechargeMeterPaddingBottom;
         }
 
-        for (int i = QUEUE_SIZE - 1; i >= 0; i--) {
-
-            float rect_x = (i * (getRectangleTileSizeInPixels() + 5) + 15);
-            float rect_y = offsetY;
-
-            GridSquare gridSquare = null;
-            if (i == 0) {
-                Rectangle container = new Rectangle(rect_x, rect_y, getRectangleTileSizeInPixels() + 2, getRectangleTileSizeInPixels() + 2, vertexBuffer);
-                Rectangle border = new Rectangle(1, 1, getRectangleTileSizeInPixels(), getRectangleTileSizeInPixels(), vertexBuffer);
-                border.setColor(Color.WHITE);
-                container.attachChild(border);
-                container.setColor(Color.BLACK);
-                container.setAlpha(0.2f);
-                gridSquare = new GridSquare(-1, -1, 1, 1, this, fontDictionary, vertexBuffer);
-                container.setScaleCenter((getRectangleTileSizeInPixels() + 2) / 2, (getRectangleTileSizeInPixels() + 2) / 2);
-                container.setScale(1.5f);
-                border.attachChild(gridSquare);
-                attachChild(container);
-            } else {
-                gridSquare = new GridSquare(-1, -1, rect_x, rect_y, this, fontDictionary, vertexBuffer);
-                gridSquare.setScale(1.1f);
-                gridSquare.setScaleCenter(getRectangleTileSizeInPixels() / 2, getRectangleTileSizeInPixels() / 2);
-                attachChild(gridSquare);
-
-            }
-            queueRectangles[i] = gridSquare;
-
-        }
+        this.queue = new TileQueue(0, offsetY, this, QUEUE_SIZE, getRectangleTileSizeInPixels(), fontDictionary, vertexBuffer);
+        attachChild(this.queue);
+        this.queue.centerInParent(BoundedEntity.CENTER_HORIZONTAL);
 
         offsetY += ObjectDimensions.szQueuePaddingBottom;
 
@@ -440,7 +417,7 @@ public class MainGrid extends BoundedEntity {
     }
 
     public GridSquare getQueueRect(int i) {
-        return queueRectangles[i];
+        return queue.queueRectangles[i];
     }
 
     public GridSquare tileTouched(TouchEvent pSceneTouchEvent) {

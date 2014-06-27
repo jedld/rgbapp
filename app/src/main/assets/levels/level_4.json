@@ -51,6 +51,12 @@
   "grid_height": 5,
   "sequence": [
     {
+      "op": "disable_grid",
+      "details": {
+        "value": true
+      }
+    },
+    {
       "op": "babble",
       "details": {
         "value": {
@@ -102,10 +108,7 @@
                       }
                     },
                     {
-                      "op": "unlock_next"
-                    },
-                    {
-                      "op": "exit"
+                      "op": "unlock_next_exit"
                     }
                   ],
                   "else": [

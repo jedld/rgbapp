@@ -1,0 +1,57 @@
+{
+  "id": 1,
+  "next_level": 2,
+  "title": "Level 1",
+  "sub_title": "The Grid",
+  "options": {
+    "recharge_meter": false,
+    "queue": false
+  },
+  "map": [
+    [
+      0,
+      3,
+      0,
+      2,
+      0
+    ],
+    [
+      0,
+      0,
+      7,
+      0,
+      0
+    ],
+    [
+      2,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      9,
+      3,
+      0,
+      2,
+      8
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "queue": [
+    1
+  ],
+  "grid_width": 5,
+  "grid_height": 5,
+  "sequence": [
+      {
+        "op": "wait_for_valid_move"
+      }
+  ]
+}

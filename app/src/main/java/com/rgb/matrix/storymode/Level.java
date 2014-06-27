@@ -17,6 +17,7 @@ public class Level {
     private boolean useQueue;
     private CharSequence subName;
     private boolean scoreVisible;
+    private int rechargeMeterInitial;
 
     public ArrayList<Operation> getOperations() {
         return operations;
@@ -130,5 +131,13 @@ public class Level {
 
     public void setScoreVisible(boolean scoreVisible) {
         this.scoreVisible = scoreVisible;
+    }
+
+    public void setRechargeMeterInitial(int rechargeMeterInitial) {
+        this.rechargeMeterInitial = rechargeMeterInitial;
+    }
+
+    public int getRechargeMeterInitial() {
+        return rechargeMeterInitial;
     }
 }

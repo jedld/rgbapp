@@ -140,17 +140,16 @@ public class MainActivity extends BaseGameActivity {
 
         frameLayout.addView(adView);
         frameLayout.setBackgroundColor(getResources().getColor(android.R.color.white));
-
-        Bundle params = this.getIntent().getExtras();
-
-        String bundleName = params.getString("bundle");
-        String pageUrl = params.getString("pageUrl");
-
         this.setContentView(frameLayout, frameLayoutLayoutParams);
 
-        DroiubyHelperInterface helper = DroiubyBootstrap.getHelperInstance();
-        helper.runController(this, bundleName, pageUrl);
-        helper.setExecutionBundle(this, bundleName);
+        Bundle params = this.getIntent().getExtras();
+        if (params != null) {
+            String bundleName = params.getString("bundle");
+            String pageUrl = params.getString("pageUrl");
+            DroiubyHelperInterface helper = DroiubyBootstrap.getHelperInstance();
+            helper.runController(this, bundleName, pageUrl);
+            helper.setExecutionBundle(this, bundleName);
+        }
     }
 
     @Override
@@ -213,7 +212,7 @@ public class MainActivity extends BaseGameActivity {
         loadLogoText(titleLines, "title.txt");
 
         SoundFactory.setAssetBasePath("sfx/");
-        MusicFactory.setAssetBasePath("sfx/");
+        MusicFactory.setAssetBasePath("music/");
         BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 
         BuildableBitmapTextureAtlas mBitmapTextureAtlas = new BuildableBitmapTextureAtlas(mEngine.getTextureManager(), 256, 256,
@@ -237,14 +236,15 @@ public class MainActivity extends BaseGameActivity {
         loadSound("cascade", "cascade.mp3");
         loadSound("super", "super_ready.mp3");
         loadSound("menu", "menu.mp3");
-        loadSound("typing","keyboard.mp3");
+        loadSound("typing", "keyboard.mp3");
 
 
         // Load our "music.mp3" file into a music object
-        loadMusic("bg_1.mp3");
-        loadMusic("bg_2.mp3");
-
-
+        String[] items = getAssets().list("music");
+        for(String path : items) {
+            Log.d(TAG, "loading music " + path);
+            loadMusic(path);
+        }
 
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/roboto_bold.ttf");
 
@@ -273,7 +273,7 @@ public class MainActivity extends BaseGameActivity {
         fontHashMap.put("story_text", mFont);
         fontHashMap.put("level_font", mFontMultiplier);
         fontHashMap.put("touch_indicator", mFont);
-        
+
         pOnCreateResourcesCallback.onCreateResourcesFinished();
     }
 
@@ -357,7 +357,7 @@ public class MainActivity extends BaseGameActivity {
 
     @Override
     public synchronized void onResumeGame() {
-        if (getCurrentManager()!=null) {
+        if (getCurrentManager() != null) {
             getCurrentManager().onResumeGame();
         }
 
@@ -431,7 +431,6 @@ public class MainActivity extends BaseGameActivity {
     }
 
 
-
     @Override
     public void onBackPressed() {
         if (getCurrentManager().onBackPressed()) {
@@ -440,7 +439,7 @@ public class MainActivity extends BaseGameActivity {
                 backedPressed = true;
             } else {
                 super.onBackPressed();
-                finish();
+                android.os.Process.killProcess(android.os.Process.myPid());
             }
         } else {
             popCurrentManager();

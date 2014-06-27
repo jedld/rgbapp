@@ -57,6 +57,11 @@ public class RectangleButton extends BoundedEntity {
         rectangle.setColor(color);
     }
 
+    @Override
+    public void setColor(final float pRed, final float pGreen, final float pBlue) {
+        rectangle.setColor(pRed, pGreen, pBlue);
+    }
+
     public void setSprite(Sprite sprite) {
         sprite.setSize(buttonText.getHeight(), buttonText.getHeight());
         buttonText.setX(buttonText.getX() + sprite.getWidth());
