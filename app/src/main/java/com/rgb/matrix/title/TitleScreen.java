@@ -164,8 +164,11 @@ public class TitleScreen extends MenuEntity implements IOnSceneTouchListener {
         return ColorConstants.RED;
     }
 
-    public String getFontKey() {
-        return "title";
+    public void addMinorMenuItem(String label, OnMenuSelectedListener listener) {
+        MenuAttributes attributes = new MenuAttributes();
+        attributes.setColor(Color.BLACK);
+        attributes.setAlpha(0.0f);
+        addMenuItem(label, false, false, attributes, listener);
     }
 
     public void addMenuItem(String label, OnMenuSelectedListener listener) {
@@ -173,6 +176,7 @@ public class TitleScreen extends MenuEntity implements IOnSceneTouchListener {
         attributes.setColor(Color.BLACK);
         attributes.setBackgroundColor(Color.WHITE);
         attributes.setAlpha(0.7f);
+        attributes.setFontKey("title");
         addMenuItem(label, false, false, attributes, listener);
     }
 

@@ -11,6 +11,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:name=".Tiletron"
         android:theme="@style/AppTheme" >
         <activity android:name="com.google.android.gms.ads.AdActivity"

@@ -1,5 +1,8 @@
 package com.rgb.matrix.title;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+
 import com.dayosoft.tiletron.app.MainActivity;
 import com.rgb.matrix.GameManager;
 import com.rgb.matrix.menu.MenuItem;
@@ -17,10 +20,12 @@ import java.util.List;
 public class TitleScreenManager extends GameManager {
 
     private final TitleScreen titleScreen;
+    private final MainActivity context;
 
     public TitleScreenManager(final MainActivity activity, float pX, float pY, float width, float height, List<String> lines, VertexBufferObjectManager vertexBufferObjectManager) {
+        super(activity);
         this.titleScreen = new TitleScreen( pX,  pY,  width,  height, lines, vertexBufferObjectManager);
-
+        this.context = activity;
         titleScreen.addMenuItem("Story Mode", new OnMenuSelectedListener() {
             @Override
             public void onMenuItemSelected(MenuItem item) {
@@ -35,6 +40,40 @@ public class TitleScreenManager extends GameManager {
             }
         });
 
+        titleScreen.addMinorMenuItem("Credits", new OnMenuSelectedListener() {
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                                context);
+
+                        // set title
+                        alertDialogBuilder.setTitle("Credits");
+
+                        // set dialog message
+                        alertDialogBuilder
+                                .setMessage("Credits\n\nDeveloper: Joseph Emmanuel Dayo\n\nAlso to those involved in testing\n\nElen and Eli")
+                                .setCancelable(false)
+                                .setPositiveButton("Ok. Cool.", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        // if this button is clicked, close
+                                        // current activity
+                                        dialog.dismiss();
+                                    }
+                                });
+                        // create alert dialog
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+
+                        // show it
+                        alertDialog.show();
+                    }
+                });
+
+            }
+        });
     }
 
     @Override
@@ -46,6 +85,7 @@ public class TitleScreenManager extends GameManager {
     public void show(Scene scene) {
         scene.attachChild(titleScreen);
         titleScreen.setVisible(true);
+        context.showAds();
     }
 
     @Override

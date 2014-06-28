@@ -7,6 +7,11 @@ import org.andengine.util.color.Color;
  */
 public class MenuAttributes {
     Color color;
+    private String fontKey;
+
+    public MenuAttributes() {
+        fontKey = "menu";
+    }
 
     public Color getColor() {
         return color;
@@ -34,4 +39,12 @@ public class MenuAttributes {
 
     float alpha;
     Color backgroundColor;
+
+    public String getFontKey() {
+        return fontKey;
+    }
+
+    public void setFontKey(String fontKey) {
+        this.fontKey = fontKey;
+    }
 }

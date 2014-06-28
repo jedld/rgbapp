@@ -270,7 +270,7 @@
               "value": {
                 "message": [
                   "Place the two TILES",
-                  "beside the one you placed just now."
+                  "next to the one you placed just now."
                 ]
               }
             }
@@ -294,7 +294,7 @@
                               "value": {
                                 "message": [
                                   "Hmmm ...",
-                                  "Make sure the tiles are beside to one another."
+                                  "Make sure the tiles are adjacent to one another."
                                 ]
                               }
                             }

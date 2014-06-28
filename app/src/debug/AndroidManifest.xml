@@ -2,17 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dayosoft.tiletron.app" >
 
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
-
-    <application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:name=".Tiletron"
-        android:theme="@style/AppTheme" >
+    <application>
         <activity
             android:name="com.dayosoft.tiletron.app.StartupActivity"
             android:label="@string/app_name" >
@@ -25,8 +15,6 @@
             android:name="com.dayosoft.tiletron.app.MainActivity"
             android:label="@string/app_name" >
         </activity>
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id"/>
-        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
     </application>
 
 </manifest>

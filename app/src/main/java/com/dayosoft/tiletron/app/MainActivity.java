@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.droiuby.application.bootstrap.DroiubyBootstrap;
 import com.droiuby.interfaces.DroiubyHelperInterface;
+import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.rgb.matrix.GameManager;
@@ -57,6 +59,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class MainActivity extends BaseGameActivity {
@@ -118,30 +121,56 @@ public class MainActivity extends BaseGameActivity {
     private StoryMode storyMode;
     private EndlessMode endlessMode;
     private AdView adView;
-    private ArrayList<Music> trackList = new ArrayList<Music>();
+    private HashMap<String, ArrayList<Music>> musicSet = new HashMap<String, ArrayList<Music>>();
 
     @Override
     protected void onSetContentView() {
+        RelativeLayout toplayout = new RelativeLayout(this);
+
         final FrameLayout frameLayout = new FrameLayout(this);
         //Creating its layout params, making it fill the screen.
         final FrameLayout.LayoutParams frameLayoutLayoutParams =
                 new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT);
+
+
         this.mRenderSurfaceView = new RenderSurfaceView(this);
 //        this.mRenderSurfaceView.setBackgroundColor(getResources().getColor(android.R.color.black));
         this.mRenderSurfaceView.setRenderer(this.mEngine, this);
         //Adding the views to the frame layout.
         frameLayout.addView(this.mRenderSurfaceView, BaseGameActivity.createSurfaceViewLayoutParams());
 
+        frameLayout.setBackgroundColor(getResources().getColor(android.R.color.white));
+
+        toplayout.addView(frameLayout, frameLayoutLayoutParams);
+
+        setupAds(toplayout);
+
+        this.setContentView(toplayout, frameLayoutLayoutParams);
+
+        setupDroiuby();
+    }
+
+    private void setupAds(RelativeLayout toplayout) {
+        final FrameLayout.LayoutParams adLayoutLayoutParams =
+                new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams relativeLayoutParams = new RelativeLayout.LayoutParams(adLayoutLayoutParams);
+        relativeLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        relativeLayoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
         // Create an ad.
         adView = new AdView(this);
         adView.setAdSize(AdSize.BANNER);
         adView.setAdUnitId("ca-app-pub-5223989576875261/3336354885");
+//        AdRequest adRequest = new AdRequest.Builder()
+//                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+//                .build();
+//
+//        adView.loadAd(adRequest);
+        toplayout.addView(adView, relativeLayoutParams);
+    }
 
-        frameLayout.addView(adView);
-        frameLayout.setBackgroundColor(getResources().getColor(android.R.color.white));
-        this.setContentView(frameLayout, frameLayoutLayoutParams);
-
+    private void setupDroiuby() {
         Bundle params = this.getIntent().getExtras();
         if (params != null) {
             String bundleName = params.getString("bundle");
@@ -194,12 +223,18 @@ public class MainActivity extends BaseGameActivity {
         }
     }
 
-    private void loadMusic(String filename) {
+    private void loadMusic(String set, String filename) {
         try {
+            ArrayList<Music> tracks;
+            if (!musicSet.containsKey(set)) {
+                tracks = new ArrayList<Music>();
+                musicSet.put(set, tracks);
+            } else {
+                tracks = musicSet.get(set);
+            }
 
-            Music music = MusicFactory.createMusicFromAsset(getMusicManager(), this, filename);
-
-            trackList.add(music);
+            Music music = MusicFactory.createMusicFromAsset(getMusicManager(), this, set + "/" + filename);
+            tracks.add(music);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -236,14 +271,19 @@ public class MainActivity extends BaseGameActivity {
         loadSound("cascade", "cascade.mp3");
         loadSound("super", "super_ready.mp3");
         loadSound("menu", "menu.mp3");
-        loadSound("typing", "keyboard.mp3");
+//        loadSound("typing", "keyboard.mp3");
 
 
-        // Load our "music.mp3" file into a music object
-        String[] items = getAssets().list("music");
-        for(String path : items) {
+        String[] endless_items = getAssets().list("music/endless");
+        for(String path : endless_items) {
             Log.d(TAG, "loading music " + path);
-            loadMusic(path);
+            loadMusic("endless", path);
+        }
+
+        String[] story_items = getAssets().list("music/story");
+        for(String path : story_items) {
+            Log.d(TAG, "loading music " + path);
+            loadMusic("story", path);
         }
 
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/roboto_bold.ttf");
@@ -326,25 +366,35 @@ public class MainActivity extends BaseGameActivity {
         return null;
     }
 
-    private void setCurrentManager(GameManager manager) {
-        mScene.detachChildren();
-        if (foreground.size() > 0) {
-            GameManager prev = foreground.get(foreground.size() - 1);
-            prev.hide();
-        }
-        foreground.add(manager);
-        manager.show(mScene);
-        mScene.setOnSceneTouchListener(manager);
+    private void setCurrentManager(final GameManager manager) {
+        mEngine.runOnUpdateThread(new Runnable() {
+            @Override
+            public void run() {
+                mScene.detachChildren();
+                if (foreground.size() > 0) {
+                    GameManager prev = foreground.get(foreground.size() - 1);
+                    prev.hide();
+                }
+                foreground.add(manager);
+                manager.show(mScene);
+                mScene.setOnSceneTouchListener(manager);
+            }
+        });
+
     }
 
     private void showTitleScreen() {
+        showAds();
+        setCurrentManager(titleScreen);
+    }
+
+    public void showAds() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 adView.setVisibility(View.VISIBLE);
             }
         });
-        setCurrentManager(titleScreen);
     }
 
     @Override
@@ -387,10 +437,12 @@ public class MainActivity extends BaseGameActivity {
     public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback) throws Exception {
         endlessMode = new EndlessMode(this, mScene, canvasWidth, canvasHeight, getVertexBufferObjectManager(),
                 fontHashMap, soundAssets);
-        endlessMode.setMusic(trackList);
+        ArrayList<Music> endlessTrackList = musicSet.get("endless");
+        endlessTrackList.addAll(musicSet.get("story"));
+        endlessMode.setMusic(endlessTrackList);
         storyMode = new StoryMode(this, mScene, canvasWidth, canvasHeight, getVertexBufferObjectManager(),
                 fontHashMap, soundAssets);
-
+        storyMode.setMusic(musicSet.get("story"));
         titleScreen = new TitleScreenManager(this, 0, 0, canvasWidth, canvasHeight, titleLines, getVertexBufferObjectManager());
         pOnPopulateSceneCallback.onPopulateSceneFinished();
     }
@@ -448,19 +500,24 @@ public class MainActivity extends BaseGameActivity {
     }
 
     public void popCurrentManager() {
-        mScene.detachChildren();
-        if (foreground.size() > 1) {
-            int currentIndex = foreground.size() - 1;
-            if (foreground.size() > 0) {
-                GameManager prev = foreground.get(currentIndex);
-                prev.hide();
+        mEngine.runOnUpdateThread(new Runnable() {
+            @Override
+            public void run() {
+                mScene.detachChildren();
+                if (foreground.size() > 1) {
+                    int currentIndex = foreground.size() - 1;
+                    if (foreground.size() > 0) {
+                        GameManager prev = foreground.get(currentIndex);
+                        prev.hide();
+                    }
+                    foreground.remove(currentIndex);
+                    getCurrentManager().show(mScene);
+                    mScene.setOnSceneTouchListener(getCurrentManager());
+                } else {
+                    finish();
+                }
             }
-            foreground.remove(currentIndex);
-            getCurrentManager().show(mScene);
-            mScene.setOnSceneTouchListener(getCurrentManager());
-        } else {
-            finish();
-        }
+        });
     }
 
     @Override

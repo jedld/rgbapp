@@ -33,10 +33,6 @@ public abstract class MenuEntity extends Entity {
 
     public abstract float getMenuWidth();
 
-    public String getFontKey() {
-        return "menu";
-    }
-
     public void addMenuItem(String label, OnMenuSelectedListener listener) {
         MenuAttributes attributes = new MenuAttributes();
         attributes.setColor(Color.BLACK);
@@ -66,7 +62,11 @@ public abstract class MenuEntity extends Entity {
         float boundRectangleWidth = getMenuWidth() - MainMenu.MENU_MARGINS * 2;
         Rectangle rectangle = new Rectangle(MainMenu.MENU_MARGINS, menuOffsetY + menuStartOffsetY, boundRectangleWidth,
                 MainMenu.MENU_ITEM_HEIGHT, vertexBufferObjectManager);
-        rectangle.setColor(menuAttributes.getBackgroundColor());
+
+        if (menuAttributes.getBackgroundColor()!=null) {
+            rectangle.setColor(menuAttributes.getBackgroundColor());
+        }
+
         rectangle.setAlpha(menuAttributes.getAlpha());
         Text menuText = null;
         if (isStateful) {
@@ -77,11 +77,11 @@ public abstract class MenuEntity extends Entity {
                 menuLabel = label + " - OFF";
             }
 
-            menuText = new Text(0, 0, Utils.getInstance().getFont(getFontKey()), menuLabel, vertexBufferObjectManager);
+            menuText = new Text(0, 0, Utils.getInstance().getFont(menuAttributes.getFontKey()), menuLabel, vertexBufferObjectManager);
             menuItem.setText(menuText);
             menuItem.setState(defaultValue);
         } else {
-            menuText = new Text(0, 0, Utils.getInstance().getFont(getFontKey()), label, vertexBufferObjectManager);
+            menuText = new Text(0, 0, Utils.getInstance().getFont(menuAttributes.getFontKey()), label, vertexBufferObjectManager);
             menuItem.setText(menuText);
         }
         menuText.setX(boundRectangleWidth / 2 - menuText.getWidth() / 2);

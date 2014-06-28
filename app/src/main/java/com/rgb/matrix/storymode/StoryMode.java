@@ -140,7 +140,6 @@ public class StoryMode extends GameManager implements GridEventListener{
     private static final float WAIT_FOR_TOUCH_WIDTH = 54;
     private static final float WAIT_FOR_TOUCH_HEIGHT = 54;
 
-    private final MainActivity context;
     private final MainMenu mainMenu;
     private final HashMap<String, Font> fontDictionary;
     private final HashMap<String, SoundWrapper> soundAsssets;
@@ -169,7 +168,7 @@ public class StoryMode extends GameManager implements GridEventListener{
     public StoryMode(final MainActivity context, Scene mScene, float canvasWidth, float canvasHeight,
                      VertexBufferObjectManager vertexBufferObjectManager,
                      HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets) {
-        this.context = context;
+        super(context);
         this.mainMenu = new MainMenu(0, 0, fontDictionary, vertexBufferObjectManager);
         mainMenu.setVisible(false);
         this.fontDictionary = fontDictionary;
@@ -206,6 +205,37 @@ public class StoryMode extends GameManager implements GridEventListener{
             }
         });
 
+        mainMenu.addMenuItem("Back to Title", new OnMenuSelectedListener() {
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                mainMenu.setVisible(false);
+                stopMusic();
+                context.popCurrentManager();
+            }
+        });
+
+        boolean defaultMusicState = true, defaultSoundState = true;
+
+        defaultMusicState = getMusicState();
+        defaultSoundState = getSoundState();
+
+        mainMenu.addMenuItem("Music", true, defaultMusicState, new OnMenuSelectedListener() {
+
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                item.setState(!item.getState());
+                toggleMusic(item.getState());
+            }
+        });
+
+        mainMenu.addMenuItem("Sounds", true, defaultSoundState, new OnMenuSelectedListener() {
+
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                item.setState(!item.getState());
+                toggleSounds(item.getState());
+            }
+        });
 
         setupTouchIndicator();
         setupYourMoveIndicator();
@@ -330,10 +360,14 @@ public class StoryMode extends GameManager implements GridEventListener{
             mainMenu.setVisible(false);
             mScene.attachChild(mainMenu);
 
+            //start music
+            startMusic();
+
             CurrentBlock block = new CurrentBlock(null);
             block.setOperations(level.getOperations());
             stack.add(block);
             processOpSequence();
+
         } catch (final Exception e) {
             context.runOnUiThread(new Runnable() {
                 @Override
@@ -437,9 +471,9 @@ public class StoryMode extends GameManager implements GridEventListener{
                     }
 
                 } else if (op.opCode.equals("show_text")) {
-                    final SoundWrapper typeSound = Utils.getInstance().getSound("typing");
+//                    final SoundWrapper typeSound = Utils.getInstance().getSound("typing");
 
-                    typeSound.play();
+//                    typeSound.play();
                     processOpShowText(op, new OnTextDisplayedListener() {
                         @Override
                         public void onComplete() {
@@ -448,13 +482,13 @@ public class StoryMode extends GameManager implements GridEventListener{
 
                         @Override
                         public void onSequenceComplete() {
-                            typeSound.stop();
+//                            typeSound.stop();
                         }
                     });
                 } else if (!fastForward && op.opCode.equals("babble")) {
                     final CurrentBlock finalCurrentBlock1 = currentBlock;
-                    final SoundWrapper typeSound = Utils.getInstance().getSound("typing");
-                    typeSound.play();
+//                    final SoundWrapper typeSound = Utils.getInstance().getSound("typing");
+//                    typeSound.play();
                     processOpShowText(op, new OnTextDisplayedListener() {
                         @Override
                         public void onComplete() {
@@ -464,7 +498,7 @@ public class StoryMode extends GameManager implements GridEventListener{
                         @Override
                         public void onSequenceComplete() {
                             processOpWaitForTouch(finalCurrentBlock1);
-                            typeSound.stop();
+//                            typeSound.stop();
                             yourMoveContainer.hide();
                             waitFoTapContainer.show();
                         }
@@ -959,26 +993,6 @@ public class StoryMode extends GameManager implements GridEventListener{
     }
 
     @Override
-    public void toggleMusic(boolean state) {
-
-    }
-
-    @Override
-    public void toggleSounds(boolean state) {
-
-    }
-
-    @Override
-    public boolean getMusicState() {
-        return false;
-    }
-
-    @Override
-    public boolean getSoundState() {
-        return false;
-    }
-
-    @Override
     public void onScreenCaptureHighScore(GameOver gameOverText, ScreenCapture screenCapture) {
 
     }
@@ -1060,6 +1074,7 @@ public class StoryMode extends GameManager implements GridEventListener{
         if (listener!=null) {
             listener.onComplete(levelMenu);
         }
+        stopMusic();
     }
 
     @Override
@@ -1084,11 +1099,15 @@ public class StoryMode extends GameManager implements GridEventListener{
 
     @Override
     public boolean onBackPressed() {
-        if (mainMenu.isVisible()) {
+        if (levelMenu.isVisible()) {
             return false;
         } else {
-            mainMenu.setVisible(true);
-            return true;
+            if (mainMenu.isVisible()) {
+                return false;
+            } else {
+                mainMenu.setVisible(true);
+                return true;
+            }
         }
     }
 }
