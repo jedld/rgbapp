@@ -85,6 +85,7 @@ public class EndlessMode extends GameManager implements GridEventListener {
         mSimpleFacebook = SimpleFacebook.getInstance(context);
         playMusic = false;
         MatrixOptions options = new MatrixOptions();
+        ScreenCapture screenCapture = new ScreenCapture();
         matrix = new GameMatrix(context, this, mScene, mainMenu, fontDictionary, soundAsssets,
                 vertexBufferObjectManager, BOARD_WIDTH, BOARD_HEIGHT, 0, 10, canvasWidth, canvasHeight,
                 ObjectDimensions.ENDLESS_MODE_TILE_SIZE, options);
@@ -137,6 +138,7 @@ public class EndlessMode extends GameManager implements GridEventListener {
         });
 
         grid = matrix.getMainGrid();
+        mScene.attachChild(screenCapture);
     }
 
     public void restartGame() {
@@ -167,12 +169,14 @@ public class EndlessMode extends GameManager implements GridEventListener {
     public void onScreenCaptureHighScore(final GameOver gameOverText, ScreenCapture screenCapture) {
         String filename = null;
         try {
+            Log.d(TAG,"onScreencapture " + context.getSurfaceWidth()+ " " + context.getSurfaceHeight());
+
 
             filename = context.getCacheDir().getCanonicalPath() + File.separator + "rgb_" + System.currentTimeMillis() + ".bmp";
             final String outFilename = context.getCacheDir().getCanonicalPath() + File.separator +
                     "rgb_" + System.currentTimeMillis() + ".png";
             final String finalFilename = filename;
-            screenCapture.capture((int) canvasWidth, (int) canvasHeight, filename,
+            screenCapture.capture((int) context.getSurfaceWidth(), (int) context.getSurfaceHeight(), filename,
                     new ScreenCapture.IScreenCaptureCallback() {
 
                         @Override
@@ -184,7 +188,8 @@ public class EndlessMode extends GameManager implements GridEventListener {
 
                         @Override
                         public void onScreenCaptureFailed(String pFilePath, Exception pException) {
-
+                            Log.d(TAG, "Screencap failed " + pException.getMessage());
+                            pException.printStackTrace();;
                         }
                     }
             );
@@ -293,8 +298,10 @@ public class EndlessMode extends GameManager implements GridEventListener {
             final Bitmap outBitmap = BitmapFactory.decodeFile(finalFilename);
             View confirmation = context.getLayoutInflater().inflate(R.layout.confirmation_dialog, null);
             TextView text = (TextView) confirmation.findViewById(R.id.message);
-            text.setText("Are you sure you want to share this screenshot to Facebook?");
+            text.setText("Share this screenshot to Facebook?");
             ImageView image = (ImageView) confirmation.findViewById(R.id.imageView);
+            image.setMaxWidth(400);
+            image.setMaxHeight(800);
             image.setImageDrawable(new BitmapDrawable(context.getResources(), outBitmap));
 
             builder.setView(confirmation).setPositiveButton("Yes", new DialogInterface.OnClickListener() {

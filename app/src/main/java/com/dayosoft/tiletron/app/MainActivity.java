@@ -151,6 +151,14 @@ public class MainActivity extends BaseGameActivity {
         setupDroiuby();
     }
 
+    public int getSurfaceWidth() {
+        return mRenderSurfaceView.getWidth();
+    }
+
+    public int getSurfaceHeight() {
+        return mRenderSurfaceView.getHeight();
+    }
+
     private void setupAds(RelativeLayout toplayout) {
         final FrameLayout.LayoutParams adLayoutLayoutParams =
                 new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,

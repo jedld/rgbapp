@@ -337,7 +337,6 @@ public class StoryMode extends GameManager implements GridEventListener{
 
             options.setAllowedObjects(level.getAllowedQueueObjects());
             options.setRechargeMeterInitialValue(level.getRechargeMeterInitial());
-
             matrix = new GameMatrix(context, this, mScene, mainMenu, fontDictionary, soundAsssets,
                     vertexBufferObjectManager, level.getGridWidth(), level.getGridHeight(), offset_x, 10,
                     canvasWidth, canvasHeight, ObjectDimensions.STORY_MODE_TILE_SIZE, options);
@@ -359,7 +358,6 @@ public class StoryMode extends GameManager implements GridEventListener{
             mainMenu.detachSelf();
             mainMenu.setVisible(false);
             mScene.attachChild(mainMenu);
-
             //start music
             startMusic();
 

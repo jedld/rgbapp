@@ -119,7 +119,7 @@ public class Profile implements User {
 		mUpdatedTime = Utils.getPropertyString(mGraphObject, Properties.UPDATED_TIME);
 
 		// verified
-		mVerified = Utils.getPropertyBoolean(mGraphObject, Properties.INSTALLED);
+		mVerified = Utils.getPropertyBoolean(mGraphObject, Properties.VERIFIED);
 
 		// bio
 		mBio = Utils.getPropertyString(mGraphObject, Properties.BIO);
@@ -368,7 +368,7 @@ public class Profile implements User {
 	 * @return <code>True</code> if installed, otherwise <code>False</code>
 	 */
 	public Boolean getInstalled() {
-		return mIsInstalled;
+		return mIsInstalled == null ? false : mIsInstalled;
 	}
 
 	/**
@@ -453,7 +453,7 @@ public class Profile implements User {
 	}
 
 	/**
-	 * The user's cover photo <br>
+	 * The user's cover photo. The url of cover will be under {@link Photo#getSource()} <br>
 	 * <br>
 	 * <b> Permissions:</b><br>
 	 * {@link Permission#BASIC_INFO}
@@ -653,7 +653,7 @@ public class Profile implements User {
 		private Properties(Builder builder) {
 			mBundle = new Bundle();
 			Iterator<String> iterator = builder.properties.iterator();
-			String fields = Utils.join(iterator, ',');
+			String fields = Utils.join(iterator, ",");
 			mBundle.putString("fields", fields);
 		}
 
@@ -1149,15 +1149,6 @@ public class Profile implements User {
 			}
 
 			/**
-			 * Add property you need
-			 * 
-			 * @param property
-			 *            The property of the user profile<br>
-			 *            For example: {@link Properties#PICTURE}
-			 * @return {@link Builder}
-			 */
-
-			/**
 			 * Add property and attribute you need
 			 * 
 			 * @param property
@@ -1166,17 +1157,14 @@ public class Profile implements User {
 			 * @param attributes
 			 *            For example: picture can have type,width and height<br>
 			 * 
-			 * 
 			 * @return {@link Builder}
 			 */
 			public Builder add(String property, Attributes attributes) {
 				Map<String, String> map = attributes.getAttributes();
-
 				StringBuilder stringBuilder = new StringBuilder();
 				stringBuilder.append(property);
 				stringBuilder.append('.');
 				stringBuilder.append(Utils.join(map, '.', '(', ')'));
-
 				properties.add(stringBuilder.toString());
 				return this;
 			}

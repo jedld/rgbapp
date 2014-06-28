@@ -40,6 +40,7 @@ public class MainGrid extends BoundedEntity implements RechargeMeterEventsListen
 
     private final MatrixOptions options;
     private final float width;
+    private final ScreenCapture screenCapture;
     private TileQueue queue;
 
     public float getHeight() {
@@ -81,7 +82,6 @@ public class MainGrid extends BoundedEntity implements RechargeMeterEventsListen
     private Rectangle chainBonusRepeaterBackground;
     private static float repeaterSizeInPixels = 15;
     private GameOver gameOverText;
-    private ScreenCapture screenCapture;
     private boolean highScoreAchieved;
 
     public float getRectangleTileSizeInPixels() {
@@ -125,6 +125,7 @@ public class MainGrid extends BoundedEntity implements RechargeMeterEventsListen
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.matrix = matrix;
+        this.screenCapture = new ScreenCapture();
         this.gridEventListener = gridEventListener;
         this.mainMenu = mainMenu;
         this.soundAssets = soundAssets;
@@ -225,10 +226,7 @@ public class MainGrid extends BoundedEntity implements RechargeMeterEventsListen
 
         newGameButton = new RectangleButton(width - 170, offsetY - 15, 170, 50, vertexBuffer, mFont, "Menu");
         attachChild(newGameButton);
-
-        screenCapture = new ScreenCapture();
         attachChild(screenCapture);
-
         gameOverText = new GameOver(0, 0, mFont, vertexBuffer);
         gameOverText.setX(width / 2 - (gameOverText.getWidth() / 2));
         gameOverText.setY((height / 2) - (gameOverText.getHeight() / 2));

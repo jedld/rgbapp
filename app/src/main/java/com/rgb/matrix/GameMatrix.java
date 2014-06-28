@@ -20,6 +20,7 @@ import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.modifier.ScaleAtModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
+import org.andengine.entity.util.ScreenCapture;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
@@ -116,7 +117,8 @@ public class GameMatrix implements IUpdateHandler {
     public GameMatrix(Context context, GridEventListener listener, Scene scene, MainMenu mainMenu,
                       HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets,
                       VertexBufferObjectManager vertexBuffer, int gridWidth, int gridHeight,
-                      int offset_x, int offset_y, float sceneWidth, float sceneHeight, float tileSize, MatrixOptions options) {
+                      int offset_x, int offset_y, float sceneWidth, float sceneHeight, float tileSize,
+                      MatrixOptions options) {
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
         this.context = context;
