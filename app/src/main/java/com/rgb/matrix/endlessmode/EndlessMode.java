@@ -252,7 +252,12 @@ public class EndlessMode extends GameManager implements GridEventListener {
 
     @Override
     public boolean onBackPressed() {
-        return false;
+        if (mainMenu.isVisible()) {
+            mainMenu.animateHide();
+        } else {
+            mainMenu.animateShow();
+        }
+        return true;
     }
 
 

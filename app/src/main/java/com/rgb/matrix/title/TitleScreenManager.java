@@ -2,6 +2,7 @@ package com.rgb.matrix.title;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.widget.Toast;
 
 import com.dayosoft.tiletron.app.MainActivity;
 import com.rgb.matrix.GameManager;
@@ -21,6 +22,8 @@ public class TitleScreenManager extends GameManager {
 
     private final TitleScreen titleScreen;
     private final MainActivity context;
+    private boolean backedPressed = false;
+
 
     public TitleScreenManager(final MainActivity activity, float pX, float pY, float width, float height, List<String> lines, VertexBufferObjectManager vertexBufferObjectManager) {
         super(activity);
@@ -105,6 +108,12 @@ public class TitleScreenManager extends GameManager {
 
     @Override
     public boolean onBackPressed() {
+        if (!backedPressed) {
+            Toast.makeText(context, "Press back again to exit", Toast.LENGTH_LONG).show();
+            backedPressed = true;
+        } else {
+            android.os.Process.killProcess(android.os.Process.myPid());
+        }
         return true;
     }
 }

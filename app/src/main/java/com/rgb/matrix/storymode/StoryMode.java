@@ -1100,12 +1100,14 @@ public class StoryMode extends GameManager implements GridEventListener{
         if (levelMenu.isVisible()) {
             return false;
         } else {
-            if (mainMenu.isVisible()) {
-                return false;
-            } else {
-                mainMenu.setVisible(true);
-                return true;
+            if (!waitForTouchOperation) {
+                if (mainMenu.isVisible()) {
+                    mainMenu.animateHide();
+                } else {
+                    mainMenu.animateShow();
+                }
             }
         }
+        return true;
     }
 }

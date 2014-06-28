@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.dayosoft.tiletron.app" >
+    package="com.dayosoft.tiletron.app" android:debuggable="false"  >
 
     <application>
         <activity

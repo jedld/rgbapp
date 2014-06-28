@@ -79,7 +79,7 @@ public class MainActivity extends BaseGameActivity {
     private List<String> titleLines = new ArrayList<String>();
     private LogoTiles logo;
 
-    private boolean backedPressed = false;
+
     private SimpleFacebook mSimpleFacebook;
 
 
@@ -493,15 +493,7 @@ public class MainActivity extends BaseGameActivity {
 
     @Override
     public void onBackPressed() {
-        if (getCurrentManager().onBackPressed()) {
-            if (!backedPressed) {
-                Toast.makeText(this, "Press back again to exit", Toast.LENGTH_LONG).show();
-                backedPressed = true;
-            } else {
-                super.onBackPressed();
-                android.os.Process.killProcess(android.os.Process.myPid());
-            }
-        } else {
+        if (!getCurrentManager().onBackPressed()) {
             popCurrentManager();
         }
 
