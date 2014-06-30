@@ -549,7 +549,7 @@ public class GridSquare extends BoundedEntity {
             innerRectangle.setColor(Utils.getLighter(getTileType()));
 
             float rect_height = matrix.getRectangleTileSizeInPixels() - ObjectDimensions.szInnerRectThickness * 2;
-            final float current_height = (rect_height * age) / MAX_AGE;
+            final float current_height = computeHeight(rect_height);
             if (getBoardPositionX() >= 0 && innerRectangle.getHeight() < current_height) {
                 innerRectangle.registerEntityModifier(new HeightModifier(1f, current_height - innerRectangle.getHeight(), new IEntityModifier.IEntityModifierListener() {
                     @Override
@@ -577,6 +577,13 @@ public class GridSquare extends BoundedEntity {
         } else {
             valueText.setVisible(false);
         }
+    }
+
+    private float computeHeight(float rect_height) {
+        if (age > MAX_AGE) {
+            return rect_height;
+        }
+        return (rect_height * age) / MAX_AGE;
     }
 
     private Color toColor(Integer block) {

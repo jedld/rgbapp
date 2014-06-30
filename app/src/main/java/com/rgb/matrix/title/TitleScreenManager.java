@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.widget.Toast;
 
 import com.dayosoft.tiletron.app.MainActivity;
+import com.google.android.gms.games.Games;
+import com.google.example.games.basegameutils.GameHelper;
 import com.rgb.matrix.GameManager;
 import com.rgb.matrix.menu.MenuItem;
 import com.rgb.matrix.menu.OnMenuSelectedListener;
@@ -27,7 +29,7 @@ public class TitleScreenManager extends GameManager {
 
     public TitleScreenManager(final MainActivity activity, float pX, float pY, float width, float height, List<String> lines, VertexBufferObjectManager vertexBufferObjectManager) {
         super(activity);
-        this.titleScreen = new TitleScreen( pX,  pY,  width,  height, lines, vertexBufferObjectManager);
+        this.titleScreen = new TitleScreen(pX, pY, width, height, lines, vertexBufferObjectManager);
         this.context = activity;
         titleScreen.addMenuItem("Story Mode", new OnMenuSelectedListener() {
             @Override
@@ -40,6 +42,23 @@ public class TitleScreenManager extends GameManager {
             @Override
             public void onMenuItemSelected(MenuItem item) {
                 activity.startEndlessMode();
+            }
+        });
+
+        titleScreen.addMinorMenuItem("Achievements", new OnMenuSelectedListener() {
+
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                context.runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                context.startActivityForResult(Games.Achievements.getAchievementsIntent(context.getApiClient()),
+                                        MainActivity.REQUEST_ACHIEVEMENTS);
+                            }
+                        }
+                );
+
             }
         });
 

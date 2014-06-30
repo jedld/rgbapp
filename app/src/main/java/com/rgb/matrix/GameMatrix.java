@@ -362,8 +362,8 @@ public class GameMatrix implements IUpdateHandler {
     }
 
     public void updateWorld(final int x, final int y, final NextObject object, int multiplierLevel, final boolean placeOnly) {
-        if (multiplierLevel > 5) {
-            multiplierLevel = 5;
+        if (multiplierLevel > 10) {
+            multiplierLevel = 10;
         }
 
         final GridSquare currentTile = mainGrid.getSquareAt(x, y);
@@ -523,7 +523,7 @@ public class GameMatrix implements IUpdateHandler {
             Log.d(TAG, "Updating " + p.first + " " + p.second);
             GridSquare gridSquare = mainGrid.getSquareAt((Integer) p.first, (Integer) p.second);
             if (gridSquare.isColoredTile()) {
-                mainGrid.addScore((1 + gridSquare.getPoints() + gridSquare.getBonus()) * multiplierLevel);
+                mainGrid.addScore((1 + gridSquare.getPoints() + gridSquare.getBonus()) * (multiplierLevel * 2));
                 gridSquare.setTileType(object.getTileType());
 
                 int previous = gridSquare.getTotalPoints();
@@ -671,6 +671,9 @@ public class GameMatrix implements IUpdateHandler {
                 if (multiplier == 1) {
                     nextObject.setTileType(GridSquare.MULTIPLIERX2);
                     nextObject.setAge(0);
+                } else if (multiplier == 5 && mainGrid.getLevel() > 9) {
+                    nextObject.setTileType(tileType);
+                    nextObject.setAge(mainGrid.getLevel() * 3);
                 } else if (multiplier == 4) {
                     nextObject.setTileType(GridSquare.MULTIPLIERX4_COLORED);
                     nextObject.setMultiplierColor(tileType);

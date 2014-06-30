@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.dayosoft.tiletron.app.MainActivity;
 import com.dayosoft.tiletron.app.SoundWrapper;
+import com.google.android.gms.games.Games;
 import com.rgb.matrix.ColorConstants;
 import com.rgb.matrix.EmptyBoundedEntity;
 import com.rgb.matrix.GameManager;
@@ -468,6 +469,9 @@ public class StoryMode extends GameManager implements GridEventListener{
                         matrix.enableMoves();
                     }
 
+                } else if (op.opCode.equals("achievement")) {
+                    String achievementId = op.opDetails.getString("id");
+                    Games.Achievements.unlock(context.getApiClient(), achievementId);
                 } else if (op.opCode.equals("show_text")) {
 //                    final SoundWrapper typeSound = Utils.getInstance().getSound("typing");
 
@@ -1037,6 +1041,16 @@ public class StoryMode extends GameManager implements GridEventListener{
     @Override
     public void onGameOver() {
         mainMenu.setVisible(true);
+    }
+
+    @Override
+    public void onLevelUp(int level) {
+
+    }
+
+    @Override
+    public void onChainStarted(int multiplier) {
+
     }
 
     public int getOpIndex() {

@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.dayosoft.tiletron.app.MainActivity;
 import com.dayosoft.tiletron.app.R;
 import com.dayosoft.tiletron.app.SoundWrapper;
+import com.google.android.gms.games.Games;
 import com.rgb.matrix.GameManager;
 import com.rgb.matrix.GameMatrix;
 import com.rgb.matrix.GameOver;
@@ -33,6 +34,7 @@ import com.rgb.matrix.menu.OnMenuSelectedListener;
 import com.sromku.simple.fb.Permission;
 import com.sromku.simple.fb.SimpleFacebook;
 import com.sromku.simple.fb.entities.Photo;
+import com.sromku.simple.fb.entities.Privacy;
 import com.sromku.simple.fb.entities.Score;
 import com.sromku.simple.fb.listeners.OnLoginListener;
 import com.sromku.simple.fb.listeners.OnPublishListener;
@@ -153,15 +155,21 @@ public class EndlessMode extends GameManager implements GridEventListener {
     }
 
     @Override
-    public void show(Scene mScene) {
+    public void show(final Scene mScene) {
         mScene.attachChild(grid);
         //Reattach menu
-        mainMenu.detachSelf();
-        mainMenu.setVisible(false);
-        mScene.attachChild(mainMenu);
+        context.getEngine().runOnUpdateThread(new Runnable() {
+            @Override
+            public void run() {
+                mainMenu.detachSelf();
+                mainMenu.setVisible(false);
+                mScene.attachChild(mainMenu);
 
-        playMusic = true;
-        startMusic();
+                playMusic = true;
+                startMusic();
+            }
+        });
+
     }
 
 
@@ -224,7 +232,31 @@ public class EndlessMode extends GameManager implements GridEventListener {
 
     @Override
     public void onGameOver() {
-         grid.showGameOverPopup();
+        if (context.isSignedIn()) {
+            Games.Leaderboards.submitScore(context.getApiClient(), context.getResources().getString(R.string.leaderboard_id), Utils.getHighScore(context));
+        }
+        grid.showGameOverPopup();
+    }
+
+    @Override
+    public void onLevelUp(int level) {
+        if (context.isSignedIn()) {
+            if (level == 10) {
+                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.level10_achieve));
+            }
+        }
+    }
+
+    @Override
+    public void onChainStarted(int multiplier) {
+        if (context.isSignedIn()) {
+            if (multiplier == 2) {
+                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.chain2x_achieve));
+            }
+            if (multiplier == 5) {
+                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.chain5x_achieve));
+            }
+        }
     }
 
 
@@ -316,7 +348,11 @@ public class EndlessMode extends GameManager implements GridEventListener {
 
                     final ProgressDialog dialog = ProgressDialog.show(context, "Please Wait", "Uploading Screenshot.. please wait");
                     dialog.show();
-                    Photo photo = new Photo.Builder()
+
+                    Privacy privacy = new Privacy.Builder()
+                            .setPrivacySettings(Privacy.PrivacySettings.FRIENDS_OF_FRIENDS)
+                            .build();
+                    Photo photo = new Photo.Builder().setPrivacy(privacy)
                             .setImage(outBitmap)
                             .setName("Has played RGB and got a High Score of " + Utils.getHighScore(context))
                             .build();

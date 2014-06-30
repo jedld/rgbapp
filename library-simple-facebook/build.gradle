@@ -10,7 +10,7 @@ apply plugin: 'android-library'
 
 
 dependencies {
-    compile 'com.android.support:support-v4:13.0.+'
+    compile 'com.android.support:support-v4:20.+'
     compile project(':library-facebook-sdk')
 }
 android {

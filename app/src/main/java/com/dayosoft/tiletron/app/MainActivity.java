@@ -14,6 +14,8 @@ import com.droiuby.interfaces.DroiubyHelperInterface;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.example.games.basegameutils.GameHelper;
 import com.rgb.matrix.GameManager;
 import com.rgb.matrix.Utils;
 import com.rgb.matrix.endlessmode.EndlessMode;
@@ -62,9 +64,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-public class MainActivity extends BaseGameActivity {
+public class MainActivity extends BaseGameActivity implements GameHelper.GameHelperListener{
 
     private static final String TAG = MainActivity.class.getName();
+    public static final int REQUEST_ACHIEVEMENTS = 5;
     public static float canvasWidth = 480;
     public static float canvasHeight = 800;
     private Camera mCamera;
@@ -122,6 +125,7 @@ public class MainActivity extends BaseGameActivity {
     private EndlessMode endlessMode;
     private AdView adView;
     private HashMap<String, ArrayList<Music>> musicSet = new HashMap<String, ArrayList<Music>>();
+    private GameHelper mGameHelper;
 
     @Override
     protected void onSetContentView() {
@@ -170,23 +174,23 @@ public class MainActivity extends BaseGameActivity {
         adView = new AdView(this);
         adView.setAdSize(AdSize.BANNER);
         adView.setAdUnitId("ca-app-pub-5223989576875261/3336354885");
-//        AdRequest adRequest = new AdRequest.Builder()
-//                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-//                .build();
-//
-//        adView.loadAd(adRequest);
+        AdRequest adRequest = new AdRequest.Builder()
+                .build();
+
+        adView.loadAd(adRequest);
         toplayout.addView(adView, relativeLayoutParams);
     }
 
     private void setupDroiuby() {
-        Bundle params = this.getIntent().getExtras();
-        if (params != null) {
-            String bundleName = params.getString("bundle");
-            String pageUrl = params.getString("pageUrl");
-            DroiubyHelperInterface helper = DroiubyBootstrap.getHelperInstance();
-            helper.runController(this, bundleName, pageUrl);
-            helper.setExecutionBundle(this, bundleName);
-        }
+            Log.d(TAG,"build type DEBUG");
+            Bundle params = this.getIntent().getExtras();
+            if (params != null) {
+                String bundleName = params.getString("bundle");
+                String pageUrl = params.getString("pageUrl");
+                DroiubyHelperInterface helper = DroiubyBootstrap.getHelperInstance();
+                helper.runController(this, bundleName, pageUrl);
+                helper.setExecutionBundle(this, bundleName);
+            }
     }
 
     @Override
@@ -203,6 +207,9 @@ public class MainActivity extends BaseGameActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         mSimpleFacebook.onActivityResult(this, requestCode, resultCode, data);
+        if (mGameHelper!=null) {
+            mGameHelper.onActivityResult(requestCode, resultCode, data);
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -331,6 +338,21 @@ public class MainActivity extends BaseGameActivity {
         spriteAssets.put(name, mSpriteTextureRegion);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mGameHelper!=null) {
+            mGameHelper.onStop();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mGameHelper!=null) {
+            mGameHelper.onStart(this);
+        }
+    }
 
     @Override
     public synchronized void onGameCreated() {
@@ -364,6 +386,7 @@ public class MainActivity extends BaseGameActivity {
             });
         } else {
             showTitleScreen();
+
         }
     }
 
@@ -394,6 +417,17 @@ public class MainActivity extends BaseGameActivity {
     private void showTitleScreen() {
         showAds();
         setCurrentManager(titleScreen);
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // create game helper with all APIs (Games, Plus, AppState):
+                mGameHelper = new GameHelper(MainActivity.this, GameHelper.CLIENT_GAMES);
+                mGameHelper.setup(MainActivity.this);
+                mGameHelper.getApiClient().connect();
+            }
+        });
+
     }
 
     public void showAds() {
@@ -408,26 +442,44 @@ public class MainActivity extends BaseGameActivity {
     @Override
     protected void onPause() {
         if (adView != null) {
-            adView.pause();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    adView.pause();
+                }
+            });
+
         }
         super.onPause();
     }
 
+
+
     @Override
     public synchronized void onResumeGame() {
+        com.facebook.AppEventsLogger.activateApp(this, getResources().getString(R.string.app_id));
+
         if (getCurrentManager() != null) {
             getCurrentManager().onResumeGame();
         }
 
         super.onResumeGame();
         if (adView != null) {
-            adView.resume();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    adView.resume();
+                }
+            });
+
         }
     }
 
     @Override
     public synchronized void onPauseGame() {
-        getCurrentManager().onPauseGame();
+        if (getCurrentManager()!=null) {
+            getCurrentManager().onPauseGame();
+        }
         super.onPauseGame();
     }
 
@@ -475,9 +527,15 @@ public class MainActivity extends BaseGameActivity {
     }
 
     void showIntro() {
-        mScene.detachChildren();
-        logo = new LogoTiles(0, 0, canvasWidth, canvasHeight, logoLines, getVertexBufferObjectManager());
-        mScene.attachChild(logo);
+        mEngine.runOnUpdateThread(new Runnable() {
+            @Override
+            public void run() {
+                mScene.detachChildren();
+                logo = new LogoTiles(0, 0, canvasWidth, canvasHeight, logoLines, getVertexBufferObjectManager());
+                mScene.attachChild(logo);
+            }
+        });
+
     }
 
     public void startEndlessMode() {
@@ -537,4 +595,21 @@ public class MainActivity extends BaseGameActivity {
     }
 
 
+    @Override
+    public void onSignInFailed() {
+
+    }
+
+    @Override
+    public void onSignInSucceeded() {
+
+    }
+
+    public boolean isSignedIn() {
+        return mGameHelper.isSignedIn();
+    }
+
+    public GoogleApiClient getApiClient() {
+        return mGameHelper.getApiClient();
+    }
 }

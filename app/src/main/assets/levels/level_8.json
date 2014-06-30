@@ -182,6 +182,12 @@
                   },
                   "sequence": [
                     {
+                      "op": "achievement",
+                      "details": {
+                        "id": "CgkI7u2C8OABEAIQAw"
+                      }
+                    },
+                    {
                       "op": "babble",
                       "details": {
                         "value": {

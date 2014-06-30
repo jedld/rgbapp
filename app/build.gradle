@@ -16,10 +16,10 @@ android {
     buildToolsVersion "19.1.0"
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 14
         targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.1"
     }
 
     signingConfigs {
@@ -88,6 +88,7 @@ dependencies {
     compile project(':library-facebook-sdk')
     compile project(':library-simple-facebook')
     compile project(':google-play-services_lib')
+    compile project(':library-base-game-utils')
     compile 'org.yaml:snakeyaml:1.5'
     compile 'org.apache.commons:commons-lang3:3.0'
     compile 'com.android.support:appcompat-v7:19.+'

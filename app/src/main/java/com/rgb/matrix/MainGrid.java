@@ -209,7 +209,7 @@ public class MainGrid extends BoundedEntity implements RechargeMeterEventsListen
         attachChild(scoreText);
 
 
-        chainBonusRepeaterText = new Text(0, 0, fontDictionary.get("multiplier"), "Chain Bonus X 2!", vertexBuffer);
+        chainBonusRepeaterText = new Text(0, 0, fontDictionary.get("multiplier"), "Chain Bonus X 1234567!", vertexBuffer);
         chainBonusRepeaterText.setX(width / 2 - (chainBonusRepeaterText.getWidth() / 2));
         chainBonusRepeaterText.setY(height / 2 - (chainBonusRepeaterText.getHeight() / 2));
         chainBonusRepeaterText.setColor(Color.RED);
@@ -238,7 +238,7 @@ public class MainGrid extends BoundedEntity implements RechargeMeterEventsListen
         gridEventListener.onScreenCaptureHighScore(gameOverText, screenCapture);
     }
 
-    public void showChainBonus(int multiplier) {
+    public void showChainBonus(final int multiplier) {
         chainBonusRepeaterText.setVisible(true);
         chainBonusRepeaterBackground.setVisible(true);
         chainBonusRepeaterText.setText("Chain Bonus X " + multiplier + "!");
@@ -252,8 +252,11 @@ public class MainGrid extends BoundedEntity implements RechargeMeterEventsListen
             public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
                 chainBonusRepeaterText.setVisible(false);
                 chainBonusRepeaterBackground.setVisible(false);
+                gridEventListener.onChainStarted(multiplier);
             }
         }));
+
+
     }
 
     public Entity drawRect(float x, float y, float x1, float y1, Color color, float pLineWidth) {
@@ -522,6 +525,7 @@ public class MainGrid extends BoundedEntity implements RechargeMeterEventsListen
 
     @Override
     public void onLevelUp(int level) {
+        gridEventListener.onLevelUp(level);
         matrix.triggerCallback("level_up");
     }
 

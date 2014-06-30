@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">RGB</string>
+    <string name="app_name">Spectrum</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_intro_scene">RGB</string>
     <string name="app_id">825279700832890</string>
-
+    <string name="gms_app_id">60364469998</string>
+    <string name="leaderboard_id">CgkI7u2C8OABEAIQAQ</string>
+    <string name="level10_achieve">CgkI7u2C8OABEAIQAg</string>
+    <string name="chain2x_achieve">CgkI7u2C8OABEAIQBg</string>
+    <string name="chain5x_achieve">CgkI7u2C8OABEAIQBA</string>
+    <string name="chain3x_achieve">CgkI7u2C8OABEAIQBQ</string>
+    <string name="episode1_achieve">CgkI7u2C8OABEAIQAw</string>
 </resources>

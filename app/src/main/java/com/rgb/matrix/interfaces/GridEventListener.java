@@ -32,4 +32,8 @@ public interface GridEventListener {
     void onRestart(MenuItem item);
 
     void onGameOver();
+
+    void onLevelUp(int level);
+
+    void onChainStarted(int multiplier);
 }
