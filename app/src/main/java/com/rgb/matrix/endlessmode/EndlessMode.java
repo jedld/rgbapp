@@ -61,6 +61,7 @@ public class EndlessMode extends GameManager implements GridEventListener {
     private static final int BOARD_WIDTH = 8;
     private static final int BOARD_HEIGHT = 10;
     private static final String TAG = EndlessMode.class.getName();
+    private static final String PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.dayosoft.tiletron.app";
 
     private final MainMenu mainMenu;
     private final float canvasWidth;
@@ -259,6 +260,13 @@ public class EndlessMode extends GameManager implements GridEventListener {
         }
     }
 
+    @Override
+    public void onAddScore(int score, int previous) {
+        if (score + previous > 10000) {
+            Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.points10000_achieve));
+        }
+    }
+
 
     @Override
     public void hide() {
@@ -354,7 +362,7 @@ public class EndlessMode extends GameManager implements GridEventListener {
                             .build();
                     Photo photo = new Photo.Builder().setPrivacy(privacy)
                             .setImage(outBitmap)
-                            .setName("Has played RGB and got a High Score of " + Utils.getHighScore(context))
+                            .setName("Has played RGB and got a High Score of " + Utils.getHighScore(context) + "! Play now at " + PLAY_STORE_URL)
                             .build();
                     mSimpleFacebook.publish(photo, new OnPublishListener() {
 

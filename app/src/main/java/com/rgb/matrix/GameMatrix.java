@@ -523,10 +523,13 @@ public class GameMatrix implements IUpdateHandler {
             Log.d(TAG, "Updating " + p.first + " " + p.second);
             GridSquare gridSquare = mainGrid.getSquareAt((Integer) p.first, (Integer) p.second);
             if (gridSquare.isColoredTile()) {
-                mainGrid.addScore((1 + gridSquare.getPoints() + gridSquare.getBonus()) * (multiplierLevel * 2));
+                int score = (1 + gridSquare.getPoints() + gridSquare.getBonus()) * (multiplierLevel * 2);
+                mainGrid.addScore(score);
+
                 gridSquare.setTileType(object.getTileType());
 
                 int previous = gridSquare.getTotalPoints();
+                listener.onAddScore(score, previous);
                 gridSquare.incrementAge();
                 if (gridSquare.getTileType() != GridSquare.BUSTED) {
                     gridSquare.animateColorFlip(object.getTileType());

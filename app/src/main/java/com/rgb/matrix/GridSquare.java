@@ -199,7 +199,7 @@ public class GridSquare extends BoundedEntity {
         attachChild(rightConnector);
         attachChild(bottomConnector);
         int points = age + 1;
-        valueText = new Text(matrix.getRectangleTileSizeInPixels() - 35, matrix.getRectangleTileSizeInPixels() - 25, mfont.get("points"), "+00", vertexBuffer);
+        valueText = new Text(matrix.getRectangleTileSizeInPixels() - 35, matrix.getRectangleTileSizeInPixels() - 25, mfont.get("points"), "+000", vertexBuffer);
         valueText.setText("+" + points);
         valueText.setColor(Color.BLACK);
 

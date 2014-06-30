@@ -36,4 +36,6 @@ public interface GridEventListener {
     void onLevelUp(int level);
 
     void onChainStarted(int multiplier);
+
+    void onAddScore(int score, int previous);
 }

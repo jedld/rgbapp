@@ -1053,6 +1053,11 @@ public class StoryMode extends GameManager implements GridEventListener{
 
     }
 
+    @Override
+    public void onAddScore(int score, int previous) {
+
+    }
+
     public int getOpIndex() {
         return stack.getLast().opIndex;
     }
