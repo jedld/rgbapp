@@ -351,6 +351,7 @@ public class MainGrid extends BoundedEntity implements RechargeMeterEventsListen
         if (rechargeMeter != null) {
             rechargeMeter.addPoints(add);
         }
+        matrix.triggerEvent("add_score");
     }
 
     public String formatScoreString(int currentScore, String highScore) {

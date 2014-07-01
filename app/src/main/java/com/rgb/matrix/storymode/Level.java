@@ -20,6 +20,7 @@ public class Level {
     private boolean scoreVisible;
     private int rechargeMeterInitial;
     private ArrayList<TileSet> allowedQueueObjects;
+    private boolean isScoreVisisble;
 
     public float getTileSize() {
         return tileSize;
@@ -160,4 +161,5 @@ public class Level {
     public ArrayList<TileSet> getAllowedQueueObjects() {
         return allowedQueueObjects;
     }
+
 }

@@ -2,26 +2,32 @@
   "id": 8,
   "next_level": 10,
   "title": "Level 9",
-  "tile_size": 60,
+  "tile_size": 54,
   "sub_title": "The multiplier effect",
   "options": {
     "recharge_meter": true,
     "queue": true,
+    "scores": true,
     "queue_allowed_tiles": [
+      {
+        "set": [
+          5
+        ],
+        "w": 0.1
+      },
       {
         "set": [
           7,
           8,
           9
         ],
-        "w": 0.2
+        "w": 0.1
       },
       {
         "set": [
           1,
           2,
-          3,
-          5
+          3
         ],
         "w": 0.8
       }
@@ -32,7 +38,58 @@
       0,
       0,
       0,
+      4,
       0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      4,
+      7,
+      4,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      4,
+      {
+        "t": 2,
+        "age": 100
+      },
+      4,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      4,
+      {
+        "t": 1,
+        "age": 100
+      },
+      4,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      4,
+      9,
+      4,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      4,
       0,
       0,
       0
@@ -45,52 +102,7 @@
       0,
       0,
       0
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
+    ]
   ],
   "queue": [
     8,
@@ -99,7 +111,7 @@
     3
   ],
   "grid_width": 7,
-  "grid_height": 8,
+  "grid_height": 7,
   "sequence": [
     {
       "op": "disable_grid",
@@ -112,8 +124,9 @@
       "details": {
         "value": {
           "message": [
-            "Those TILES above are",
-            "almost used up"
+            "I have received instructions",
+            "that you should start",
+            "increasing your output"
           ]
         }
       }
@@ -123,8 +136,9 @@
       "details": {
         "value": {
           "message": [
-            "but they produce",
-            "the most points."
+            "To help you with that",
+            "Let me introduce to you",
+            "The MULTIPLIER"
           ]
         }
       }
@@ -134,18 +148,19 @@
       "details": {
         "value": {
           "message": [
-            "Take advantage of this",
-            "when creating chains"
+            "It should randomly",
+            "show up in your queue.",
+            "Use it wisely"
           ]
         }
       }
     },
     {
-      "op": "show_text",
+      "op": "babble",
       "details": {
         "value": {
           "message": [
-            "Ok. Try to reach Level 3"
+            "Reach 1000 Points"
           ]
         }
       }
@@ -155,12 +170,12 @@
       "details": {
         "events": [
           {
-            "level_up": [
+            "add_score": [
               {
                 "op": "if",
                 "details": {
                   "test": {
-                    "current_level": 4
+                    "score_greater": 1000
                   },
                   "sequence": [
                     {
@@ -174,9 +189,9 @@
                       "details": {
                         "value": {
                           "message": [
-                            "impressive!",
-                            "You're almost as good as",
-                            "SUBJECT 1"
+                            "Excellent!",
+                            "It seems you have",
+                            "just barely made expectations"
                           ]
                         }
                       }
@@ -186,20 +201,7 @@
                       "details": {
                         "value": {
                           "message": [
-                            "Oops",
-                            "Did I just say",
-                            "SUBJECT 1?"
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "op": "babble",
-                      "details": {
-                        "value": {
-                          "message": [
-                            "Ignore Me.",
-                            "Pretend I did not say anything"
+                            "Let's proceed to the next chore."
                           ]
                         }
                       }

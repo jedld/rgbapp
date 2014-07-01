@@ -288,6 +288,7 @@ public class StoryMode extends GameManager implements GridEventListener{
                 Log.d(TAG,"fast forwarded...");
                 waitForTouchOperation = false;
                 waitFoTapContainer.hide();
+                removeConversation();
                 processOpSequence(true);
             } else if (levelMenu.isVisible()) {
                 levelMenu.onTouch(pSceneTouchEvent);
@@ -471,7 +472,9 @@ public class StoryMode extends GameManager implements GridEventListener{
 
                 } else if (op.opCode.equals("achievement")) {
                     String achievementId = op.opDetails.getString("id");
-                    Games.Achievements.unlock(context.getApiClient(), achievementId);
+                    if (context.isSignedIn()) {
+                        Games.Achievements.unlock(context.getApiClient(), achievementId);
+                    }
                 } else if (op.opCode.equals("show_text")) {
 //                    final SoundWrapper typeSound = Utils.getInstance().getSound("typing");
 
@@ -629,6 +632,13 @@ public class StoryMode extends GameManager implements GridEventListener{
                            }
                         }
 
+                        if (key.equals("score_greater")) {
+                            int targetScore = testFunctions.getInt(key);
+                            if (matrix.getMainGrid().getScore() < targetScore) {
+                                passed= false;
+                            }
+                        }
+
                         if (key.equals("queue_empty")) {
                             boolean result = matrix.getBlockQueue().isEmpty();
                             if (result != testFunctions.getBoolean(key)) {
@@ -697,16 +707,7 @@ public class StoryMode extends GameManager implements GridEventListener{
         int messageDelay = messageDetails.optInt("delay", 100);
         waitFoTapContainer.hide();
         if (!conversationText.isEmpty()) {
-            for (final RectangleButton conversation : conversationText) {
-                context.runOnUpdateThread(new Runnable() {
-                    @Override
-                    public void run() {
-                    /* Now it is save to remove the entity! */
-                        conversation.detachSelf();
-                    }
-                });
-            }
-            conversationText.clear();
+            removeConversation();
             processText(message, 0, messageDelay, listener);
         } else {
             processText(message, 0, messageDelay, listener);
@@ -717,6 +718,19 @@ public class StoryMode extends GameManager implements GridEventListener{
                 listener.onSequenceComplete();
             }
         }
+    }
+
+    private void removeConversation() {
+        for (final RectangleButton conversation : conversationText) {
+            context.runOnUpdateThread(new Runnable() {
+                @Override
+                public void run() {
+                /* Now it is save to remove the entity! */
+                    conversation.detachSelf();
+                }
+            });
+        }
+        conversationText.clear();
     }
 
     private CurrentBlock spawnNewBlock(CurrentBlock currentBlock, ArrayList<Operation> blockOperations) {
@@ -1018,9 +1032,11 @@ public class StoryMode extends GameManager implements GridEventListener{
                 for (int i2 = 0; i2 < currentLevel.getGridHeight(); i2++) {
                     GridSquare gridSquare = mainGrid.getSquareAt(i, i2);
                     gridSquare.reset();
-                    gridSquare.setTileType(map[i][i2].getTileType());
-                    gridSquare.setAge(map[i][i2].getAge());
-                    gridSquare.updateSelf();
+                    if (map[i][i2]!=null) {
+                        gridSquare.setTileType(map[i][i2].getTileType());
+                        gridSquare.setAge(map[i][i2].getAge());
+                        gridSquare.updateSelf();
+                    }
                 }
             }
         }
