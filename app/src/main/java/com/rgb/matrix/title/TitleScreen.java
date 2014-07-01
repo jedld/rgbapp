@@ -70,7 +70,7 @@ public class TitleScreen extends MenuEntity implements IOnSceneTouchListener {
             rectangles.add(rectangle);
         }
 
-        menuStartOffsetY = maxTextHeight + 300;
+        menuStartOffsetY = maxTextHeight + 200;
 
         for (int i = 0; i < TITLE_TILES_WIDTH; i++) {
             Line line = new Line(i * TITLE_TILES_SIZE, TITLE_TILES_SIZE, i * TITLE_TILES_SIZE, height, vertexBufferObjectManager);

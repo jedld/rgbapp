@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.widget.Toast;
 
 import com.dayosoft.tiletron.app.MainActivity;
+import com.dayosoft.tiletron.app.R;
 import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.GameHelper;
 import com.rgb.matrix.GameManager;
@@ -56,6 +57,36 @@ public class TitleScreenManager extends GameManager {
                                 if (context.isSignedIn()) {
                                     context.startActivityForResult(Games.Achievements.getAchievementsIntent(context.getApiClient()),
                                             MainActivity.REQUEST_ACHIEVEMENTS);
+                                } else {
+                                    context.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            context.signInGoogle();
+                                        }
+                                    });
+
+                                }
+                            }
+                        }
+                );
+
+            }
+        });
+
+        titleScreen.addMinorMenuItem("High Scores", new OnMenuSelectedListener() {
+
+            @Override
+            public void onMenuItemSelected(MenuItem item) {
+                context.runOnUiThread(
+                        new Runnable() {
+                            public static final int REQUEST_LEADERBOARD = 2;
+
+                            @Override
+                            public void run() {
+                                if (context.isSignedIn()) {
+                                    context.startActivityForResult(Games.Leaderboards.getLeaderboardIntent(context.getApiClient(),
+                                            context.getResources().getString(
+                                                    R.string.leaderboard_id)), REQUEST_LEADERBOARD);
                                 } else {
                                     context.runOnUiThread(new Runnable() {
                                         @Override
