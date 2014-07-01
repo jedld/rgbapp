@@ -5,12 +5,17 @@ import android.util.Log;
 import com.rgb.matrix.Utils;
 
 import org.andengine.entity.Entity;
+import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.IEntityModifier;
+import org.andengine.entity.modifier.ScaleModifier;
+import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.text.Text;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.Constants;
 import org.andengine.util.color.Color;
+import org.andengine.util.modifier.IModifier;
 
 import java.util.ArrayList;
 
@@ -117,8 +122,19 @@ public abstract class MenuEntity extends Entity {
             }
         }
 
-        for(MenuItem item : triggerEvents) {
-            item.getListener().onMenuItemSelected(item);
+        for(final MenuItem item : triggerEvents) {
+            item.getText().registerEntityModifier(new SequenceEntityModifier(new IEntityModifier.IEntityModifierListener() {
+                @Override
+                public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+                }
+
+                @Override
+                public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                    item.getListener().onMenuItemSelected(item);
+                }
+            }, new ScaleModifier(0.2f,1f,1.1f), new ScaleModifier(0.2f,1.1f,1f)));
+
         }
 
         triggerEvents.clear();

@@ -246,7 +246,7 @@ public class StoryMode extends GameManager implements GridEventListener{
         return instance;
     }
 
-    public void renderLevel(final Level level, final BaseGameActivity context) {
+    public void renderLevel(final Level level, final MainActivity context) {
         this.currentLevel = level;
         levelMenu.setVisible(false);
         mScene.detachChildren();
@@ -318,7 +318,7 @@ public class StoryMode extends GameManager implements GridEventListener{
         }
     }
 
-    private void startLevel(Level level, final BaseGameActivity context) {
+    private void startLevel(Level level, final MainActivity context) {
         try {
             levelMenu.setVisible(false);
             MatrixOptions options = new MatrixOptions();
@@ -340,7 +340,7 @@ public class StoryMode extends GameManager implements GridEventListener{
             options.setRechargeMeterInitialValue(level.getRechargeMeterInitial());
             matrix = new GameMatrix(context, this, mScene, mainMenu, fontDictionary, soundAsssets,
                     vertexBufferObjectManager, level.getGridWidth(), level.getGridHeight(), offset_x, 10,
-                    canvasWidth, canvasHeight, ObjectDimensions.STORY_MODE_TILE_SIZE, options);
+                    canvasWidth, canvasHeight, level.getTileSize(), options);
 
 
             MainGrid grid = matrix.getMainGrid();
@@ -895,6 +895,12 @@ public class StoryMode extends GameManager implements GridEventListener{
         level.setNextLevel(jsonObject.getInt("next_level"));
         level.setGridWidth(jsonObject.getInt("grid_width"));
         level.setGridHeight(jsonObject.getInt("grid_height"));
+
+        if (jsonObject.has("tile_size")) {
+            level.setTileSize((float)jsonObject.getDouble("tile_size"));
+        } else {
+            level.setTileSize(ObjectDimensions.STORY_MODE_TILE_SIZE);
+        }
 
         if (jsonObject.has("options")) {
             JSONObject options = jsonObject.getJSONObject("options");

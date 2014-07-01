@@ -15,6 +15,8 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.games.Game;
+import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.GameHelper;
 import com.rgb.matrix.GameManager;
 import com.rgb.matrix.Utils;
@@ -126,10 +128,12 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
     private AdView adView;
     private HashMap<String, ArrayList<Music>> musicSet = new HashMap<String, ArrayList<Music>>();
     private GameHelper mGameHelper;
+    private RelativeLayout toplayout;
+
 
     @Override
     protected void onSetContentView() {
-        RelativeLayout toplayout = new RelativeLayout(this);
+        toplayout = new RelativeLayout(this);
 
         final FrameLayout frameLayout = new FrameLayout(this);
         //Creating its layout params, making it fill the screen.
@@ -196,6 +200,9 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
     @Override
     protected void onCreate(Bundle pSavedInstanceState) {
         super.onCreate(pSavedInstanceState);
+        mGameHelper = new GameHelper(MainActivity.this, GameHelper.CLIENT_GAMES);
+        mGameHelper.setConnectOnStart(false);
+        mGameHelper.setup(MainActivity.this);
     }
 
     @Override
@@ -365,25 +372,6 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
     private void startMainSequence() {
         if (!Utils.hasShownIntro(this)) {
             showIntro();
-            logo.startAnimationSequence(new OnSequenceFinished() {
-                @Override
-                public void completed() {
-                    Utils.introShown(MainActivity.this);
-
-                    logo.registerEntityModifier(new ColorModifier(0.5f, Color.BLACK, Color.WHITE, new IEntityModifier.IEntityModifierListener() {
-                        @Override
-                        public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-
-                        }
-
-                        @Override
-                        public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-                            logo.setVisible(false);
-                            showTitleScreen();
-                        }
-                    }));
-                }
-            });
         } else {
             showTitleScreen();
 
@@ -417,14 +405,13 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
     private void showTitleScreen() {
         showAds();
         setCurrentManager(titleScreen);
-
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // create game helper with all APIs (Games, Plus, AppState):
-                mGameHelper = new GameHelper(MainActivity.this, GameHelper.CLIENT_GAMES);
-                mGameHelper.setup(MainActivity.this);
-                mGameHelper.getApiClient().connect();
+                GoogleApiClient client = mGameHelper.getApiClient();
+                if (!client.isConnected()) {
+                    client.connect();
+                }
             }
         });
 
@@ -533,6 +520,25 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
                 mScene.detachChildren();
                 logo = new LogoTiles(0, 0, canvasWidth, canvasHeight, logoLines, getVertexBufferObjectManager());
                 mScene.attachChild(logo);
+                logo.startAnimationSequence(new OnSequenceFinished() {
+                    @Override
+                    public void completed() {
+                        Utils.introShown(MainActivity.this);
+
+                        logo.registerEntityModifier(new ColorModifier(0.5f, Color.BLACK, Color.WHITE, new IEntityModifier.IEntityModifierListener() {
+                            @Override
+                            public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+
+                            }
+
+                            @Override
+                            public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
+                                logo.setVisible(false);
+                                showTitleScreen();
+                            }
+                        }));
+                    }
+                });
             }
         });
 
@@ -611,5 +617,11 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
 
     public GoogleApiClient getApiClient() {
         return mGameHelper.getApiClient();
+    }
+
+    public void signInGoogle() {
+        if (!mGameHelper.isConnecting()) {
+            mGameHelper.beginUserInitiatedSignIn();
+        }
     }
 }

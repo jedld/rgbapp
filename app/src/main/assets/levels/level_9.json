@@ -1,8 +1,9 @@
 {
   "id": 8,
-  "next_level": 9,
-  "title": "Level 8",
-  "sub_title": "Mining",
+  "next_level": 10,
+  "title": "Level 9",
+  "tile_size": 60,
+  "sub_title": "The multiplier effect",
   "options": {
     "recharge_meter": true,
     "queue": true,
@@ -19,7 +20,8 @@
         "set": [
           1,
           2,
-          3
+          3,
+          5
         ],
         "w": 0.8
       }
@@ -27,37 +29,7 @@
   },
   "map": [
     [
-      {
-        "t": 1,
-        "age": 4
-      },
-      {
-        "t": 1,
-        "age": 4
-      },
-      8,
-      {
-        "t": 3,
-        "age": 4
-      },
-      {
-        "t": 3,
-        "age": 4
-      },
-      {
-        "t": 3,
-        "age": 4
-      }
-    ],
-    [
-      4,
-      4,
-      4,
-      4,
-      4,
-      4
-    ],
-    [
+      0,
       0,
       0,
       0,
@@ -71,13 +43,6 @@
       0,
       0,
       0,
-      0
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
       0,
       0
     ],
@@ -87,28 +52,45 @@
       0,
       0,
       0,
+      0,
       0
     ],
     [
-      {
-        "t": 2,
-        "age": 3
-      },
-      {
-        "t": 2,
-        "age": 3
-      },
       0,
       0,
-      {
-        "t": 2,
-        "age": 3
-      },
-      {
-        "t": 2,
-        "age": 3
-      }
-    ]
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
   ],
   "queue": [
     8,
@@ -116,8 +98,8 @@
     3,
     3
   ],
-  "grid_width": 6,
-  "grid_height": 7,
+  "grid_width": 7,
+  "grid_height": 8,
   "sequence": [
     {
       "op": "disable_grid",
@@ -178,9 +160,15 @@
                 "op": "if",
                 "details": {
                   "test": {
-                    "current_level": 3
+                    "current_level": 4
                   },
                   "sequence": [
+                    {
+                      "op": "achievement",
+                      "details": {
+                        "id": "CgkI7u2C8OABEAIQAw"
+                      }
+                    },
                     {
                       "op": "babble",
                       "details": {

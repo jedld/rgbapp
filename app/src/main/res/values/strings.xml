@@ -9,9 +9,14 @@
     <string name="gms_app_id">60364469998</string>
     <string name="leaderboard_id">CgkI7u2C8OABEAIQAQ</string>
     <string name="level10_achieve">CgkI7u2C8OABEAIQAg</string>
+    <string name="level20_achieve">CgkI7u2C8OABEAIQCA</string>
+    <string name="level30_achieve">CgkI7u2C8OABEAIQCQ</string>
+    <string name="level50_achieve">CgkI7u2C8OABEAIQCw</string>
+    <string name="level100_achieve">CgkI7u2C8OABEAIQDA</string>
     <string name="chain2x_achieve">CgkI7u2C8OABEAIQBg</string>
     <string name="chain5x_achieve">CgkI7u2C8OABEAIQBA</string>
     <string name="chain3x_achieve">CgkI7u2C8OABEAIQBQ</string>
+    <string name="uber_tile_achieve">CgkI7u2C8OABEAIQCg</string>
     <string name="episode1_achieve">CgkI7u2C8OABEAIQAw</string>
     <string name="points10000_achieve">CgkI7u2C8OABEAIQAw</string>
 </resources>

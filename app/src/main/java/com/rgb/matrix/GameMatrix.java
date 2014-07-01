@@ -5,7 +5,10 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.util.Pair;
 
+import com.dayosoft.tiletron.app.MainActivity;
+import com.dayosoft.tiletron.app.R;
 import com.dayosoft.tiletron.app.SoundWrapper;
+import com.google.android.gms.games.Games;
 import com.rgb.matrix.interfaces.GridEventCallback;
 import com.rgb.matrix.interfaces.GridEventListener;
 import com.rgb.matrix.interfaces.OnSequenceFinished;
@@ -96,7 +99,7 @@ public class GameMatrix implements IUpdateHandler {
     }
 
     private final VertexBufferObjectManager vertexBuffer;
-    Context context;
+    MainActivity context;
     Rectangle rectangles[][];
 
     RectangleButton newGameButton;
@@ -114,7 +117,7 @@ public class GameMatrix implements IUpdateHandler {
 
     MainGrid mainGrid;
 
-    public GameMatrix(Context context, GridEventListener listener, Scene scene, MainMenu mainMenu,
+    public GameMatrix(MainActivity context, GridEventListener listener, Scene scene, MainMenu mainMenu,
                       HashMap<String, Font> fontDictionary, HashMap<String, SoundWrapper> soundAssets,
                       VertexBufferObjectManager vertexBuffer, int gridWidth, int gridHeight,
                       int offset_x, int offset_y, float sceneWidth, float sceneHeight, float tileSize,
@@ -163,6 +166,9 @@ public class GameMatrix implements IUpdateHandler {
     }
 
     public void saveHighScore(int highScore) {
+        if (context.isSignedIn()) {
+            Games.Leaderboards.submitScore(context.getApiClient(), context.getResources().getString(R.string.leaderboard_id), Utils.getHighScore(context));
+        }
         sharedPrefs.edit().putInt("high_score", highScore).commit();
     }
 

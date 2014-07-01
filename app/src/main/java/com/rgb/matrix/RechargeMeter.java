@@ -144,7 +144,7 @@ public class RechargeMeter extends Entity implements Resizable {
             isSuperActivated = false;
             meterObject.setWidth(0);
             pushButton.setVisible(false);
-            maxunits += (maxunits / 3);
+            maxunits += factor(level);
             currentState = 0;
             prevPoints = 0;
             level+=1;
@@ -153,6 +153,24 @@ public class RechargeMeter extends Entity implements Resizable {
             return true;
         }
         return false;
+    }
+
+    private int factor(int level) {
+        if (level < 10)
+        return 50;
+        if (level < 20)
+        return 75;
+        if (level < 30)
+        return 100;
+        if (level < 40)
+        return 150;
+        if (level < 50)
+        return 175;
+        if (level < 60)
+        return 200;
+        if (level < 70)
+        return 250;
+        return 500;
     }
 
     private void updateLevelText() {

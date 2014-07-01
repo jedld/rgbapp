@@ -21,6 +21,16 @@ public class Level {
     private int rechargeMeterInitial;
     private ArrayList<TileSet> allowedQueueObjects;
 
+    public float getTileSize() {
+        return tileSize;
+    }
+
+    public void setTileSize(float tileSize) {
+        this.tileSize = tileSize;
+    }
+
+    private float tileSize;
+
     public ArrayList<Operation> getOperations() {
         return operations;
     }

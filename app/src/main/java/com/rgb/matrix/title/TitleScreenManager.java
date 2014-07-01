@@ -53,8 +53,18 @@ public class TitleScreenManager extends GameManager {
                         new Runnable() {
                             @Override
                             public void run() {
-                                context.startActivityForResult(Games.Achievements.getAchievementsIntent(context.getApiClient()),
-                                        MainActivity.REQUEST_ACHIEVEMENTS);
+                                if (context.isSignedIn()) {
+                                    context.startActivityForResult(Games.Achievements.getAchievementsIntent(context.getApiClient()),
+                                            MainActivity.REQUEST_ACHIEVEMENTS);
+                                } else {
+                                    context.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            context.signInGoogle();
+                                        }
+                                    });
+
+                                }
                             }
                         }
                 );

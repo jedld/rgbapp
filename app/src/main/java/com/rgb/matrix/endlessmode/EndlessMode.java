@@ -233,9 +233,6 @@ public class EndlessMode extends GameManager implements GridEventListener {
 
     @Override
     public void onGameOver() {
-        if (context.isSignedIn()) {
-            Games.Leaderboards.submitScore(context.getApiClient(), context.getResources().getString(R.string.leaderboard_id), Utils.getHighScore(context));
-        }
         grid.showGameOverPopup();
     }
 
@@ -244,6 +241,22 @@ public class EndlessMode extends GameManager implements GridEventListener {
         if (context.isSignedIn()) {
             if (level == 10) {
                 Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.level10_achieve));
+            }
+
+            if (level == 20) {
+                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.level20_achieve));
+            }
+
+            if (level == 30) {
+                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.level30_achieve));
+            }
+
+            if (level == 50) {
+                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.level50_achieve));
+            }
+
+            if (level == 100) {
+                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.level100_achieve));
             }
         }
     }
@@ -264,6 +277,9 @@ public class EndlessMode extends GameManager implements GridEventListener {
     public void onAddScore(int score, int previous) {
         if (score + previous > 10000) {
             Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.points10000_achieve));
+        }
+        if (score >= 100) {
+            Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.uber_tile_achieve));
         }
     }
 
