@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.droiuby.application.bootstrap.DroiubyBootstrap;
 import com.droiuby.interfaces.DroiubyHelperInterface;
@@ -15,12 +14,11 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.games.Game;
-import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.GameHelper;
 import com.rgb.matrix.GameManager;
 import com.rgb.matrix.Utils;
 import com.rgb.matrix.endlessmode.EndlessMode;
+import com.rgb.matrix.interfaces.ManagerStateListener;
 import com.rgb.matrix.interfaces.OnSequenceFinished;
 import com.rgb.matrix.intro.LogoTiles;
 import com.rgb.matrix.storymode.StoryMode;
@@ -63,10 +61,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
-public class MainActivity extends BaseGameActivity implements GameHelper.GameHelperListener{
+public class MainActivity extends BaseGameActivity implements GameHelper.GameHelperListener {
 
     private static final String TAG = MainActivity.class.getName();
     public static final int REQUEST_ACHIEVEMENTS = 5;
@@ -186,15 +183,15 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
     }
 
     private void setupDroiuby() {
-            Log.d(TAG,"build type DEBUG");
-            Bundle params = this.getIntent().getExtras();
-            if (params != null) {
-                String bundleName = params.getString("bundle");
-                String pageUrl = params.getString("pageUrl");
-                DroiubyHelperInterface helper = DroiubyBootstrap.getHelperInstance();
-                helper.runController(this, bundleName, pageUrl);
-                helper.setExecutionBundle(this, bundleName);
-            }
+        Log.d(TAG, "build type DEBUG");
+        Bundle params = this.getIntent().getExtras();
+        if (params != null) {
+            String bundleName = params.getString("bundle");
+            String pageUrl = params.getString("pageUrl");
+            DroiubyHelperInterface helper = DroiubyBootstrap.getHelperInstance();
+            helper.runController(this, bundleName, pageUrl);
+            helper.setExecutionBundle(this, bundleName);
+        }
     }
 
     @Override
@@ -214,7 +211,7 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         mSimpleFacebook.onActivityResult(this, requestCode, resultCode, data);
-        if (mGameHelper!=null) {
+        if (mGameHelper != null) {
             mGameHelper.onActivityResult(requestCode, resultCode, data);
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -297,13 +294,13 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
 
 
         String[] endless_items = getAssets().list("music/endless");
-        for(String path : endless_items) {
+        for (String path : endless_items) {
             Log.d(TAG, "loading music " + path);
             loadMusic("endless", path);
         }
 
         String[] story_items = getAssets().list("music/story");
-        for(String path : story_items) {
+        for (String path : story_items) {
             Log.d(TAG, "loading music " + path);
             loadMusic("story", path);
         }
@@ -348,7 +345,7 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
     @Override
     protected void onStop() {
         super.onStop();
-        if (mGameHelper!=null) {
+        if (mGameHelper != null) {
             mGameHelper.onStop();
         }
     }
@@ -356,7 +353,7 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
     @Override
     protected void onStart() {
         super.onStart();
-        if (mGameHelper!=null) {
+        if (mGameHelper != null) {
             mGameHelper.onStart(this);
         }
     }
@@ -386,6 +383,10 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
     }
 
     private void setCurrentManager(final GameManager manager) {
+        setCurrentManager(manager, null);
+    }
+
+    private void setCurrentManager(final GameManager manager, final ManagerStateListener listener) {
         mEngine.runOnUpdateThread(new Runnable() {
             @Override
             public void run() {
@@ -397,6 +398,9 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
                 foreground.add(manager);
                 manager.show(mScene);
                 mScene.setOnSceneTouchListener(manager);
+                if (listener != null) {
+                    listener.onLoaded();
+                }
             }
         });
 
@@ -404,14 +408,18 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
 
     private void showTitleScreen() {
         showAds();
-        setCurrentManager(titleScreen);
-        runOnUiThread(new Runnable() {
+        setCurrentManager(titleScreen, new ManagerStateListener() {
             @Override
-            public void run() {
-                GoogleApiClient client = mGameHelper.getApiClient();
-                if (!client.isConnected()) {
-                    client.connect();
-                }
+            public void onLoaded() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        GoogleApiClient client = mGameHelper.getApiClient();
+                        if (!client.isConnected()) {
+                            client.connect();
+                        }
+                    }
+                });
             }
         });
 
@@ -441,7 +449,6 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
     }
 
 
-
     @Override
     public synchronized void onResumeGame() {
         com.facebook.AppEventsLogger.activateApp(this, getResources().getString(R.string.app_id));
@@ -464,7 +471,7 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
 
     @Override
     public synchronized void onPauseGame() {
-        if (getCurrentManager()!=null) {
+        if (getCurrentManager() != null) {
             getCurrentManager().onPauseGame();
         }
         super.onPauseGame();
