@@ -153,7 +153,9 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
 
         this.setContentView(toplayout, frameLayoutLayoutParams);
 
-        setupDroiuby();
+        if (BuildConfig.DEBUG) {
+            setupDroiuby();
+        }
     }
 
     public int getSurfaceWidth() {
@@ -188,9 +190,11 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
         if (params != null) {
             String bundleName = params.getString("bundle");
             String pageUrl = params.getString("pageUrl");
-            DroiubyHelperInterface helper = DroiubyBootstrap.getHelperInstance();
-            helper.runController(this, bundleName, pageUrl);
-            helper.setExecutionBundle(this, bundleName);
+            if (pageUrl!=null) {
+                DroiubyHelperInterface helper = DroiubyBootstrap.getHelperInstance();
+                helper.runController(this, bundleName, pageUrl);
+                helper.setExecutionBundle(this, bundleName);
+            }
         }
     }
 
