@@ -180,8 +180,9 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
         adView.setAdUnitId("ca-app-pub-5223989576875261/3336354885");
         AdRequest adRequest = new AdRequest.Builder()
                 .build();
-
-        adView.loadAd(adRequest);
+        if (!BuildConfig.DEBUG) {
+            adView.loadAd(adRequest);
+        }
         toplayout.addView(adView, relativeLayoutParams);
     }
 
