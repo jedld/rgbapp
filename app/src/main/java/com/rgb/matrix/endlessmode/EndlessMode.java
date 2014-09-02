@@ -178,7 +178,7 @@ public class EndlessMode extends GameManager implements GridEventListener {
     public void onScreenCaptureHighScore(final GameOver gameOverText, ScreenCapture screenCapture) {
         String filename = null;
         try {
-            Log.d(TAG,"onScreencapture " + context.getSurfaceWidth()+ " " + context.getSurfaceHeight());
+            Log.d(TAG, "onScreencapture " + context.getSurfaceWidth() + " " + context.getSurfaceHeight());
 
 
             filename = context.getCacheDir().getCanonicalPath() + File.separator + "rgb_" + System.currentTimeMillis() + ".bmp";
@@ -198,7 +198,8 @@ public class EndlessMode extends GameManager implements GridEventListener {
                         @Override
                         public void onScreenCaptureFailed(String pFilePath, Exception pException) {
                             Log.d(TAG, "Screencap failed " + pException.getMessage());
-                            pException.printStackTrace();;
+                            pException.printStackTrace();
+                            ;
                         }
                     }
             );
@@ -238,26 +239,29 @@ public class EndlessMode extends GameManager implements GridEventListener {
 
     @Override
     public void onLevelUp(int level) {
-        if (context.isSignedIn()) {
-            if (level == 10) {
-                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.level10_achieve));
-            }
+        String achieveCode = null;
+        if (level == 10) {
+            achieveCode = context.getResources().getString(R.string.level10_achieve);
+        }
 
-            if (level == 20) {
-                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.level20_achieve));
-            }
+        if (level == 20) {
+            achieveCode = context.getResources().getString(R.string.level20_achieve);
+        }
 
-            if (level == 30) {
-                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.level30_achieve));
-            }
+        if (level == 30) {
+            achieveCode = context.getResources().getString(R.string.level30_achieve);
+        }
 
-            if (level == 50) {
-                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.level50_achieve));
-            }
+        if (level == 50) {
+            achieveCode = context.getResources().getString(R.string.level50_achieve);
+        }
 
-            if (level == 100) {
-                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.level100_achieve));
-            }
+        if (level == 100) {
+            achieveCode = context.getResources().getString(R.string.level100_achieve);
+        }
+
+        if (achieveCode != null) {
+            Utils.unlock(context, achieveCode);
         }
     }
 

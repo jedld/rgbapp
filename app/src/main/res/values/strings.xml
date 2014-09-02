@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Spectrum</string>
+    <string name="app_name">Zantriz</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_intro_scene">RGB</string>
+    <string name="title_activity_intro_scene">Zantriz</string>
     <string name="app_id">825279700832890</string>
     <string name="gms_app_id">60364469998</string>
     <string name="leaderboard_id">CgkI7u2C8OABEAIQAQ</string>

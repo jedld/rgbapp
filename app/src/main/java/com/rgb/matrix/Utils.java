@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.dayosoft.tiletron.app.MainActivity;
+import com.dayosoft.tiletron.app.R;
 import com.dayosoft.tiletron.app.SoundWrapper;
 import com.facebook.RequestBatch;
+import com.google.android.gms.games.Games;
 import com.rgb.matrix.interfaces.BoundedEntity;
+import com.rgb.matrix.models.GameProgress;
 
 import org.andengine.entity.Entity;
 import org.andengine.entity.shape.RectangularShape;
@@ -19,8 +22,12 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.Constants;
 import org.andengine.util.color.Color;
+import org.json.JSONArray;
+import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by joseph on 5/1/14.
@@ -158,5 +165,40 @@ public class Utils {
     public static void setLocked(Context context, int nextLevel, boolean b) {
         SharedPreferences prefs = context.getSharedPreferences("progress", Context.MODE_PRIVATE);
         prefs.edit().putBoolean("level_" + nextLevel, b).commit();
+    }
+
+    public static void saveAchievementState(Context context,  HashSet<String> cachedAchievements) {
+        SharedPreferences prefs = context.getSharedPreferences("achievements", Context.MODE_PRIVATE);
+        JSONArray array = new JSONArray();
+        for(String achieve : cachedAchievements) {
+            array.put(achieve);
+        }
+        prefs.edit().putString("cached_achievements", array.toString()).commit();
+    }
+
+    public static ArrayList<String> restoreAchievementState(Context context) {
+        ArrayList<String> cachedAchievements = new ArrayList<String>();
+        SharedPreferences prefs = context.getSharedPreferences("achievements", Context.MODE_PRIVATE);
+        String achieveStr = prefs.getString("cached_achievements", null);
+        if (achieveStr!=null) {
+            try {
+                JSONArray jsonArray = new JSONArray(achieveStr);
+                for(int i = 0; i < jsonArray.length(); i++) {
+                    cachedAchievements.add(jsonArray.getString(i));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return cachedAchievements;
+    }
+
+    public static void unlock(MainActivity context, String achievementCode) {
+        GameProgress progress = GameProgress.getInstance(context);
+        if (context.isSignedIn()) {
+            Games.Achievements.unlock(context.getApiClient(), achievementCode);
+        } else {
+            progress.saveAchievement(achievementCode);
+        }
     }
 }

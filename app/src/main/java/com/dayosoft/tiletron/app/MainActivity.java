@@ -21,6 +21,7 @@ import com.rgb.matrix.endlessmode.EndlessMode;
 import com.rgb.matrix.interfaces.ManagerStateListener;
 import com.rgb.matrix.interfaces.OnSequenceFinished;
 import com.rgb.matrix.intro.LogoTiles;
+import com.rgb.matrix.models.GameProgress;
 import com.rgb.matrix.storymode.StoryMode;
 import com.rgb.matrix.title.TitleScreenManager;
 import com.sromku.simple.fb.Permission;
@@ -415,15 +416,7 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
         setCurrentManager(titleScreen, new ManagerStateListener() {
             @Override
             public void onLoaded() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        GoogleApiClient client = mGameHelper.getApiClient();
-                        if (!client.isConnected()) {
-                            client.connect();
-                        }
-                    }
-                });
+
             }
         });
 
@@ -614,12 +607,12 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
 
     @Override
     public void onSignInFailed() {
-
     }
 
     @Override
     public void onSignInSucceeded() {
-
+        GameProgress progress = GameProgress.getInstance(this);
+        progress.replayAchievements();
     }
 
     public boolean isSignedIn() {

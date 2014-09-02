@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Random;
 
 public class TitleScreen extends MenuEntity implements IOnSceneTouchListener {
-    private static final int TITLE_SCREEN_TILE_SIZE = 15, TITLE_SCREEN_PADDING = 4, TITLE_SCREEN_VERT_PADDING = 4;
+    private static final int TITLE_SCREEN_TILE_SIZE = 10, TITLE_SCREEN_PADDING = 4, TITLE_SCREEN_VERT_PADDING = 4;
     private static final float TITLE_LOGO_MARGIN_TOP = 200;
     private static final int TITLE_TILES_WIDTH = 10, TITLE_TILES_HEIGHT = 20, TITLE_TILES_SIZE = 54;
     private static final String TAG = TitleScreen.class.getName();
