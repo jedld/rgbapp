@@ -1128,14 +1128,17 @@ public class StoryMode extends GameManager implements GridEventListener{
 
     @Override
     public void onResumeGame() {
-
+        if (getMusicState() && currentTrack() != null && !currentTrack().isPlaying()) {
+            currentTrack().play();
+        }
     }
 
     @Override
     public void onPauseGame() {
-
+        if (currentTrack() != null && currentTrack().isPlaying()) {
+            currentTrack().pause();
+        }
     }
-
     @Override
     public boolean onBackPressed() {
         if (levelMenu.isVisible()) {
