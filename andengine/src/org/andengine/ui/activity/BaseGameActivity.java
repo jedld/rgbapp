@@ -298,13 +298,15 @@ public abstract class BaseGameActivity extends BaseActivity implements IGameInte
 			Debug.d(this.getClass().getSimpleName() + ".onDestroyResources" + " @(Thread: '" + Thread.currentThread().getName() + "')");
 		}
 
-		if(this.mEngine.getEngineOptions().getAudioOptions().needsMusic()) {
-			this.getMusicManager().releaseAll();
-		}
+        if (this.mEngine!=null) {
+            if (this.mEngine.getEngineOptions().getAudioOptions().needsMusic()) {
+                this.getMusicManager().releaseAll();
+            }
 
-		if(this.mEngine.getEngineOptions().getAudioOptions().needsSound()) {
-			this.getSoundManager().releaseAll();
-		}
+            if (this.mEngine.getEngineOptions().getAudioOptions().needsSound()) {
+                this.getSoundManager().releaseAll();
+            }
+        }
 	}
 
 	@Override
