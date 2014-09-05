@@ -195,7 +195,7 @@ public class Utils {
 
     public static void unlock(MainActivity context, String achievementCode) {
         GameProgress progress = GameProgress.getInstance(context);
-        if (context.isSignedIn()) {
+        if (context.getApiClient()!=null && context.getApiClient().isConnected() && context.isSignedIn()) {
             Games.Achievements.unlock(context.getApiClient(), achievementCode);
         } else {
             progress.saveAchievement(achievementCode);

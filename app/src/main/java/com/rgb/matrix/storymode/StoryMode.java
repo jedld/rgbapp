@@ -472,9 +472,7 @@ public class StoryMode extends GameManager implements GridEventListener{
 
                 } else if (op.opCode.equals("achievement")) {
                     String achievementId = op.opDetails.getString("id");
-                    if (context.isSignedIn()) {
-                        Games.Achievements.unlock(context.getApiClient(), achievementId);
-                    }
+                    Utils.unlock(context, achievementId);
                 } else if (op.opCode.equals("show_text")) {
 //                    final SoundWrapper typeSound = Utils.getInstance().getSound("typing");
 

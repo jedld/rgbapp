@@ -269,10 +269,10 @@ public class EndlessMode extends GameManager implements GridEventListener {
     public void onChainStarted(int multiplier) {
         if (context.isSignedIn()) {
             if (multiplier == 2) {
-                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.chain2x_achieve));
+                Utils.unlock(context, context.getResources().getString(R.string.chain2x_achieve));
             }
             if (multiplier == 5) {
-                Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.chain5x_achieve));
+                Utils.unlock(context,context.getResources().getString(R.string.chain5x_achieve));
             }
         }
     }
@@ -280,10 +280,10 @@ public class EndlessMode extends GameManager implements GridEventListener {
     @Override
     public void onAddScore(int score, int previous) {
         if (score + previous > 10000) {
-            Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.points10000_achieve));
+            Utils.unlock(context, context.getResources().getString(R.string.points10000_achieve));
         }
         if (score >= 100) {
-            Games.Achievements.unlock(context.getApiClient(), context.getResources().getString(R.string.uber_tile_achieve));
+            Utils.unlock(context, context.getResources().getString(R.string.uber_tile_achieve));
         }
     }
 
