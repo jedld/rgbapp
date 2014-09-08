@@ -14,7 +14,6 @@
         <activity
             android:name="com.dayosoft.tiletron.app.MainActivity"
             android:configChanges="orientation|locale"
-            android:stateNotNeeded="true"
             android:screenOrientation="portrait"
             android:label="@string/app_name" >
         </activity>
