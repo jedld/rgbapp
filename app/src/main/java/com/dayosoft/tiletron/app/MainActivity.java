@@ -562,10 +562,11 @@ public class MainActivity extends BaseGameActivity implements GameHelper.GameHel
 
     @Override
     public void onBackPressed() {
-        if (!getCurrentManager().onBackPressed()) {
+        if (getCurrentManager()!=null && !getCurrentManager().onBackPressed()) {
             popCurrentManager();
+        } else {
+            super.onBackPressed();
         }
-
     }
 
     public void popCurrentManager() {
